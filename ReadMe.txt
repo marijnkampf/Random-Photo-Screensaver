@@ -11,7 +11,8 @@ I've written and compiled RPS using Microsoft Visual C++ 2010 Express Edition (M
 
 It is strongly recommended to start with the complete archive which contains all dependencies, you can download this from:
 http://www.abscreensavers.com/abdownloads/rps/rps3.4full.zip
-For updates, you can simply update the RPS source files, which will be much much smaller.
+For updates, you can simply update the RPS source files, which will be much much smaller. The updates are published to 	https://github.com/marijnkampf/Visual-C---Random-Photo-Screensaver
+A zipfile of the latest version can downloaded from https://github.com/marijnkampf/Visual-C---Random-Photo-Screensaver/zipball/master
 
 It should be a matter of unzipping the files, opening rps\RPS3.0.sln in Visual C++ 2010 and compiling for the screensaver.
 

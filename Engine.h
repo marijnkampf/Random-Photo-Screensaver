@@ -16,14 +16,6 @@
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-/*
-	Changes:
-	20090420
-		Changed: Fixed multi display issues.
-		Updated: randomizeWallpaper();
-		By:			 MK.
-*/
-
 #pragma once
 
 #include "multiMonitor.h"
@@ -76,6 +68,16 @@ namespace nsRandomPhotoScreensaver {
 //	ref class Engine;
 //	gcroot<Engine^> engine;
 
+	public ref class MonitorIDFilename : public System::Object {
+	public:
+		int id;
+		String^ filename;
+		MonitorIDFilename(int id, String^ filename) {
+			this->id = id;
+			this->filename = filename;
+		}
+
+	};
 
 	public ref class Engine : public System::Windows::Forms::Form {
 	private:
@@ -110,6 +112,7 @@ namespace nsRandomPhotoScreensaver {
 					 array<TSaverMonitor^>^saverMonitors;
 
 	public: System::ComponentModel::BackgroundWorker^  bgwImageFolder;
+	//public: System::ComponentModel::BackgroundWorker^  deleteFile;
 	//private: System::ComponentModel::BackgroundWorker^ bwLoadImagesToMonitor;
 
 	public: void reReadImageFolder() {
@@ -181,6 +184,30 @@ namespace nsRandomPhotoScreensaver {
 		//int i = 1;	
 		if (config->action != saPreview) this->randomizeWallpaper();
 		if (config->action == saWallpaper) Application::Exit();
+	}
+
+	private: System::Void bgwDeleteFile_DoWork(System::Object^ sender, System::ComponentModel::DoWorkEventArgs^ e) {
+		int i = 0;
+		MonitorIDFilename^ monitorIDFilename = (MonitorIDFilename^)e->Argument;
+		int monitor = monitorIDFilename->id;
+		String^ file = monitorIDFilename->filename;
+		//String^ file = saverMonitors[monitor]->filename;
+		while(File::Exists(file) && (i < 100)) {
+			i++;
+			try {
+				Microsoft::VisualBasic::FileIO::FileSystem::DeleteFile(file,
+					Microsoft::VisualBasic::FileIO::UIOption::OnlyErrorDialogs,
+					Microsoft::VisualBasic::FileIO::RecycleOption::SendToRecycleBin,
+					Microsoft::VisualBasic::FileIO::UICancelOption::DoNothing);
+				if (saverMonitors[monitor]->filename == file) saverMonitors[monitor]->showMessage("Image deleted\n" + Path::GetFileName(file));
+			} catch(ArgumentNullException ^ex) {
+				saverMonitors[monitor]->showMessage("Nothing to delete");
+				i = 100;
+			} catch(Exception ^ex) {
+				if (saverMonitors[monitor]->filename == file) saverMonitors[monitor]->showMessage("Deleting\n"+Path::GetFileName(file));
+				Sleep(1000);
+			} 			
+		}
 	}
 
 	public: void getPowerOffSettings() {
@@ -428,12 +455,6 @@ namespace nsRandomPhotoScreensaver {
 
 */
 		void getImage(TDirection direction, bool random, int step, bool animated) {
-//			this->bwLoadImagesToMonitor->CancelAsync();
-
-	//		this->bwLoadImagesToMonitor = gcnew System::ComponentModel::BackroundWorker();
-
-
-
 			this->tImage->Enabled = false;
 			if (conductor->getImageCount() > 0) {
 				conductor->panorama = false;
@@ -971,16 +992,21 @@ namespace nsRandomPhotoScreensaver {
 				Application::Exit();
 			} break;
 			case Keys::Delete: {
-				//config->cbConfirmDelete->Checked = config->cbDeleteKey->Checked;
 				if (config->cbDeleteKey->Checked) {
 					for(int i=0; i < saverMonitors->Length; i++) {
-						Microsoft::VisualBasic::FileIO::UIOption uiOption;
-						if (config->cbConfirmDelete->Checked) uiOption = Microsoft::VisualBasic::FileIO::UIOption::AllDialogs;
-						else uiOption = Microsoft::VisualBasic::FileIO::UIOption::OnlyErrorDialogs;
-							Microsoft::VisualBasic::FileIO::FileSystem::DeleteFile(saverMonitors[i]->filename,
-								uiOption,
-								Microsoft::VisualBasic::FileIO::RecycleOption::SendToRecycleBin,
-								Microsoft::VisualBasic::FileIO::UICancelOption::DoNothing);
+						bool deleteFile = true;
+						if (config->cbConfirmDelete->Checked) {
+							::Cursor::Show();
+							if (::DialogResult::Yes == MessageBox::Show ("Are you sure you want to sent '" + Path::GetFileName(saverMonitors[i]->filename) + "' to the Recycle Bin?", "Confirm File Delete", MessageBoxButtons::YesNo, MessageBoxIcon::Exclamation)) {
+								deleteFile = true;
+							} else deleteFile = false;
+							::Cursor::Hide();
+						}
+						if (deleteFile) {
+							System::ComponentModel::BackgroundWorker^ bgwDeleteFile = gcnew BackgroundWorker();
+							bgwDeleteFile->DoWork += gcnew System::ComponentModel::DoWorkEventHandler(this, &Engine::bgwDeleteFile_DoWork);
+							bgwDeleteFile->RunWorkerAsync(gcnew MonitorIDFilename(i, saverMonitors[i]->filename));
+						}
 					}
 				}				
 			} break;

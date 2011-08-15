@@ -149,6 +149,7 @@ Numpad 9 \cf1 [A]\cf0\tab\tab Switch animated transitions \par
 C\tab\tab\tab Switch calendar(s) on/off\par
 Ctrl + C\tab\tab\tab Adjust calendar position(s)\par
 E\tab\tab\tab Locate image(s) in Windows Explorer\par
+Delete\tab\tab\tab Delete image(s) from folder\par
 \par
 \b Metadata (EXIF/IPTC/XMP)\b0\par
 N\tab\tab\tab Switch quick metadata onf/off\par
@@ -168,53 +169,33 @@ For more information visit http://www.abScreensavers.com\f1\fs20\par
 }</value>
   </data>
   <data name="rtbDonate.Text" xml:space="preserve">
-    <value>{\rtf1\adeflang1025\ansi\ansicpg1252\uc1\adeff0\deff0\stshfdbch0\stshfloch0\stshfhich0\stshfbi0\deflang2057\deflangfe2057{\fonttbl{\f0\froman\fcharset0\fprq2{\*\panose 02020603050405020304}Times New Roman;}{\f1\fswiss\fcharset0\fprq2{\*\panose 020b0604020202020204}Arial;}
-{\f36\fswiss\fcharset0\fprq2{\*\panose 020b0604030504040204}Tahoma;}{\f37\froman\fcharset238\fprq2 Times New Roman CE;}{\f38\froman\fcharset204\fprq2 Times New Roman Cyr;}{\f40\froman\fcharset161\fprq2 Times New Roman Greek;}
-{\f41\froman\fcharset162\fprq2 Times New Roman Tur;}{\f42\fbidi \froman\fcharset177\fprq2 Times New Roman (Hebrew);}{\f43\fbidi \froman\fcharset178\fprq2 Times New Roman (Arabic);}{\f44\froman\fcharset186\fprq2 Times New Roman Baltic;}
-{\f45\froman\fcharset163\fprq2 Times New Roman (Vietnamese);}{\f47\fswiss\fcharset238\fprq2 Arial CE;}{\f48\fswiss\fcharset204\fprq2 Arial Cyr;}{\f50\fswiss\fcharset161\fprq2 Arial Greek;}{\f51\fswiss\fcharset162\fprq2 Arial Tur;}
-{\f52\fbidi \fswiss\fcharset177\fprq2 Arial (Hebrew);}{\f53\fbidi \fswiss\fcharset178\fprq2 Arial (Arabic);}{\f54\fswiss\fcharset186\fprq2 Arial Baltic;}{\f55\fswiss\fcharset163\fprq2 Arial (Vietnamese);}{\f397\fswiss\fcharset238\fprq2 Tahoma CE;}
-{\f398\fswiss\fcharset204\fprq2 Tahoma Cyr;}{\f400\fswiss\fcharset161\fprq2 Tahoma Greek;}{\f401\fswiss\fcharset162\fprq2 Tahoma Tur;}{\f402\fbidi \fswiss\fcharset177\fprq2 Tahoma (Hebrew);}{\f403\fbidi \fswiss\fcharset178\fprq2 Tahoma (Arabic);}
-{\f404\fswiss\fcharset186\fprq2 Tahoma Baltic;}{\f405\fswiss\fcharset163\fprq2 Tahoma (Vietnamese);}{\f406\fswiss\fcharset222\fprq2 Tahoma (Thai);}}{\colortbl;\red0\green0\blue0;\red0\green0\blue255;\red0\green255\blue255;\red0\green255\blue0;
-\red255\green0\blue255;\red255\green0\blue0;\red255\green255\blue0;\red255\green255\blue255;\red0\green0\blue128;\red0\green128\blue128;\red0\green128\blue0;\red128\green0\blue128;\red128\green0\blue0;\red128\green128\blue0;\red128\green128\blue128;
-\red192\green192\blue192;}{\stylesheet{\ql \li0\ri0\widctlpar\wrapdefault\aspalpha\aspnum\faauto\adjustright\rin0\lin0\itap0 \rtlch\fcs1 \af0\afs24\alang1025 \ltrch\fcs0 \fs24\lang2057\langfe2057\cgrid\langnp2057\langfenp2057 \snext0 Normal;}{\*\cs10 
-\additive \ssemihidden Default Paragraph Font;}{\*
-\ts11\tsrowd\trftsWidthB3\trpaddl108\trpaddr108\trpaddfl3\trpaddft3\trpaddfb3\trpaddfr3\trcbpat1\trcfpat1\tblind0\tblindtype3\tscellwidthfts0\tsvertalt\tsbrdrt\tsbrdrl\tsbrdrb\tsbrdrr\tsbrdrdgl\tsbrdrdgr\tsbrdrh\tsbrdrv 
-\ql \li0\ri0\widctlpar\wrapdefault\aspalpha\aspnum\faauto\adjustright\rin0\lin0\itap0 \rtlch\fcs1 \af0\afs20 \ltrch\fcs0 \fs20\lang1024\langfe1024\cgrid\langnp1024\langfenp1024 \snext11 \ssemihidden Normal Table;}{\*\cs15 \additive \rtlch\fcs1 \af0 
-\ltrch\fcs0 \ul\cf2 \sbasedon10 \styrsid10556170 Hyperlink;}}{\*\latentstyles\lsdstimax156\lsdlockeddef0}{\*\rsidtbl \rsid2389886\rsid10556170\rsid12410459}{\*\generator Microsoft Word 11.0.0000;}{\info{\operator Marijn Kampf}
-{\creatim\yr2011\mo5\dy9\hr15\min18}{\revtim\yr2011\mo5\dy20\hr10\min13}{\version4}{\edmins3}{\nofpages1}{\nofwords187}{\nofchars1067}{\nofcharsws1252}{\vern24615}{\*\password 00000000}}{\*\xmlnstbl {\xmlns1 http://schemas.microsoft.com/office/word/2003/w
-ordml}{\xmlns2 urn:schemas-microsoft-com:office:smarttags}}\paperw12240\paperh15840\margl1800\margr1800\margt1440\margb1440\gutter0\ltrsect 
-\widowctrl\ftnbj\aenddoc\donotembedsysfont0\donotembedlingdata1\grfdocevents0\validatexml0\showplaceholdtext0\ignoremixedcontent0\saveinvalidxml0\showxmlerrors0\horzdoc\dghspace120\dgvspace120\dghorigin1701\dgvorigin1984\dghshow0\dgvshow3
-\jcompress\viewkind4\viewscale100\rsidroot2389886 \fet0{\*\wgrffmtfilter 013f}\ilfomacatclnup0\ltrpar \sectd \ltrsect\linex0\sectdefaultcl\sftnbj {\*\pnseclvl1\pnucrm\pnstart1\pnindent720\pnhang {\pntxta .}}{\*\pnseclvl2
-\pnucltr\pnstart1\pnindent720\pnhang {\pntxta .}}{\*\pnseclvl3\pndec\pnstart1\pnindent720\pnhang {\pntxta .}}{\*\pnseclvl4\pnlcltr\pnstart1\pnindent720\pnhang {\pntxta )}}{\*\pnseclvl5\pndec\pnstart1\pnindent720\pnhang {\pntxtb (}{\pntxta )}}{\*\pnseclvl6
-\pnlcltr\pnstart1\pnindent720\pnhang {\pntxtb (}{\pntxta )}}{\*\pnseclvl7\pnlcrm\pnstart1\pnindent720\pnhang {\pntxtb (}{\pntxta )}}{\*\pnseclvl8\pnlcltr\pnstart1\pnindent720\pnhang {\pntxtb (}{\pntxta )}}{\*\pnseclvl9\pnlcrm\pnstart1\pnindent720\pnhang 
-{\pntxtb (}{\pntxta )}}\pard\plain \ltrpar\ql \li0\ri0\nowidctlpar\wrapdefault\faauto\rin0\lin0\itap0 \rtlch\fcs1 \af0\afs24\alang1025 \ltrch\fcs0 \fs24\lang2057\langfe2057\cgrid\langnp2057\langfenp2057 {\rtlch\fcs1 \ab\af1 \ltrch\fcs0 
-\b\f1\cf6\insrsid2389886 Your donation supports further development!}{\rtlch\fcs1 \af1\afs17 \ltrch\fcs0 \f1\fs17\insrsid2389886 
-\par I've spend many hours working on the development of this screensaver. Please support further development by making a donation.
-\par 
-\par The suggested donation is USD 15, but feel free to donate more or less. Do remember you have to make a donation (even if it's just 1 cent) if you continue using the Random Photo Screensaver after your 30 day trial period ends.
-\par 
-\par }\pard \ltrpar\ql \li0\ri0\nowidctlpar\wrapdefault\faauto\rin0\lin0\itap0\pararsid12410459 {\rtlch\fcs1 \af1\afs17 \ltrch\fcs0 \f1\fs17\insrsid12410459 You can make a donation online http://www.abscreensavers.com/rps/paypal or you can send
- envelopes stuffed with piles of cash to:
-\par }\pard \ltrpar\ql \li0\ri0\nowidctlpar\wrapdefault\faauto\rin0\lin0\itap0 {\rtlch\fcs1 \ab\af1\afs17 \ltrch\fcs0 \b\f1\fs17\insrsid2389886 Marijn Kampf}{\rtlch\fcs1 \af1\afs17 \ltrch\fcs0 \f1\fs17\insrsid2389886 
-\par {\*\xmlopen\xmlns2{\factoidname Street}}{\*\xmlopen\xmlns2{\factoidname address}}10 Stradling Place{\*\xmlclose}{\*\xmlclose}
-\par Llantwit Major
-\par Vale of Glamorgan
-\par CF61 1TJ
-\par {\*\xmlopen\xmlns2{\factoidname country-region}}{\*\xmlopen\xmlns2{\factoidname place}}United Kingdom{\*\xmlclose}{\*\xmlclose}
-\par 
-\par Please check the postal address on http://www.abscreensavers.com/contact to ensure you send your letter to my current address.
-\par 
-\par }{\rtlch\fcs1 \ab\af1\afs17 \ltrch\fcs0 \b\f1\fs17\insrsid2389886 Thank you for your support!
-\par 
-\par }{\rtlch\fcs1 \af1\afs17 \ltrch\fcs0 \f1\fs17\insrsid2389886 You can download more screensavers at http://www.abscreensavers.com
-\par }{\rtlch\fcs1 \ab\af36\afs17 \ltrch\fcs0 \b\f36\fs17\insrsid10556170 
-\par }\pard \ltrpar\ql \li0\ri0\nowidctlpar\wrapdefault\faauto\rin0\lin0\itap0\pararsid10556170 {\rtlch\fcs1 \ab\af1 \ltrch\fcs0 \b\f1\insrsid10556170\charrsid10556170 Credits}{\rtlch\fcs1 \af1\afs17 \ltrch\fcs0 \f1\fs17\insrsid10556170\charrsid10556170 
-
-\par }{\rtlch\fcs1 \ab\af36\afs17 \ltrch\fcs0 \f36\fs17\insrsid10556170\charrsid3813039 RPS using the following components/external programs: 
-\par EXIF and IPTC data: Exiv2 by Andreas Huggel (http://www.exiv2.org)
-\par RAW files: UFRaw by Udi Fuchs (http://ufraw.sourceforge.net) which is using dcraw code by David J. Coffin (http://www.cybercom.net/~dcoffin/dcraw/)
-\par Other components used Expat (http://expat.sourceforge.net/) by James Clark and Zlib (http://zlib.net/) by Greg Roelofs/Mark Adler.}{\rtlch\fcs1 \ab\af36\afs17 \ltrch\fcs0 \f36\fs17\insrsid10556170\charrsid3813039 
-\par }}</value>
+    <value>{\rtf1\ansi\ansicpg1252\deff0\deflang2057\deflangfe2057{\fonttbl{\f0\fswiss\fprq2\fcharset0 Arial;}{\f1\fswiss\fprq2\fcharset0 Tahoma;}}
+{\colortbl ;\red255\green0\blue0;}
+{\*\generator Msftedit 5.41.15.1515;}\viewkind4\uc1\pard\nowidctlpar\cf1\b\f0\fs24 Your donation supports further development!\cf0\b0\fs17\par
+I've spend many hours working on the development of this screensaver. Please support further development by making a donation.\par
+\par
+The suggested donation is USD 15, but feel free to donate more or less. Do remember you have to make a donation (even if it's just 1 cent) if you continue using the Random Photo Screensaver after your 30 day trial period ends.\par
+\par
+You can make a donation online http://www.abscreensavers.com/rps/paypal or you can send envelopes stuffed with piles of cash to:\par
+\b Marijn Kampf\b0\par
+10 Stradling Place\par
+Llantwit Major\par
+Vale of Glamorgan\par
+CF61 1TJ\par
+United Kingdom\par
+\par
+Please check the postal address on http://www.abscreensavers.com/contact to ensure you send your letter to my current address.\par
+\par
+\b Thank you for your support!\par
+\par
+\b0 You can download more screensavers at http://www.abscreensavers.com\par
+\b\f1\par
+\f0\fs24 Credits\b0\fs17\par
+\f1 RPS using the following components/external programs: \par
+EXIF and IPTC data: Exiv2 by Andreas Huggel (http://www.exiv2.org)\par
+RAW files: UFRaw by Udi Fuchs (http://ufraw.sourceforge.net) which is using dcraw code by David J. Coffin (http://www.cybercom.net/~dcoffin/dcraw/)\par
+Other components used Expat (http://expat.sourceforge.net/) by James Clark and Zlib (http://zlib.net/) by Greg Roelofs/Mark Adler.\par
+}</value>
   </data>
   <data name="rtbDonation.Text" xml:space="preserve">
     <value>{\rtf1\ansi\ansicpg1252\deff0\deflang2057{\fonttbl{\f0\fswiss\fprq2\fcharset0 Arial;}{\f1\fnil\fcharset0 Tahoma;}}

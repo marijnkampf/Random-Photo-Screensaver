@@ -91,6 +91,7 @@ namespace nsRandomPhotoScreensaver {
 		bool monitorOffTimesOut;
 		int monitorOffTimeOut;
 		DateTime dtLastUserInteraction;
+		bool pausedAnimation;
 //		PowerChecker^ powerChecker;
 	//BufferedGraphicsContext^ context;
     //BufferedGraphics^ grafx;
@@ -370,6 +371,10 @@ namespace nsRandomPhotoScreensaver {
 			showMessageAll(s, tpMiddleMiddle);
 		}
 
+		void showNav(String^ s) {
+			showNav(s, 0);
+		}
+
 		void showNav(String^ s, int step) {
 			String^ t="";
 			if (step > 1) t = " x " + step;
@@ -478,6 +483,30 @@ namespace nsRandomPhotoScreensaver {
 			this->tImage->Enabled = true;
 			if (animated) this->startAnimation();
 			this->Refresh();
+		}
+
+		void pause() {
+			this->pausedAnimation = tAnimations->Enabled;
+			if (this->pausedAnimation) {
+				tAnimations->Enabled = false;
+			} else {
+				tImage->Enabled = false;
+			}
+			
+			showNav("||");
+		}
+
+		void resume() {
+			if (this->pausedAnimation) {
+				tAnimations->Enabled = true;
+			} else {
+				tImage->Enabled = true;
+			}
+			showNav(">");
+		}
+
+		bool paused() {
+			return !((tImage->Enabled == true) || (tAnimations->Enabled == true));
 		}
 
 		void randomizeWallpaper() {
@@ -856,14 +885,19 @@ namespace nsRandomPhotoScreensaver {
 				}
 			} break;
 			case Keys::P: {
-				if ((tImage->Enabled == true) || (tAnimations->Enabled == true)) {
+				if (this->paused()) {
+					this->resume();
+				} else {
+					this->pause();
+				}
+	/*			if ((tImage->Enabled == true) || (tAnimations->Enabled == true)) {
 					tImage->Enabled = false;
 					tAnimations->Enabled = false;
 					showNav("||", conductor->getStepSize(e));
 				} else {
 					tImage->Enabled = true;
 					showNav(">", conductor->getStepSize(e));
-				}
+				}*/
 			} break;
 			case Keys::NumPad4: case Keys::Left: {
 				showNav("<<", conductor->getStepSize(e));
@@ -993,21 +1027,26 @@ namespace nsRandomPhotoScreensaver {
 			} break;
 			case Keys::Delete: {
 				if (config->cbDeleteKey->Checked) {
+					this->pause();
 					for(int i=0; i < saverMonitors->Length; i++) {
 						bool deleteFile = true;
-						if (config->cbConfirmDelete->Checked) {
-							::Cursor::Show();
-							if (::DialogResult::Yes == MessageBox::Show ("Are you sure you want to sent '" + Path::GetFileName(saverMonitors[i]->filename) + "' to the Recycle Bin?", "Confirm File Delete", MessageBoxButtons::YesNo, MessageBoxIcon::Exclamation)) {
-								deleteFile = true;
-							} else deleteFile = false;
-							::Cursor::Hide();
-						}
-						if (deleteFile) {
-							System::ComponentModel::BackgroundWorker^ bgwDeleteFile = gcnew BackgroundWorker();
-							bgwDeleteFile->DoWork += gcnew System::ComponentModel::DoWorkEventHandler(this, &Engine::bgwDeleteFile_DoWork);
-							bgwDeleteFile->RunWorkerAsync(gcnew MonitorIDFilename(i, saverMonitors[i]->filename));
+						String^ filename = saverMonitors[i]->filename;
+						if (filename->Length > 0) {
+							if (config->cbConfirmDelete->Checked) {
+								::Cursor::Show();
+								if (::DialogResult::Yes == MessageBox::Show ("Are you sure you want to sent '" + Path::GetFileName(filename) + "' to the Recycle Bin?", "Confirm File Delete", MessageBoxButtons::YesNo, MessageBoxIcon::Exclamation)) {
+									deleteFile = true;
+								} else deleteFile = false;
+								::Cursor::Hide();
+							}
+							if (deleteFile) {
+								System::ComponentModel::BackgroundWorker^ bgwDeleteFile = gcnew BackgroundWorker();
+								bgwDeleteFile->DoWork += gcnew System::ComponentModel::DoWorkEventHandler(this, &Engine::bgwDeleteFile_DoWork);
+								bgwDeleteFile->RunWorkerAsync(gcnew MonitorIDFilename(i, filename));
+							}
 						}
 					}
+					this->resume();
 				}				
 			} break;
 			default:

@@ -489,6 +489,7 @@ namespace nsRandomPhotoScreensaver {
 			this->pausedAnimation = tAnimations->Enabled;
 			if (this->pausedAnimation) {
 				tAnimations->Enabled = false;
+				tImage->Enabled = false;
 			} else {
 				tImage->Enabled = false;
 			}
@@ -499,6 +500,7 @@ namespace nsRandomPhotoScreensaver {
 		void resume() {
 			if (this->pausedAnimation) {
 				tAnimations->Enabled = true;
+				//tImage->Enabled = true;
 			} else {
 				tImage->Enabled = true;
 			}

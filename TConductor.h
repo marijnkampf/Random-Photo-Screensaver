@@ -30,6 +30,12 @@ using namespace System::Drawing;
 using namespace System::Globalization;
 using namespace System::Text::RegularExpressions;
 
+
+// Add Interop.IWshRuntimeLibrary.dll to Resource Files in Solution Explorer
+//#using <Interop.IWshRuntimeLibrary.dll>
+//namespace Win32 { #include <shlobj.h> };
+
+
 #define reEXT "bmp|gif|jpeg|jpg|png"
 
 #define HISTORY_SIZE 1000
@@ -398,6 +404,17 @@ public ref class TConductor: public System::ComponentModel::Component {
 			}
 		}
 
+/*		public: String^ readShortcut(String^ filename) {
+			IShellLink *pShellLink;
+			::CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_ALL,
+												 IID_IShellLink, (void**)&pShellLink);
+			pShellLink->SetPath(szPath);  // Path to the object we are referring to
+
+			//IWshRuntimeLibrary::WshShell^ wshShell = gcnew IWshRuntimeLibrary::WshShell;
+			//IWshRuntimeLibrary::IWshShortcut^ shortcut = (IWshRuntimeLibrary::IWshShortcut^)wshShell->CreateShortcut(filename);
+			return shortcut->TargetPath;
+		}*/
+
 		public: int readImageFolder(String^ full_path, TImageType imageType) {
 			return this->readImageFolder(full_path, imageType, false);
 		}
@@ -420,6 +437,10 @@ public ref class TConductor: public System::ComponentModel::Component {
 				IEnumerator^ files = fileEntries->GetEnumerator();
 				while ( files->MoveNext() )	{
 					String^ filename = safe_cast<String^>(files->Current);
+					String^ ext = Path::GetExtension(filename)->ToLower();
+/*					if (Path::GetExtension(filename)->ToLower() == ".lnk") {
+						filename = this->readShortcut(filename);
+					}*/
 					// Check for hidden files
 					this->addImage(filename, imageType, checkDuplicates);
 

@@ -310,6 +310,9 @@ namespace nsRandomPhotoScreensaver {
 			bgwImageFolder->WorkerSupportsCancellation = true;
 			bgwImageFolder->RunWorkerAsync();
 
+			checkInitCalendars();
+			checkInitMetadata();
+
 			if (config->action != saWallpaper) {
 				this->mouseX = -1;
 				this->mouseY = -1;
@@ -323,15 +326,21 @@ namespace nsRandomPhotoScreensaver {
 
 				this->tClock->Enabled = true;
 				this->initialised = true;
-				Thread::Sleep(100); // Sleep for a bit to read a bigger range of images
+				
+				// Show first image as quickly as possible after short delay
+//				Thread::Sleep(100); // Sleep for a bit to read a bigger range of images
+				int i = tImage->Interval / 100;
+				// Sleep a bit longer if no images found yet. 
+				while ((conductor->getImageCount() == 0) && (i > 0)) {
+					Thread::Sleep(100); // Sleep for a bit longer if no images found
+					i--;
+				}
 				this->getImage(dNext, true, 1, config->cbAnimatedTransitions->Checked);
 			}
 			if ((config->action == saWallpaper) || (config->action == saPreview)) {
 				this->Opacity = 0;
 				this->Location = Point(this->Width * -1, this->Height * -1);
 			}
-			checkInitCalendars();
-			checkInitMetadata();
 
 			config->setEngine(this);
 		}

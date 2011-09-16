@@ -1202,8 +1202,8 @@ public: TRawCacheDimensions rawCacheDimensions;
 			this->label3->Text = L"Separate excluded subfolders with; For example:";
 			this->label15->AutoSize = true;
 			this->flowLayoutPanel4->SetFlowBreak(this->label15, true);
-			this->label15->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25, static_cast<System::Drawing::FontStyle>((System::Drawing::FontStyle::Bold | System::Drawing::FontStyle::Italic)), 
-				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
+			this->label15->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(0)));
 			this->label15->Location = System::Drawing::Point(235, 26);
 			this->label15->Margin = System::Windows::Forms::Padding(0);
 			this->label15->Name = L"label15";
@@ -1233,8 +1233,8 @@ public: TRawCacheDimensions rawCacheDimensions;
 			this->label47->Text = L"Regular expression to exclude files; For example:";
 			this->label48->AutoSize = true;
 			this->flowLayoutPanel4->SetFlowBreak(this->label48, true);
-			this->label48->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25, static_cast<System::Drawing::FontStyle>((System::Drawing::FontStyle::Bold | System::Drawing::FontStyle::Italic)), 
-				System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(0)));
+			this->label48->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(0)));
 			this->label48->Location = System::Drawing::Point(236, 65);
 			this->label48->Margin = System::Windows::Forms::Padding(0);
 			this->label48->Name = L"label48";
@@ -2344,7 +2344,7 @@ public: TRawCacheDimensions rawCacheDimensions;
 			this->lVersionInfo->Name = L"lVersionInfo";
 			this->lVersionInfo->Size = System::Drawing::Size(354, 26);
 			this->lVersionInfo->TabIndex = 3;
-			this->lVersionInfo->Text = L"Random Photo Screensaver 3.4.6";
+			this->lVersionInfo->Text = L"Random Photo Screensaver 3.4.7";
 			this->rtbDonation->BackColor = System::Drawing::SystemColors::Control;
 			this->rtbDonation->BorderStyle = System::Windows::Forms::BorderStyle::None;
 			this->rtbDonation->Cursor = System::Windows::Forms::Cursors::Hand;

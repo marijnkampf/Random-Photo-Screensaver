@@ -480,7 +480,9 @@ namespace nsRandomPhotoScreensaver {
 					} else {
 						int tryCount = 0;
 						while(!saverMonitors[i]->LoadMonitorImage(conductor->getImage(i, direction, random, step), conductor)
-							&& (tryCount++ < IMAGE_ERROR_RETRIES)) ;
+									&& (tryCount++ < IMAGE_ERROR_RETRIES) && (conductor->getImageCount() > 0)) {
+							
+						}
 					}
 					saverMonitors[i]->skipAnim = !animated;
 					//if (conductor->panorama) i = saverMonitors->Length;

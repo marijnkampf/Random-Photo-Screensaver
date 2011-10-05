@@ -145,6 +145,7 @@ public ref class TConductor: public System::ComponentModel::Component {
 		void removeImageFromList(String^ filename) {
 			int id = getImageId(filename);
 			if (id >= 0) this->images->RemoveAt(id);
+			if (this->fileCount > 0) this->fileCount--;			
 		}
 
 		int getImageId(String^ filename) {
@@ -269,6 +270,7 @@ public ref class TConductor: public System::ComponentModel::Component {
 			} else {
 				p->Start();
 				p->WaitForExit();
+				return File::Exists(jpg);
 			}
 			return true;
 		}
@@ -296,6 +298,7 @@ public ref class TConductor: public System::ComponentModel::Component {
 				}
 				//MessageBox::Show(ext, "Info", MessageBoxButtons::OK, MessageBoxIcon::Exclamation );
 			}
+			return "";
 		}
 
 		int getStepSize(System::Windows::Forms::KeyEventArgs^ e) {

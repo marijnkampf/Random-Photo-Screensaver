@@ -222,7 +222,7 @@ namespace nsRandomPhotoScreensaver {
 					}
 					if ((error != "") && (this->errorCount < MAXERRORCOUNT)) {
 						this->errorCount++;
-						sw->WriteLine(DateTime::Now.ToString() + "\t" + (m + 1).ToString() + "\t" + filename + "\t" + error);
+						sw->WriteLine(DateTime::Now.ToString() + "\t" + (m + 1).ToString() + "\t" + filename + "\t[" + error + "]");
 						if (this->errorCount == MAXERRORCOUNT) sw->WriteLine(DateTime::Now.ToString() + "\tMax error count (" + MAXERRORCOUNT + ") reached for monitor. No further errors recorded.");
 					} else {
 						sw->WriteLine(DateTime::Now.ToString() + "\t" + (m + 1).ToString() + "\t" + filename);
@@ -318,6 +318,11 @@ namespace nsRandomPhotoScreensaver {
 			//if (filename == "") return false;
 			this->showFilename = this->filename = filename;
 			this->rawCachedFilename = conductor->checkImageCache(filename);
+			if (this->rawCachedFilename == "") {
+				conductor->removeImageFromList(filename);
+				debugFile(this->id, filename, "No output from RAW conversion");
+				return false;
+			}
 			if (config->cbHideTopLevelFolders->Checked) {
 				array<String^> ^folders = config->tbFolder->Text->Split(';');
 				for each(String^ folder in folders) {

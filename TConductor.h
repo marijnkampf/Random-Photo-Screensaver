@@ -286,8 +286,15 @@ public ref class TConductor: public System::ComponentModel::Component {
 					newFilename = Path::ChangeExtension(filename, ".jpg");
 				} else {
 					newFilename = Path::ChangeExtension(config->addTrailingSlash(config->tbRawCacheFolder->Text) + filename->Replace(":", ""), ".jpg");
-					if (!Directory::Exists(Path::GetDirectoryName(newFilename))) {
-						Directory::CreateDirectory(Path::GetDirectoryName(newFilename));
+					if (newFilename->Length > MAX_PATH) {
+						newFilename = newFilename->Substring(0, MAX_PATH - 5) + ".jpg";
+					}
+					try {
+						if (!Directory::Exists(Path::GetDirectoryName(newFilename))) {
+							Directory::CreateDirectory(Path::GetDirectoryName(newFilename));
+						}
+					} catch(Exception ^ex) {
+						return newFilename;
 					}
 				}
 

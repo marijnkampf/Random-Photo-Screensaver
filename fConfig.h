@@ -2344,7 +2344,7 @@ public: TRawCacheDimensions rawCacheDimensions;
 			this->lVersionInfo->Name = L"lVersionInfo";
 			this->lVersionInfo->Size = System::Drawing::Size(354, 26);
 			this->lVersionInfo->TabIndex = 3;
-			this->lVersionInfo->Text = L"Random Photo Screensaver 3.4.8";
+			this->lVersionInfo->Text = L"Random Photo Screensaver 3.4.9";
 			this->rtbDonation->BackColor = System::Drawing::SystemColors::Control;
 			this->rtbDonation->BorderStyle = System::Windows::Forms::BorderStyle::None;
 			this->rtbDonation->Cursor = System::Windows::Forms::Cursors::Hand;

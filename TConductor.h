@@ -41,6 +41,7 @@ using namespace System::Text::RegularExpressions;
 #define HISTORY_SIZE 1000
 #define NO_IMAGE -1
 #define NOT_FOUND -1
+#define PREVIEW_MAX_FILECOUNT 10
 namespace nsRandomPhotoScreensaver {
 enum TDirection {dCurrent, dNext, dPrev};
 enum TImageType { itNormal, itWallpaper };
@@ -434,7 +435,14 @@ public ref class TConductor: public System::ComponentModel::Component {
 			//unsigned int extpos;
 
 			// Cut short amount of images read when in preview
-			if ((config->action==saPreview) && (this->fileCount > 100)) return -1;
+			String^ action;
+			if (config->action==saPreview) action = "saPreview";
+			else action = "NOT saPreview";
+//			System::Windows::Forms::MessageBox::Show ("action:" + action +"\nsaPreview Filecount " +this->fileCount + " PREVIEW_MAX_FILECOUNT " + PREVIEW_MAX_FILECOUNT + full_path);
+			if ((config->action==saPreview) && (this->fileCount > PREVIEW_MAX_FILECOUNT)) {
+	//			System::Windows::Forms::MessageBox::Show ("\nsaPreview Filecount > " + PREVIEW_MAX_FILECOUNT + full_path);
+					return -1;
+			}
 
 			if ( !Directory::Exists( full_path ) ) {
 				System::Windows::Forms::MessageBox::Show ("\nPhoto Folder Not found: " + full_path);
@@ -455,7 +463,7 @@ public ref class TConductor: public System::ComponentModel::Component {
 					this->addImage(filename, imageType, checkDuplicates);
 
 					// Cut short amount of images read when in preview
-					if ((config->action==saPreview) && (this->fileCount > 100)) return -1;
+					if ((config->action==saPreview) && (this->fileCount > PREVIEW_MAX_FILECOUNT)) return -1;
 				}
 
 				// Recurse into subdirectories of this directory.
@@ -469,10 +477,11 @@ public ref class TConductor: public System::ComponentModel::Component {
 
 					if ((!config->cbHideHidden->Checked) || ((config->cbHideHidden->Checked) && (File::GetAttributes(subdirectory) & FileAttributes::Hidden) != FileAttributes::Hidden)) {
 						if (config->tbExcludeSubfolders->Text->IndexOf(subdirname) == -1) {
-							readImageFolder(subdirectory, imageType, checkDuplicates);
-							
 							// Cut short amount of images read when in preview
-							if ((config->action==saPreview) && (this->fileCount > 100)) return -1;
+							if ((config->action==saPreview) && (this->fileCount > PREVIEW_MAX_FILECOUNT)) return -1;
+							else readImageFolder(subdirectory, imageType, checkDuplicates);
+							
+							//if ((config->action==saPreview) && (this->fileCount > PREVIEW_MAX_FILECOUNT)) return -1;
 						}
 					}
 				}

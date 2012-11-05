@@ -170,7 +170,7 @@ namespace nsRandomPhotoScreensaver {
 			for each(String^ folder in folders) {
 				if (folder->Length > 2) {
 					if (bgwImageFolder->CancellationPending) return;
-					this->watchFolder(folder, this->watchers[i]);
+					if ((config->action != saPreview) && (config->cbWatchFolders->Checked)) this->watchFolder(folder, this->watchers[i]);
 					conductor->readImageFolder(folder, itNormal);
 				}
 				// Start monitoring folder
@@ -712,6 +712,8 @@ namespace nsRandomPhotoScreensaver {
 			this->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &Engine::Engine_Paint);
 			this->DoubleClick += gcnew System::EventHandler(this, &Engine::Engine_DoubleClick);
 			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &Engine::Engine_KeyDown);
+			this->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &Engine::Engine_MouseClick);
+			this->MouseDoubleClick += gcnew System::Windows::Forms::MouseEventHandler(this, &Engine::Engine_MouseDoubleClick);
 			this->MouseEnter += gcnew System::EventHandler(this, &Engine::Engine_MouseEnter);
 			this->MouseLeave += gcnew System::EventHandler(this, &Engine::Engine_MouseLeave);
 			this->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &Engine::Engine_MouseMove);
@@ -766,12 +768,35 @@ namespace nsRandomPhotoScreensaver {
 
 	private: System::Void Engine_Load(System::Object^  sender, System::EventArgs^  e) {
 	}
+
+	private: System::Void Engine_MouseClick(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+		if (config->cbMouseNav->Checked) {
+			TDirection direction = dNext;
+			switch(e->Button) {
+				case System::Windows::Forms::MouseButtons::Left:
+					direction = dNext;
+					showNav(">>", 1);
+				break;
+				case System::Windows::Forms::MouseButtons::Right:
+					direction = dPrev;
+					showNav("<<", 1);
+				break;
+			}
+			this->getImage(direction, true, 1, false);
+		} else {
+			Application::Exit();
+		}
+	}
+	private: System::Void Engine_MouseDoubleClick(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) {
+		//this->nextImage();
+	}
+					 
 	private: System::Void Engine_Click(System::Object^  sender, System::EventArgs^  e) {
 		//this->nextImage();
-	  Application::Exit();
+//	  Application::Exit();
 	}
 	private: System::Void Engine_DoubleClick(System::Object^  sender, System::EventArgs^  e) {
-		Application::Exit();
+		//Application::Exit();
 	}
 	private: System::Void Engine_Resize(System::Object^  sender, System::EventArgs^  e) {
 		config->desktop = initMonitors(config->action==saPreview, hdcPreview);

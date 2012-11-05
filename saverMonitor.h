@@ -323,13 +323,25 @@ namespace nsRandomPhotoScreensaver {
 				debugFile(this->id, filename, "No output from RAW conversion");
 				return false;
 			}
-			if (config->cbHideTopLevelFolders->Checked) {
+
+
+			if ((!config->lviFileInfoBase->Checked) || (!config->lviFileInfoSubFolders->Checked) || (!config->lviFileInfoFilename->Checked) || (!config->lviFileInfoExt->Checked)) {
+				array<String^> ^parts = gcnew array<String^>(4);
+
 				array<String^> ^folders = config->tbFolder->Text->Split(';');
 				for each(String^ folder in folders) {
 					if (this->filename->StartsWith(folder)) {
-						this->showFilename = this->filename->Substring(folder->Length)->Trim('\\');
+						parts[0] = folder->Trim('\\') + "\\";
+						parts[1] = Path::GetDirectoryName(this->filename->Substring(folder->Length))->Trim('\\') + "\\";
 					}
-				}
+				}				
+				parts[2] = Path::GetFileNameWithoutExtension(filename);
+				parts[3] = Path::GetExtension(filename);
+				this->showFilename = "";
+				if (config->lviFileInfoBase->Checked) this->showFilename += parts[0];
+				if (config->lviFileInfoSubFolders->Checked) this->showFilename += parts[1];
+				if (config->lviFileInfoFilename->Checked) this->showFilename += parts[2];
+				if (config->lviFileInfoExt->Checked) this->showFilename += parts[3];
 			}
 				
 			if (this->rawCachedFilename != filename) debugFile(this->id, filename + " <" + this->rawCachedFilename + ">");

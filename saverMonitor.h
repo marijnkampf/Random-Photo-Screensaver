@@ -342,6 +342,7 @@ namespace nsRandomPhotoScreensaver {
 				if (config->lviFileInfoSubFolders->Checked) this->showFilename += parts[1];
 				if (config->lviFileInfoFilename->Checked) this->showFilename += parts[2];
 				if (config->lviFileInfoExt->Checked) this->showFilename += parts[3];
+				this->showFilename = this->showFilename->Trim('\\');
 			}
 				
 			if (this->rawCachedFilename != filename) debugFile(this->id, filename + " <" + this->rawCachedFilename + ">");

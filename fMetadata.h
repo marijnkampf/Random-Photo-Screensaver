@@ -39,7 +39,8 @@ namespace nsRandomPhotoScreensaver {
 	/// </summary>
 	public ref class fMetadata : public System::Windows::Forms::Form
 	{
-	private: 
+	private:
+		fConfig^ config;
  	  int id;
 		TMetaTemplate^ metaTemplate;
 	  int monitor;
@@ -56,6 +57,7 @@ namespace nsRandomPhotoScreensaver {
 
 	public:
 		fMetadata(int id, String^ mdTemplate, String^ mdStylesheet, int monitor) {
+			config = gConfig;
 			this->id = id;
 			this->monitor = monitor;
 			InitializeComponent();

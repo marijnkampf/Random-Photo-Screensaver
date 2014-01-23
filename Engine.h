@@ -31,9 +31,12 @@
 //extern Engine engine;
 
 extern std::vector<TMultiMonitor*> multiMonitors;
+extern gcroot<nsRandomPhotoScreensaver::fConfig^> gConfig;
 
 namespace nsRandomPhotoScreensaver {
-//	#define SVCNAME TEXT("SvcName")
+//	ref class fConfig;
+
+	//	#define SVCNAME TEXT("SvcName")
 	#define CM_ALL -1
 	#define IMAGE_ERROR_RETRIES 10
 	#define GUID_MONITOR_POWER_ON "02731015-4510-4526-99e6-e5a17ebd1aea"
@@ -48,6 +51,7 @@ namespace nsRandomPhotoScreensaver {
 	using namespace System::Windows::Forms;
 	using namespace System::Data;
 	using namespace System::Drawing;
+	using namespace System::Drawing::Imaging;
 	using namespace System::Text::RegularExpressions;
 	using namespace System::IO;
 	using namespace System::Threading;
@@ -55,6 +59,19 @@ namespace nsRandomPhotoScreensaver {
 	using namespace Microsoft::Win32;
 	using namespace System::Security::Permissions;
 
+	static ImageCodecInfo^ GetEncoderInfo( String^ mimeType )
+	{
+		 int j;
+		 array<ImageCodecInfo^>^encoders;
+		 encoders = ImageCodecInfo::GetImageEncoders();
+		 for ( j = 0; j < encoders->Length; ++j )
+		 {
+				if ( encoders[ j ]->MimeType == mimeType )
+							return encoders[ j ];
+
+		 }
+		 return nullptr;
+	}
 	/// <summary>
 	/// Summary for Engine
 	///
@@ -85,6 +102,7 @@ namespace nsRandomPhotoScreensaver {
 		array<fCalendar^>^ calendars;
 		array<fMetadata^>^ metadata;
 		bool calendarsNotDefined;
+		bool skipRandomWallpaper;
 		bool metadataNotDefined;
 		int mouseX, mouseY;
 		bool firstTick;
@@ -92,6 +110,7 @@ namespace nsRandomPhotoScreensaver {
 		int monitorOffTimeOut;
 		DateTime dtLastUserInteraction;
 		bool pausedAnimation;
+		fConfig^ config;
 //		PowerChecker^ powerChecker;
 	//BufferedGraphicsContext^ context;
     //BufferedGraphics^ grafx;
@@ -158,7 +177,7 @@ namespace nsRandomPhotoScreensaver {
 		return 0;
 	}
 
-	private: System::Void DoWorkImageFolder(System::Object^  sender, System::ComponentModel::DoWorkEventArgs^  e) {
+	private: System::Void DoWorkImageFolder(System::Object^ sender, System::ComponentModel::DoWorkEventArgs^  e) {
 		//ReadDirectorychangesW(
 
 		if ((config->action != saWallpaper) || (!config->cbWallpaperFolder->Checked)) {
@@ -183,7 +202,7 @@ namespace nsRandomPhotoScreensaver {
 			if (config->action != saWallpaper) conductor->setInitialImage();
 		}
 		//int i = 1;	
-		if (config->action != saPreview) this->randomizeWallpaper();
+		if ((config->action != saPreview) && (!this->skipRandomWallpaper)) this->randomizeWallpaper();
 		if (config->action == saWallpaper) Application::Exit();
 	}
 
@@ -284,10 +303,12 @@ namespace nsRandomPhotoScreensaver {
 
 	public:
 		Engine(array<IntPtr>^ hdcPreview) {
+			config = gConfig;
 			getPowerOffSettings();
 			firstTick = true;
 			calendarsNotDefined = true;
 			metadataNotDefined = true;
+			skipRandomWallpaper = false;
 			this->hdcPreview = hdcPreview;
 			this->SetStyle( static_cast<ControlStyles>(ControlStyles::AllPaintingInWmPaint | ControlStyles::UserPaint), true );
 //			context = BufferedGraphicsManager::Current;
@@ -370,14 +391,24 @@ namespace nsRandomPhotoScreensaver {
 			}
 		}
 
-		void showMessageAll(String^ s, TTextPosition position) {
+		void showMessage(String^ s, int monitor) {
+			showMessage(s, monitor, gcnew TTextPosition(TTextPosition::THorizontal::tpXMiddle, TTextPosition::TVertical::tpYMiddle));
+		}
+
+		void showMessage(String^ s, int monitor, TTextPosition^ position) {
+			for(int i=0; i < saverMonitors->Length; i++) {
+				if ((monitor == 0) || (monitor == i)) saverMonitors[i]->showMessage(s, position);				
+			}
+		}
+
+		void showMessageAll(String^ s, TTextPosition^ position) {
 			for(int i=0; i < saverMonitors->Length; i++) {
 				saverMonitors[i]->showMessage(s, position);				
 			}
 		}
 
 		void showMessageAll(String^ s) {
-			showMessageAll(s, tpMiddleMiddle);
+			showMessageAll(s, gcnew TTextPosition(TTextPosition::THorizontal::tpXMiddle, TTextPosition::TVertical::tpYMiddle));
 		}
 
 		void showNav(String^ s) {
@@ -387,7 +418,7 @@ namespace nsRandomPhotoScreensaver {
 		void showNav(String^ s, int step) {
 			String^ t="";
 			if (step > 1) t = " x " + step;
-			showMessageAll(s+t, tpBottomMiddle);
+			showMessageAll(s+t, gcnew TTextPosition(TTextPosition::THorizontal::tpXMiddle, TTextPosition::TVertical::tpYBottom));
 			this->Refresh();
 		}
 
@@ -504,22 +535,110 @@ namespace nsRandomPhotoScreensaver {
 			} else {
 				tImage->Enabled = false;
 			}
-			
 			showNav("||");
 		}
 
 		void resume() {
+			this->resume(true);
+		}
+
+		void resume(bool showNavOnContinue) {
 			if (this->pausedAnimation) {
 				tAnimations->Enabled = true;
 				//tImage->Enabled = true;
 			} else {
 				tImage->Enabled = true;
 			}
-			showNav(">");
+			if (showNavOnContinue) showNav(">");
 		}
 
 		bool paused() {
 			return !((tImage->Enabled == true) || (tAnimations->Enabled == true));
+		}
+
+		Graphics^ initWallpaper(Bitmap^& bmpWallpaper) {
+			bmpWallpaper = gcnew Bitmap(this->Width, this->Height);
+/*			if (File::Exists(config->getAppDataFolder() + "rpsBackground.bmp")) {
+				bmpWallpaper = gcnew Bitmap(config->getAppDataFolder() + "rpsBackground.bmp");
+			}// else {
+			//}*/
+			Graphics^ g = Graphics::FromImage(bmpWallpaper);
+			Brush^ fill = gcnew SolidBrush(config->btnWallpaperBackgroundColor->BackColor);			
+			g->FillRectangle( fill, 0, 0, this->Width, this->Height );
+			return g;
+		}
+
+		bool addImageToWallpaper(Graphics^& g, String^ filename, int monitor, bool& panoramaStretch) {
+			Image^ image;
+			bool readSuccess = false;
+			try {
+				image = Image::FromFile(filename);
+				readSuccess = true;
+			} catch(OutOfMemoryException ^ex) {
+				conductor->removeImageFromList(filename);
+				readSuccess = false;
+			} catch(FileNotFoundException ^ex) {
+				conductor->removeImageFromList(filename);
+				readSuccess = false;
+			}
+
+			if (readSuccess) {
+				config->desktopWallpaper[monitor] = filename;
+			} else return false;
+
+			float ratio = (float)this->Width / (float)this->Height;
+			float imgRatio = (float)image->Width / (float)image->Height;
+			RectangleF targetRect;
+			if ((config->cbPanoramaStretch->Checked) && (monitor == 0) && (imgRatio >= ratio)) {
+				panoramaStretch = true;
+				targetRect = config->desktop;
+			} else {
+				targetRect = this->saverMonitors[monitor]->getRect();
+			}
+
+			GraphicsUnit units = GraphicsUnit::Pixel;
+			RectangleF rect = TSaverMonitor::scaleRect(image->GetBounds(units), targetRect, config->cbWallpaperStretch->Checked, config->cbRandomPositions->Checked);
+			 
+			g->SmoothingMode = System::Drawing::Drawing2D::SmoothingMode::HighQuality;
+			g->InterpolationMode = System::Drawing::Drawing2D::InterpolationMode::Bicubic;
+							
+			if ((panoramaStretch) && (rect.X < 0)) {				
+				RectangleF rectBackground = image->GetBounds(units);
+				float split = Math::Abs(targetRect.Left) / targetRect.Width;
+				RectangleF rightDest = RectangleF(0, rect.Y, int(rect.Width*(double)split), rect.Height);
+				RectangleF rightSource = RectangleF(rectBackground.Width*split, rectBackground.Top, rectBackground.Width-(rectBackground.Width*split), rectBackground.Height);
+				g->DrawImage(image, rightDest, rightSource, GraphicsUnit::Pixel);
+				RectangleF leftDest = RectangleF(int(rect.Width*(double)split), rect.Y, int(rect.Width*(double)(1-split)), rect.Height);
+				RectangleF leftSource = RectangleF(0, rectBackground.Top, rectBackground.Width-(rectBackground.Width*(1-split)), rectBackground.Height);
+				g->DrawImage(image, leftDest, leftSource, GraphicsUnit::Pixel);
+			} else {
+				g->DrawImage(image, rect);
+			}
+			if (config->cbWallpaperFilenames->Checked) {
+				saverMonitors[0]->WriteText(g, this->saverMonitors[monitor]->filename, this->saverMonitors[monitor]->getRect(), gcnew TTextPosition(TTextPosition::THorizontal::tpXLeft, TTextPosition::TVertical::tpYTop), config->btnWallpaperFilenameFont->Font, config->btnWallpaperFilenameFont->ForeColor, true, this->saverMonitors[monitor]->getRect().Location);
+			}
+			return true;
+		}
+
+		void saveWallpaperToFile(Bitmap^& bmpWallpaper) {
+			String^ appDataFolder = config->getAppDataFolder();
+			if (!Directory::Exists(appDataFolder)) {
+				if (::DialogResult::OK == MessageBox::Show ("Create folder '" + appDataFolder + "'?\n\nOk: Creates folder for backgrounds\nCancel doesn't change background image.", "Installation folder for background not found!", MessageBoxButtons::OKCancel, MessageBoxIcon::Exclamation)) {
+					Directory::CreateDirectory(appDataFolder);
+				} else return;
+			}
+			try {
+				bmpWallpaper->Save(appDataFolder + "rpsBackground.bmp", Drawing::Imaging::ImageFormat::Bmp);
+			} catch(Exception^ ex) {
+  		}
+
+			if (File::Exists(appDataFolder + "rpsBackground.bmp")) {
+				RegistryKey^ rk = Registry::CurrentUser->OpenSubKey("Control Panel\\desktop", true);
+				rk->SetValue("Wallpaper", appDataFolder + "rpsBackground.bmp");
+				rk->SetValue("TileWallpaper", "1");
+				//if (config->wallpaperFrequency != wfDaily) 
+					SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, NULL, SPIF_SENDWININICHANGE);
+			}
 		}
 
 		void randomizeWallpaper() {
@@ -533,84 +652,21 @@ namespace nsRandomPhotoScreensaver {
 				}
 
 				if (count > 0) {
-					Bitmap^ bmpWallpaper = gcnew Bitmap(this->Width, this->Height);
-					Brush^ backgroundBrush = gcnew SolidBrush(config->btnWallpaperBackgroundColor->BackColor);
-					Graphics ^ g = Graphics::FromImage(bmpWallpaper);
+					Bitmap^ bmpWallpaper;
+					Graphics^ g = initWallpaper(bmpWallpaper);
 
-					float ratio = (float)this->Width / (float)this->Height;
-
-					g->FillRectangle( backgroundBrush, 0, 0, this->Width, this->Height );
-					bool panoramaStrecth = false;
+					bool panoramaStretch = false;
 						
 					for(int i=0; i < saverMonitors->Length; i++) {
 						String^ filename;
-						Image^ image;
-						
 						bool readSuccess = false;
 						int tryCount = 0;
 						while(!readSuccess && (tryCount++ < IMAGE_ERROR_RETRIES)) {
-							try {
-								filename = conductor->getRandomWallpaper();//safe_cast<String^>(this->images[rnd->Next(this->images->Count)]);
-								image = Image::FromFile(filename);
-								readSuccess = true;
-							} catch(OutOfMemoryException ^ex) {
-								conductor->removeImageFromList(filename);
-								readSuccess = false;
-							} catch(FileNotFoundException ^ex) {
-								conductor->removeImageFromList(filename);
-								readSuccess = false;
-							}
+							readSuccess = addImageToWallpaper(g, conductor->getRandomWallpaper(), i, panoramaStretch);
 						}
-
-						if (readSuccess) {
-							float imgRatio = (float)image->Width / (float)image->Height;
-							RectangleF targetRect;
-							if ((config->cbPanoramaStretch->Checked) && (i == 0) && (imgRatio >= ratio)) {
-								panoramaStrecth = true;
-								targetRect = config->desktop;
-							} else {
-								targetRect = this->saverMonitors[i]->getRect();
-							}
-
-							GraphicsUnit units = GraphicsUnit::Pixel;
-							RectangleF rect = TSaverMonitor::scaleRect(image->GetBounds(units), targetRect, config->cbWallpaperStretch->Checked, config->cbRandomPositions->Checked);
-			 
-							g->SmoothingMode = System::Drawing::Drawing2D::SmoothingMode::HighQuality;
-							g->InterpolationMode = System::Drawing::Drawing2D::InterpolationMode::Bicubic;
-							
-							if ((panoramaStrecth) && (rect.X < 0)) {				
-								RectangleF rectBackground = image->GetBounds(units);
-								float split = Math::Abs(targetRect.Left) / targetRect.Width;
-								RectangleF rightDest = RectangleF(0, rect.Y, int(rect.Width*(double)split), rect.Height);
-								RectangleF rightSource = RectangleF(rectBackground.Width*split, rectBackground.Top, rectBackground.Width-(rectBackground.Width*split), rectBackground.Height);
-								g->DrawImage(image, rightDest, rightSource, GraphicsUnit::Pixel);
-								RectangleF leftDest = RectangleF(int(rect.Width*(double)split), rect.Y, int(rect.Width*(double)(1-split)), rect.Height);
-								RectangleF leftSource = RectangleF(0, rectBackground.Top, rectBackground.Width-(rectBackground.Width*(1-split)), rectBackground.Height);
-								g->DrawImage(image, leftDest, leftSource, GraphicsUnit::Pixel);
-							} else {
-								g->DrawImage(image, rect);
-							}
-							if (config->cbWallpaperFilenames->Checked) {
-								saverMonitors[0]->WriteText(g, filename, this->saverMonitors[i]->getRect(), tpTopLeft, config->btnWallpaperFilenameFont->Font, config->btnWallpaperFilenameFont->ForeColor, true, this->saverMonitors[i]->getRect().Location);
-							}
-						}
-						if (panoramaStrecth) i = saverMonitors->Length+1;
+						if (panoramaStretch) i = saverMonitors->Length+1;
 					}
-					
-					if (!Directory::Exists(config->appDataFolder)) {
-						if (::DialogResult::OK == MessageBox::Show ("Create folder '" + config->appDataFolder + "'?\n\nOk: Creates folder for backgrounds\nCancel exits screensaver without changing background image.", "Installation folder for background not found!", MessageBoxButtons::OKCancel, MessageBoxIcon::Exclamation)) {
-							Directory::CreateDirectory(config->appDataFolder);
-						} else return;
-					}
-
-					bmpWallpaper->Save(config->appDataFolder + "rpsBackground.bmp", Drawing::Imaging::ImageFormat::Bmp);
-
-					if (File::Exists(config->appDataFolder + "rpsBackground.bmp")) {
-						RegistryKey^ rk = Registry::CurrentUser->OpenSubKey("Control Panel\\desktop", true);
-						rk->SetValue("Wallpaper", config->appDataFolder + "rpsBackground.bmp");
-						rk->SetValue("TileWallpaper", "1");
-						if (config->wallpaperFrequency != wfDaily) SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, NULL, SPIF_SENDWININICHANGE);
-					}
+					saveWallpaperToFile(bmpWallpaper);
 				}
 			}
 		}
@@ -894,6 +950,35 @@ namespace nsRandomPhotoScreensaver {
 				}
 				showMessageAll(s);
 			} break;
+			case Keys::W: {
+				this->skipRandomWallpaper = true;
+				this->pause();
+
+				Bitmap^ bmpWallpaper;
+				Graphics^ g = initWallpaper(bmpWallpaper);		
+
+				bool panoramaStretch = false;
+				
+				for(int i=0; i < saverMonitors->Length; i++) {
+//					Image^ image;
+					bool readSuccess = false;
+					bool skip = true;
+					String^ filename = config->desktopWallpaper[i];
+					int cm; if (currentMonitor == CM_ALL) cm = i; else cm = currentMonitor;
+					if ((cm == i) && ((!conductor->panorama) || (conductor->panorama && (i == 0)))) {
+						skip = false;
+						filename = this->saverMonitors[i]->filename;
+					}
+					if (this->addImageToWallpaper(g, filename, i, panoramaStretch)) {
+						showMessage("Saving wallpaper", i);
+					} else {
+						if (!skip) showMessage("Error whilst generating wallpaper", i);
+					}
+					if (panoramaStretch) i = saverMonitors->Length+1;
+				}
+				saveWallpaperToFile(bmpWallpaper);
+				this->resume(false);
+			} break;
 			case Keys::S: {
 				::Cursor::Show();
 				//config->reInitMouseMovement = true;
@@ -1060,6 +1145,51 @@ namespace nsRandomPhotoScreensaver {
 			case Keys::I: {
 				System::Windows::Forms::MessageBox::Show("Found " + conductor->getImageCount().ToString("N0") + " images in " + conductor->getDirCount().ToString("N0") + " folders.");
 			} break;
+			case Keys::OemOpenBrackets:
+			case Keys::OemCloseBrackets: 
+			case Keys::Oemplus: {
+				this->pause();
+				String^ target;
+				if (config->cbSaveJPEGRotation->Checked) target = "\n\r(Saving to file)";
+				else target = "\n\r(Display only)";
+				for(int i=0; i < saverMonitors->Length; i++) {
+					int cm; if (currentMonitor == CM_ALL) cm = i; else cm = currentMonitor;
+					if ((cm == i) && ((!conductor->panorama) || (conductor->panorama && (i == 0)))) {
+						RotateFlipType angle;
+					  switch (e->KeyCode) {
+							case Keys::OemOpenBrackets: 
+								angle = RotateFlipType::Rotate270FlipNone; 
+								saverMonitors[i]->showMessage("Rotating 270° clock wise" + target);
+							break;
+							case Keys::OemCloseBrackets: 
+								angle = RotateFlipType::Rotate90FlipNone; 
+								saverMonitors[i]->showMessage("Rotating 90° clock wise" + target);
+							break;
+							case Keys::Oemplus:
+								angle = RotateFlipType::Rotate180FlipNone;
+								saverMonitors[i]->showMessage("Upside down you're turning me" + target);
+							break;
+						}
+						saverMonitors[cm]->RotateImage(angle, conductor);
+						bool backupped = true; // default to true to enable save without backup option
+						if (config->cbSaveJPEGRotation->Checked) {
+							if (config->cbBackupJPEGRotation->Checked) {
+								if (!File::Exists(saverMonitors[i]->filename + ".bak")) {
+									try {
+										File::Copy(saverMonitors[i]->filename, (saverMonitors[i]->filename + ".bak"), false);
+									} catch(Exception ^ex) {
+										backupped = false;
+									}
+								}
+							}
+							if (backupped) {
+								saverMonitors[cm]->metadata->writeExifImageOrientation(angle);
+							}
+						}
+					}
+				}
+				this->resume(false);
+			} break;
 			case Keys::Escape: {
 				Application::Exit();
 			} break;
@@ -1067,20 +1197,23 @@ namespace nsRandomPhotoScreensaver {
 				if (config->cbDeleteKey->Checked) {
 					this->pause();
 					for(int i=0; i < saverMonitors->Length; i++) {
-						bool deleteFile = true;
-						String^ filename = saverMonitors[i]->filename;
-						if (filename->Length > 0) {
-							if (config->cbConfirmDelete->Checked) {
-								::Cursor::Show();
-								if (::DialogResult::Yes == MessageBox::Show ("Are you sure you want to sent '" + Path::GetFileName(filename) + "' to the Recycle Bin?", "Confirm File Delete", MessageBoxButtons::YesNo, MessageBoxIcon::Exclamation)) {
-									deleteFile = true;
-								} else deleteFile = false;
-								::Cursor::Hide();
-							}
-							if (deleteFile) {
-								System::ComponentModel::BackgroundWorker^ bgwDeleteFile = gcnew BackgroundWorker();
-								bgwDeleteFile->DoWork += gcnew System::ComponentModel::DoWorkEventHandler(this, &Engine::bgwDeleteFile_DoWork);
-								bgwDeleteFile->RunWorkerAsync(gcnew MonitorIDFilename(i, filename));
+						int cm; if (currentMonitor == CM_ALL) cm = i; else cm = currentMonitor;
+						if ((cm == i) && ((!conductor->panorama) || (conductor->panorama && (i == 0)))) {
+							bool deleteFile = true;
+							String^ filename = saverMonitors[i]->filename;
+							if (filename->Length > 0) {
+								if (config->cbConfirmDelete->Checked) {
+									::Cursor::Show();
+									if (::DialogResult::Yes == MessageBox::Show ("Are you sure you want to sent '" + Path::GetFileName(filename) + "' to the Recycle Bin?", "Confirm File Delete", MessageBoxButtons::YesNo, MessageBoxIcon::Exclamation)) {
+										deleteFile = true;
+									} else deleteFile = false;
+									::Cursor::Hide();
+								}
+								if (deleteFile) {
+									System::ComponentModel::BackgroundWorker^ bgwDeleteFile = gcnew BackgroundWorker();
+									bgwDeleteFile->DoWork += gcnew System::ComponentModel::DoWorkEventHandler(this, &Engine::bgwDeleteFile_DoWork);
+									bgwDeleteFile->RunWorkerAsync(gcnew MonitorIDFilename(i, filename));
+								}
 							}
 						}
 					}

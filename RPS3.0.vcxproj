@@ -143,6 +143,10 @@
       </PrecompiledHeader>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</CompileAsManaged>
     </ClCompile>
+    <ClCompile Include="TTextPosition.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="autoRegistry.h" />
@@ -165,6 +169,7 @@
     <ClInclude Include="TAnimator.h" />
     <ClInclude Include="TConductor.h" />
     <ClInclude Include="TMetadata.h" />
+    <ClInclude Include="TTextPosition.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.ico" />

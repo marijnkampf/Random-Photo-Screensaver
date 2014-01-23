@@ -30,8 +30,11 @@
 #include "vcclr.h"
 
 std::vector<TMultiMonitor*> multiMonitors;
+//	ref class fConfig;
+
 using namespace System::Diagnostics;
 using namespace nsRandomPhotoScreensaver;
+gcroot<fConfig^> gConfig;
 
 bool singleProcess() {
 	Process^ currentProcess = Process::GetCurrentProcess();
@@ -111,13 +114,14 @@ int main(array<System::String ^> ^args) {
 	}
 
 	// Initialise global object config
-	config = gcnew fConfig(action, hwnd);
+	gConfig = gcnew fConfig(action, hwnd);
 //	engine = gcnew Engine(hwnd);
 
-	switch (config->action) {
+	switch (gConfig->action) {
 		Engine^ engine;
 		case saWallpaper: case saRun:
 			engine = gcnew Engine(hwnd);
+
 			Application::Run(engine);
 		break;
 		case saPreview:
@@ -130,7 +134,7 @@ int main(array<System::String ^> ^args) {
 			}
 		break;
 		default:
-			Application::Run(config);
+			Application::Run(gConfig);
 		break;
 	} 
 	return 0;

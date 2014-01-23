@@ -24,6 +24,7 @@
 //#include "Engine.h"
 #include "autoRegistry.h"
 #include "multiMonitor.h"
+#include "TTextPosition.h"
 
 using namespace System;
 using namespace System::ComponentModel;
@@ -40,6 +41,12 @@ extern std::vector<TMultiMonitor*> multiMonitors;
 #define METADATASUBFOLDER "metadata"
 
 namespace nsRandomPhotoScreensaver {
+//	ref class fConfig;
+//	ref class Engine;
+//	gcroot<fConfig^> config;
+//	ref class fConfig;
+//	extern gcroot<fConfig^> config;
+
 	enum TClockType { ctNone, ctCurrent, ctRunning };
 	enum TWallpaperFrequency { wfNone, wfDaily, wfRun };
 	enum TRawCacheDimensions { rcdMonitor, rcdOriginal };
@@ -47,6 +54,16 @@ namespace nsRandomPhotoScreensaver {
 	enum TCalendarsVisibility { cvNone, cvLow, cvHigh };
 	enum TConfigAction { caNone, caFoldersChanged };
 
+//	enum THorizontal { tpXNone, tpXLeft, tpXMiddle, tpXRight, tpXRandom };
+	//enum TVertical { tpYNone, tpYTop, tpYMiddle, tpYBottom, tpYRandom };
+
+
+	/*
+	enum TTextPosition {tpNone, 
+											tpTopLeft, tpTopMiddle, tpTopRight, 
+											tpMiddleLeft, tpMiddleMiddle, tpMiddleRight, 
+											tpBottomLeft, tpBottomMiddle, tpBottomRight, tpRandom };
+											*/
 	/// <summary>
 	/// Summary for fConfig
 	///
@@ -60,10 +77,6 @@ namespace nsRandomPhotoScreensaver {
 	// Global version of configuration
 	//ref class fConfig;
 	//gcroot<fConfig^> config;
-
-	ref class fConfig;
-//	ref class Engine;
-	gcroot<fConfig^> config;
 
 	public ref class fConfig : public System::Windows::Forms::Form {
 	private:
@@ -90,12 +103,15 @@ namespace nsRandomPhotoScreensaver {
 		array<TClockType> ^clockType;
 		array<Drawing::Font^> ^clockFont;
 		array<Drawing::Color> ^clockColor;
-		array<bool> ^clockRandomPosition;
+		array<TTextPosition^> ^clockPos;
+		array<int> ^clockPosHorz;
+		array<int> ^clockPosVert;
 		array<String^> ^lastFile;
+		array<String^> ^desktopWallpaper;
 		Drawing::Font^ filenameFont;
 		String^ appDataFolder;
 		bool engineRunning;
-		TScreensaverAction action;
+	public: TScreensaverAction action;
 		DateTime dtStart;
 		String^ _tbFolderValue;
 
@@ -111,7 +127,9 @@ private: System::Windows::Forms::Button^  btnRawCacheFolder;
 private: System::Windows::Forms::Button^  btnRawConverter;
 private: System::Windows::Forms::Button^  btnWallpaperFolder;
 private: System::Windows::Forms::Button^  button1;
-private: System::Windows::Forms::CheckBox^  cbRandomClock;
+
+	private: 
+
 private: System::Windows::Forms::ComboBox^  cbClockMonitor;
 private: System::Windows::Forms::ComboBox^  cbQuickSimpleMetadata;
 private: System::Windows::Forms::FlowLayoutPanel^  flowLayoutPanel1;
@@ -261,7 +279,7 @@ public: System::Windows::Forms::CheckBox^  cbStretchSmall;
 public: System::Windows::Forms::CheckBox^  cbWallpaperFilenames;
 public: System::Windows::Forms::CheckBox^  cbWallpaperFolder;
 public: System::Windows::Forms::CheckBox^  cbWallpaperStretch;
-public: System::Windows::Forms::ComboBox^  cbLocation;
+
 public: System::Windows::Forms::ComboBox^  cbMouseSensitivity;
 public: System::Windows::Forms::NumericUpDown^  nupFolderInfoTimeout;
 public: System::Windows::Forms::NumericUpDown^  nupMetadata;
@@ -292,8 +310,21 @@ public: System::Windows::Forms::ListViewItem^  lviFileInfoFilename;
 private: System::Windows::Forms::ListView^  lvFilenameInfoParts;
 public: System::Windows::Forms::ListViewItem^  lviFileInfoExt;
 public: System::Windows::Forms::CheckBox^  cbWatchFolders;
-	//public: System::Windows::Forms::CheckBox^  cbWatchFolders;
+private: System::Windows::Forms::Label^  label12;
+public: System::Windows::Forms::ComboBox^  cbClockPosHorz;
+private: System::Windows::Forms::Label^  label50;
+public: System::Windows::Forms::ComboBox^  cbClockPosVert;
+public: System::Windows::Forms::ComboBox^  cbMetaDataVert;
+public: System::Windows::Forms::ComboBox^  cbMetaDataHorz;
+private: System::Windows::Forms::TabPage^  tpMore;
 public: 
+private: System::Windows::Forms::Label^  label59;
+private: System::Windows::Forms::Label^  label58;
+private: System::Windows::Forms::Label^  label57;
+private: System::Windows::Forms::Label^  label56;
+public: System::Windows::Forms::CheckBox^  cbBackupJPEGRotation;
+public: System::Windows::Forms::CheckBox^  cbSaveJPEGRotation;
+private: System::Windows::Forms::Label^  label60;
 public: System::Windows::Forms::CheckBox^  cbMouseNav;
 
 	public:
@@ -324,12 +355,18 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->lvFilenameInfoParts->Items->AddRange(gcnew cli::array< System::Windows::Forms::ListViewItem^  >(4) 
 				{lviFileInfoBase, lviFileInfoSubFolders, lviFileInfoFilename, lviFileInfoExt});
 
+			this->nupTimeout->Maximum = Decimal::MaxValue;
+			this->nupFolderInfoTimeout->Maximum = Decimal::MaxValue;
+
 			desktop = initMonitors(action==saPreview, hwnd);
 			clockType = gcnew array<TClockType>(multiMonitors.size());
 			clockFont = gcnew array<Drawing::Font^>(multiMonitors.size());
 			clockColor = gcnew array<Drawing::Color>(multiMonitors.size());
-			clockRandomPosition = gcnew array<bool>(multiMonitors.size());
+			clockPos = gcnew array<TTextPosition^>(multiMonitors.size());
+			clockPosHorz = gcnew array<int>(multiMonitors.size());
+			clockPosVert = gcnew array<int>(multiMonitors.size());
 			lastFile = gcnew array<String^>(multiMonitors.size());
+			desktopWallpaper = gcnew array<String^>(multiMonitors.size());
 
 			screenMaxDimension = 0;
 			/* Init clock monitor control box */
@@ -339,7 +376,12 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 				this->clockType[i] = ctNone;
 				this->clockFont[i] = btnClockFont->Font;
 				this->clockColor[i] = btnClockFont->ForeColor;
+				if (cbClockPosHorz->SelectedIndex != -1) this->clockPosHorz[i] = cbClockPosHorz->SelectedIndex;
+				else this->clockPosHorz[i] = 2;
+				if (cbClockPosVert->SelectedIndex != -1) this->clockPosVert[i] = cbClockPosVert->SelectedIndex;
+				else this->clockPosVert[i] = 0;
 				lastFile[i] = "";
+				desktopWallpaper[i] = "";
 			}
 			cbClockMonitor->SelectedIndex = 0;
 			oldClockMonitorIndex = cbClockMonitor->SelectedIndex;
@@ -383,6 +425,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 
 			this->updateHistoryValues();
 			this->UpdateBtnFilenameInfoParts();
+//			this->cbRandomClock_CheckedChanged();
 
 			const String^ cSimpleMetadataFile = "simpleMetadata.txt";
 			if (File::Exists(addTrailingSlash(appDataFolder) + cSimpleMetadataFile)) {
@@ -393,6 +436,15 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 				cbQuickSimpleMetadata->SelectedIndex = 0;
 			} else cbQuickSimpleMetadata->Visible = false;
 			lvFilenameInfoParts->Visible = false;
+		}
+
+		public: String^ getAppDataFolder() {
+			this->initAppDataFolder();
+			return this->appDataFolder;
+		}
+
+		public: TScreensaverAction getAction() {
+			return this->action;
 		}
 
 		public: void setEngine(System::Windows::Forms::Form^ engine) {
@@ -472,6 +524,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			btnClockFont->BackColor = adjustToBrightness(btnClockFont->ForeColor);
 			btnClockFont->Font = this->clockFont[m];
 
+			cbClockPosHorz->SelectedIndex = this->clockPosHorz[m];
+			cbClockPosVert->SelectedIndex = this->clockPosVert[m];
+
 			/* ClockType */
 			switch(clockType[m]) {
 				case ctNone: rbClockNo->Checked = true; break;
@@ -483,6 +538,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 		void getClockSettingsFromBtn(int m) {
 			this->clockColor[m] = btnClockFont->ForeColor;
 			this->clockFont[m] = btnClockFont->Font;
+
+			if (cbClockPosHorz->SelectedIndex != -1) this->clockPosHorz[m] = cbClockPosHorz->SelectedIndex;
+			if (cbClockPosVert->SelectedIndex != -1) this->clockPosVert[m] = cbClockPosVert->SelectedIndex;
 
 			/* ClockType */
 			if (rbClockNo->Checked) clockType[m] = ctNone;
@@ -525,6 +583,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// Save last file settings for ordered display
 			for(unsigned int i = 0; i < multiMonitors.size(); i++) {
 				this->lastFile[i] = (String^)pRegistry->Add(save, lastFile[i], "lastFile"+(i+1), lastFile[i]);
+				this->desktopWallpaper[i] = (String^)pRegistry->Add(save, desktopWallpaper[i], "desktopWallpaper"+(i+1), desktopWallpaper[i]);
 			}
 			TransferForms(save);
 		}
@@ -584,13 +643,18 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 
 			cbWatchFolders->Checked = pRegistry->Add(save, cbWatchFolders->Checked, "watchFolders", cbWatchFolders->Checked);
 
+			/* More */
+			cbSaveJPEGRotation->Checked = pRegistry->Add(save, cbSaveJPEGRotation->Checked, "saveJPEGRotation", cbSaveJPEGRotation->Checked);
+			cbBackupJPEGRotation->Checked = pRegistry->Add(save, cbBackupJPEGRotation->Checked, "backupJPEGRotation", cbBackupJPEGRotation->Checked);
+
 			/* Clock */
 			//if (!save) getClockSettingsFromBtn(cbClockMonitor->SelectedIndex);
 			for(unsigned int i = 0; i < multiMonitors.size(); i++) {
 				this->clockColor[i] = System::Drawing::Color::FromArgb((int)pRegistry->Add(save, this->clockColor[i].ToArgb(), "clockFontColor" + (i+1), this->clockColor[i].ToArgb()));
 				this->clockFont[i] = pRegistry->Add(save, this->clockFont[i], "clockFont"+(i+1), this->clockFont[i]);
 				this->clockType[i] = (TClockType)pRegistry->Add(save, (int)this->clockType[i], "clockType" + (i+1), (int)this->clockType[i]);
-				this->clockRandomPosition[i] = pRegistry->Add(save, (int)this->clockRandomPosition[i], "clockRandomPosition" + (i+1), (int)this->clockRandomPosition[i]);
+				this->clockPosHorz[i] = (int)pRegistry->Add(save, (int)this->clockPosHorz[i], "clockPositionHorizontal" + (i+1), this->clockPosHorz[i]);
+				this->clockPosVert[i] = (int)pRegistry->Add(save, (int)this->clockPosVert[i], "clockPositionVertical" + (i+1), this->clockPosVert[i]);
 			}
 			//getClockSettingsFromBtn(cbClockMonitor->SelectedIndex);
 			setClockSettingsToBtn(cbClockMonitor->SelectedIndex);
@@ -687,7 +751,8 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 
 			/* Simple Metadata */
 			cbMetadata->Checked = pRegistry->Add(save, cbMetadata->Checked, "metadata", cbMetadata->Checked);
-			cbLocation->Text = (String^)pRegistry->Add(save, cbLocation->SelectedItem, "simple Metadata Location", "Bottom Right");
+			cbMetaDataHorz->Text = (String^)pRegistry->Add(save, cbMetaDataHorz->SelectedItem, "simple Metadata Location Horz", "Right");
+			cbMetaDataVert->Text = (String^)pRegistry->Add(save, cbMetaDataVert->SelectedItem, "simple Metadata Location Vert", "Bottom");
 			tbSimpleMetadata->Text = (String^)pRegistry->Add(save, tbSimpleMetadata->Text, "simple Metadata", "<#{Exif.Photo.ExposureTime} |#><# {Exif.Photo.FNumber} |#><# {Exif.Photo.ISOSpeedRatings} |#> <# {[Exif\\.Photo\\.FocalLength.*]}#>");
 
 			btnMetadataFont->ForeColor = System::Drawing::Color::FromArgb((int)pRegistry->Add(save, btnMetadataFont->ForeColor.ToArgb(), "metadataFontColor", btnMetadataFont->ForeColor.ToArgb()));
@@ -704,7 +769,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 		}
 	public:
 		void configChanged() {
-			if (config->changed) {
+			if (this->changed) {
 			//if (System::Windows::Forms::MessageBox::Show ("Save changes?", "Configuration settings changed", MessageBoxButtons::YesNo, MessageBoxIcon::Question) == ::DialogResult::Yes) {
 				Transfer(true);
 			//}
@@ -780,6 +845,11 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbCloseAfterImageLocate = (gcnew System::Windows::Forms::CheckBox());
 			this->cbDeleteKey = (gcnew System::Windows::Forms::CheckBox());
 			this->cbConfirmDelete = (gcnew System::Windows::Forms::CheckBox());
+			this->tpMore = (gcnew System::Windows::Forms::TabPage());
+			this->cbBackupJPEGRotation = (gcnew System::Windows::Forms::CheckBox());
+			this->cbSaveJPEGRotation = (gcnew System::Windows::Forms::CheckBox());
+			this->label60 = (gcnew System::Windows::Forms::Label());
+			this->label59 = (gcnew System::Windows::Forms::Label());
 			this->tpClock = (gcnew System::Windows::Forms::TabPage());
 			this->flowLayoutPanel2 = (gcnew System::Windows::Forms::FlowLayoutPanel());
 			this->lMonitors = (gcnew System::Windows::Forms::Label());
@@ -792,7 +862,10 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnClockFont = (gcnew System::Windows::Forms::Button());
 			this->label49 = (gcnew System::Windows::Forms::Label());
 			this->tbClockMask = (gcnew System::Windows::Forms::TextBox());
-			this->cbRandomClock = (gcnew System::Windows::Forms::CheckBox());
+			this->label12 = (gcnew System::Windows::Forms::Label());
+			this->cbClockPosHorz = (gcnew System::Windows::Forms::ComboBox());
+			this->label50 = (gcnew System::Windows::Forms::Label());
+			this->cbClockPosVert = (gcnew System::Windows::Forms::ComboBox());
 			this->tpCalendar = (gcnew System::Windows::Forms::TabPage());
 			this->lCalendarInfo = (gcnew System::Windows::Forms::Label());
 			this->flowLayoutPanel5 = (gcnew System::Windows::Forms::FlowLayoutPanel());
@@ -893,9 +966,13 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label39 = (gcnew System::Windows::Forms::Label());
 			this->label40 = (gcnew System::Windows::Forms::Label());
 			this->panel2 = (gcnew System::Windows::Forms::Panel());
+			this->label58 = (gcnew System::Windows::Forms::Label());
+			this->label57 = (gcnew System::Windows::Forms::Label());
+			this->label56 = (gcnew System::Windows::Forms::Label());
+			this->cbMetaDataVert = (gcnew System::Windows::Forms::ComboBox());
+			this->cbMetaDataHorz = (gcnew System::Windows::Forms::ComboBox());
 			this->btnMetadataFont = (gcnew System::Windows::Forms::Button());
 			this->cbQuickSimpleMetadata = (gcnew System::Windows::Forms::ComboBox());
-			this->cbLocation = (gcnew System::Windows::Forms::ComboBox());
 			this->tbSimpleMetadata = (gcnew System::Windows::Forms::TextBox());
 			this->cbMetadata = (gcnew System::Windows::Forms::CheckBox());
 			this->tpSupport = (gcnew System::Windows::Forms::TabPage());
@@ -915,6 +992,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tpAdvanced->SuspendLayout();
 			this->flowLayoutPanel4->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->nupFolderInfoTimeout))->BeginInit();
+			this->tpMore->SuspendLayout();
 			this->tpClock->SuspendLayout();
 			this->flowLayoutPanel2->SuspendLayout();
 			this->groupBox2->SuspendLayout();
@@ -949,8 +1027,12 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tpSupport->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox1))->BeginInit();
 			this->SuspendLayout();
+			// 
+			// tcTabs
+			// 
 			this->tcTabs->Controls->Add(this->tpGeneral);
 			this->tcTabs->Controls->Add(this->tpAdvanced);
+			this->tcTabs->Controls->Add(this->tpMore);
 			this->tcTabs->Controls->Add(this->tpClock);
 			this->tcTabs->Controls->Add(this->tpCalendar);
 			this->tcTabs->Controls->Add(this->tpWallpaper);
@@ -966,6 +1048,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tcTabs->SelectedIndex = 0;
 			this->tcTabs->Size = System::Drawing::Size(356, 357);
 			this->tcTabs->TabIndex = 0;
+			// 
+			// tpGeneral
+			// 
 			this->tpGeneral->Controls->Add(this->lvFilenameInfoParts);
 			this->tpGeneral->Controls->Add(this->groupBox1);
 			this->tpGeneral->Controls->Add(this->flowLayoutPanel1);
@@ -976,6 +1061,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tpGeneral->TabIndex = 0;
 			this->tpGeneral->Text = L"General";
 			this->tpGeneral->UseVisualStyleBackColor = true;
+			// 
+			// lvFilenameInfoParts
+			// 
 			this->lvFilenameInfoParts->Activation = System::Windows::Forms::ItemActivation::OneClick;
 			this->lvFilenameInfoParts->Alignment = System::Windows::Forms::ListViewAlignment::Left;
 			this->lvFilenameInfoParts->AutoArrange = false;
@@ -990,6 +1078,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->lvFilenameInfoParts->TabIndex = 19;
 			this->lvFilenameInfoParts->UseCompatibleStateImageBehavior = false;
 			this->lvFilenameInfoParts->View = System::Windows::Forms::View::List;
+			// 
+			// groupBox1
+			// 
 			this->groupBox1->Controls->Add(this->btnFilenameInfoParts);
 			this->groupBox1->Controls->Add(this->btnFilenamefont);
 			this->groupBox1->Controls->Add(this->label7);
@@ -1001,6 +1092,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->groupBox1->TabIndex = 1;
 			this->groupBox1->TabStop = false;
 			this->groupBox1->Text = L"Filenames";
+			// 
+			// btnFilenameInfoParts
+			// 
 			this->btnFilenameInfoParts->Location = System::Drawing::Point(119, 10);
 			this->btnFilenameInfoParts->Name = L"btnFilenameInfoParts";
 			this->btnFilenameInfoParts->Size = System::Drawing::Size(217, 22);
@@ -1008,7 +1102,10 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnFilenameInfoParts->Text = L"c:\\my photos\\example\\img_0001.jpg";
 			this->btnFilenameInfoParts->UseVisualStyleBackColor = true;
 			this->btnFilenameInfoParts->Click += gcnew System::EventHandler(this, &fConfig::btnFilenameInfoParts_Click);
-			this->btnFilenamefont->Font = (gcnew System::Drawing::Font(L"Arial", 8.25, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
+			// 
+			// btnFilenamefont
+			// 
+			this->btnFilenamefont->Font = (gcnew System::Drawing::Font(L"Arial", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0), true));
 			this->btnFilenamefont->ForeColor = System::Drawing::Color::White;
 			this->btnFilenamefont->Location = System::Drawing::Point(83, 33);
@@ -1018,12 +1115,18 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnFilenamefont->Text = L"Select Font";
 			this->btnFilenamefont->UseVisualStyleBackColor = true;
 			this->btnFilenamefont->Click += gcnew System::EventHandler(this, &fConfig::btnFilenamefont_Click);
+			// 
+			// label7
+			// 
 			this->label7->AutoSize = true;
 			this->label7->Location = System::Drawing::Point(4, 42);
 			this->label7->Name = L"label7";
 			this->label7->Size = System::Drawing::Size(73, 13);
 			this->label7->TabIndex = 13;
 			this->label7->Text = L"Filename font:";
+			// 
+			// cbDisplayFilenames
+			// 
 			this->cbDisplayFilenames->AutoSize = true;
 			this->cbDisplayFilenames->Checked = true;
 			this->cbDisplayFilenames->CheckState = System::Windows::Forms::CheckState::Checked;
@@ -1034,6 +1137,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbDisplayFilenames->TabIndex = 12;
 			this->cbDisplayFilenames->Text = L"Display filename(s)";
 			this->cbDisplayFilenames->UseVisualStyleBackColor = true;
+			// 
+			// flowLayoutPanel1
+			// 
 			this->flowLayoutPanel1->AutoSize = true;
 			this->flowLayoutPanel1->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
 			this->flowLayoutPanel1->Controls->Add(this->label1);
@@ -1056,6 +1162,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->flowLayoutPanel1->Name = L"flowLayoutPanel1";
 			this->flowLayoutPanel1->Size = System::Drawing::Size(342, 166);
 			this->flowLayoutPanel1->TabIndex = 0;
+			// 
+			// label1
+			// 
 			this->label1->AutoSize = true;
 			this->label1->Location = System::Drawing::Point(3, 7);
 			this->label1->Margin = System::Windows::Forms::Padding(3, 7, 3, 0);
@@ -1063,10 +1172,16 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label1->Size = System::Drawing::Size(72, 13);
 			this->label1->TabIndex = 1;
 			this->label1->Text = L"Photos folder:";
+			// 
+			// tbFolder
+			// 
 			this->tbFolder->Location = System::Drawing::Point(81, 3);
 			this->tbFolder->Name = L"tbFolder";
 			this->tbFolder->Size = System::Drawing::Size(159, 20);
 			this->tbFolder->TabIndex = 0;
+			// 
+			// btnFolder
+			// 
 			this->flowLayoutPanel1->SetFlowBreak(this->btnFolder, true);
 			this->btnFolder->Location = System::Drawing::Point(246, 3);
 			this->btnFolder->Name = L"btnFolder";
@@ -1075,15 +1190,21 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnFolder->Text = L"&Browse";
 			this->btnFolder->UseVisualStyleBackColor = true;
 			this->btnFolder->Click += gcnew System::EventHandler(this, &fConfig::btnFolder_Click);
+			// 
+			// label16
+			// 
 			this->label16->AutoSize = true;
 			this->flowLayoutPanel1->SetFlowBreak(this->label16, true);
-			this->label16->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25, System::Drawing::FontStyle::Italic, System::Drawing::GraphicsUnit::Point, 
+			this->label16->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Italic, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
 			this->label16->Location = System::Drawing::Point(3, 29);
 			this->label16->Name = L"label16";
 			this->label16->Size = System::Drawing::Size(298, 13);
 			this->label16->TabIndex = 20;
 			this->label16->Text = L"Multiple folders allowed, separate with ; E.g. c:\\pics;e:\\photos";
+			// 
+			// label4
+			// 
 			this->label4->AutoSize = true;
 			this->label4->Location = System::Drawing::Point(3, 49);
 			this->label4->Margin = System::Windows::Forms::Padding(3, 7, 3, 0);
@@ -1091,11 +1212,17 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label4->Size = System::Drawing::Size(113, 13);
 			this->label4->TabIndex = 6;
 			this->label4->Text = L"Display each photo for";
+			// 
+			// nupTimeout
+			// 
 			this->nupTimeout->Location = System::Drawing::Point(122, 45);
 			this->nupTimeout->Name = L"nupTimeout";
 			this->nupTimeout->Size = System::Drawing::Size(120, 20);
 			this->nupTimeout->TabIndex = 7;
 			this->nupTimeout->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {10, 0, 0, 0});
+			// 
+			// label5
+			// 
 			this->label5->AutoSize = true;
 			this->flowLayoutPanel1->SetFlowBreak(this->label5, true);
 			this->label5->Location = System::Drawing::Point(248, 49);
@@ -1104,6 +1231,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label5->Size = System::Drawing::Size(47, 13);
 			this->label5->TabIndex = 8;
 			this->label5->Text = L"seconds";
+			// 
+			// label6
+			// 
 			this->label6->AutoSize = true;
 			this->label6->Location = System::Drawing::Point(3, 75);
 			this->label6->Margin = System::Windows::Forms::Padding(3, 7, 3, 0);
@@ -1111,6 +1241,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label6->Size = System::Drawing::Size(94, 13);
 			this->label6->TabIndex = 9;
 			this->label6->Text = L"Background color:";
+			// 
+			// btnBackgroundColor
+			// 
 			this->btnBackgroundColor->BackColor = System::Drawing::Color::SteelBlue;
 			this->flowLayoutPanel1->SetFlowBreak(this->btnBackgroundColor, true);
 			this->btnBackgroundColor->ForeColor = System::Drawing::Color::White;
@@ -1121,6 +1254,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnBackgroundColor->Text = L"Select Color";
 			this->btnBackgroundColor->UseVisualStyleBackColor = false;
 			this->btnBackgroundColor->Click += gcnew System::EventHandler(this, &fConfig::btnBackgroundColor_Click);
+			// 
+			// cbAnimatedTransitions
+			// 
 			this->cbAnimatedTransitions->AutoSize = true;
 			this->cbAnimatedTransitions->Checked = true;
 			this->cbAnimatedTransitions->CheckState = System::Windows::Forms::CheckState::Checked;
@@ -1132,8 +1268,11 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbAnimatedTransitions->TabIndex = 15;
 			this->cbAnimatedTransitions->Text = L"Use animated transitions";
 			this->cbAnimatedTransitions->UseVisualStyleBackColor = true;
+			// 
+			// label17
+			// 
 			this->label17->AutoSize = true;
-			this->label17->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+			this->label17->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
 			this->label17->Location = System::Drawing::Point(3, 123);
 			this->label17->Margin = System::Windows::Forms::Padding(3, 3, 0, 0);
@@ -1141,6 +1280,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label17->Size = System::Drawing::Size(70, 13);
 			this->label17->TabIndex = 19;
 			this->label17->Text = L"Small photos:";
+			// 
+			// cbStretchSmall
+			// 
 			this->cbStretchSmall->AutoSize = true;
 			this->cbStretchSmall->Checked = true;
 			this->cbStretchSmall->CheckState = System::Windows::Forms::CheckState::Checked;
@@ -1151,6 +1293,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbStretchSmall->TabIndex = 11;
 			this->cbStretchSmall->Text = L"Stretch to full screen";
 			this->cbStretchSmall->UseVisualStyleBackColor = true;
+			// 
+			// cbRandomPositions
+			// 
 			this->cbRandomPositions->AutoSize = true;
 			this->cbRandomPositions->Checked = true;
 			this->cbRandomPositions->CheckState = System::Windows::Forms::CheckState::Checked;
@@ -1162,6 +1307,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbRandomPositions->TabIndex = 18;
 			this->cbRandomPositions->Text = L"Randomise position";
 			this->cbRandomPositions->UseVisualStyleBackColor = true;
+			// 
+			// cbExifRotate
+			// 
 			this->cbExifRotate->AutoSize = true;
 			this->cbExifRotate->Checked = true;
 			this->cbExifRotate->CheckState = System::Windows::Forms::CheckState::Checked;
@@ -1171,6 +1319,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbExifRotate->TabIndex = 21;
 			this->cbExifRotate->Text = L"Rotate image based on EXIF orientation (if available)";
 			this->cbExifRotate->UseVisualStyleBackColor = true;
+			// 
+			// tpAdvanced
+			// 
 			this->tpAdvanced->Controls->Add(this->flowLayoutPanel4);
 			this->tpAdvanced->Location = System::Drawing::Point(4, 40);
 			this->tpAdvanced->Name = L"tpAdvanced";
@@ -1179,6 +1330,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tpAdvanced->TabIndex = 6;
 			this->tpAdvanced->Text = L"Advanced";
 			this->tpAdvanced->UseVisualStyleBackColor = true;
+			// 
+			// flowLayoutPanel4
+			// 
 			this->flowLayoutPanel4->AutoSize = true;
 			this->flowLayoutPanel4->AutoSizeMode = System::Windows::Forms::AutoSizeMode::GrowAndShrink;
 			this->flowLayoutPanel4->Controls->Add(this->label2);
@@ -1209,19 +1363,28 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->flowLayoutPanel4->Name = L"flowLayoutPanel4";
 			this->flowLayoutPanel4->Size = System::Drawing::Size(342, 312);
 			this->flowLayoutPanel4->TabIndex = 1;
+			// 
+			// label2
+			// 
 			this->label2->Location = System::Drawing::Point(3, 7);
 			this->label2->Margin = System::Windows::Forms::Padding(3, 7, 3, 0);
 			this->label2->Name = L"label2";
 			this->label2->Size = System::Drawing::Size(110, 13);
 			this->label2->TabIndex = 28;
 			this->label2->Text = L"Exclude subfolders:";
+			// 
+			// tbExcludeSubfolders
+			// 
 			this->flowLayoutPanel4->SetFlowBreak(this->tbExcludeSubfolders, true);
 			this->tbExcludeSubfolders->Location = System::Drawing::Point(119, 3);
 			this->tbExcludeSubfolders->Name = L"tbExcludeSubfolders";
 			this->tbExcludeSubfolders->Size = System::Drawing::Size(205, 20);
 			this->tbExcludeSubfolders->TabIndex = 29;
+			// 
+			// label3
+			// 
 			this->label3->AutoSize = true;
-			this->label3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25, System::Drawing::FontStyle::Italic, System::Drawing::GraphicsUnit::Point, 
+			this->label3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Italic, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
 			this->label3->Location = System::Drawing::Point(0, 26);
 			this->label3->Margin = System::Windows::Forms::Padding(0);
@@ -1229,9 +1392,12 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label3->Size = System::Drawing::Size(235, 13);
 			this->label3->TabIndex = 30;
 			this->label3->Text = L"Separate excluded subfolders with; For example:";
+			// 
+			// label15
+			// 
 			this->label15->AutoSize = true;
 			this->flowLayoutPanel4->SetFlowBreak(this->label15, true);
-			this->label15->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
+			this->label15->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
 			this->label15->Location = System::Drawing::Point(235, 26);
 			this->label15->Margin = System::Windows::Forms::Padding(0);
@@ -1239,6 +1405,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label15->Size = System::Drawing::Size(99, 13);
 			this->label15->TabIndex = 31;
 			this->label15->Text = L"thumbs;800x600";
+			// 
+			// label43
+			// 
 			this->label43->AutoSize = true;
 			this->label43->Location = System::Drawing::Point(3, 46);
 			this->label43->Margin = System::Windows::Forms::Padding(3, 7, 3, 0);
@@ -1246,13 +1415,19 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label43->Size = System::Drawing::Size(110, 13);
 			this->label43->TabIndex = 35;
 			this->label43->Text = L"Exclude files (RegEx):";
+			// 
+			// tbExcludeRegEx
+			// 
 			this->flowLayoutPanel4->SetFlowBreak(this->tbExcludeRegEx, true);
 			this->tbExcludeRegEx->Location = System::Drawing::Point(119, 42);
 			this->tbExcludeRegEx->Name = L"tbExcludeRegEx";
 			this->tbExcludeRegEx->Size = System::Drawing::Size(205, 20);
 			this->tbExcludeRegEx->TabIndex = 36;
+			// 
+			// label47
+			// 
 			this->label47->AutoSize = true;
-			this->label47->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25, System::Drawing::FontStyle::Italic, System::Drawing::GraphicsUnit::Point, 
+			this->label47->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Italic, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
 			this->label47->Location = System::Drawing::Point(0, 65);
 			this->label47->Margin = System::Windows::Forms::Padding(0);
@@ -1260,9 +1435,12 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label47->Size = System::Drawing::Size(236, 13);
 			this->label47->TabIndex = 37;
 			this->label47->Text = L"Regular expression to exclude files; For example:";
+			// 
+			// label48
+			// 
 			this->label48->AutoSize = true;
 			this->flowLayoutPanel4->SetFlowBreak(this->label48, true);
-			this->label48->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
+			this->label48->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
 			this->label48->Location = System::Drawing::Point(236, 65);
 			this->label48->Margin = System::Windows::Forms::Padding(0);
@@ -1270,6 +1448,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label48->Size = System::Drawing::Size(105, 13);
 			this->label48->TabIndex = 38;
 			this->label48->Text = L".*\\.gif$|xl.*\\.pcx$";
+			// 
+			// cbFolderInfo
+			// 
 			this->cbFolderInfo->AutoSize = true;
 			this->cbFolderInfo->Location = System::Drawing::Point(7, 83);
 			this->cbFolderInfo->Margin = System::Windows::Forms::Padding(7, 5, 0, 0);
@@ -1278,12 +1459,18 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbFolderInfo->TabIndex = 23;
 			this->cbFolderInfo->Text = L"Hide file/folder count after";
 			this->cbFolderInfo->UseVisualStyleBackColor = true;
+			// 
+			// nupFolderInfoTimeout
+			// 
 			this->nupFolderInfoTimeout->AccessibleDescription = L"";
 			this->nupFolderInfoTimeout->Location = System::Drawing::Point(159, 81);
 			this->nupFolderInfoTimeout->Name = L"nupFolderInfoTimeout";
 			this->nupFolderInfoTimeout->Size = System::Drawing::Size(39, 20);
 			this->nupFolderInfoTimeout->TabIndex = 24;
 			this->nupFolderInfoTimeout->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {10, 0, 0, 0});
+			// 
+			// label18
+			// 
 			this->label18->AutoSize = true;
 			this->flowLayoutPanel4->SetFlowBreak(this->label18, true);
 			this->label18->Location = System::Drawing::Point(201, 83);
@@ -1292,6 +1479,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label18->Size = System::Drawing::Size(47, 13);
 			this->label18->TabIndex = 25;
 			this->label18->Text = L"seconds";
+			// 
+			// cbHideHidden
+			// 
 			this->cbHideHidden->AutoSize = true;
 			this->cbHideHidden->Checked = true;
 			this->cbHideHidden->CheckState = System::Windows::Forms::CheckState::Checked;
@@ -1303,6 +1493,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbHideHidden->TabIndex = 26;
 			this->cbHideHidden->Text = L"Hide folders and files with hidden attribute set";
 			this->cbHideHidden->UseVisualStyleBackColor = true;
+			// 
+			// cbOrdered
+			// 
 			this->cbOrdered->AutoSize = true;
 			this->cbOrdered->Location = System::Drawing::Point(7, 130);
 			this->cbOrdered->Margin = System::Windows::Forms::Padding(7, 3, 3, 3);
@@ -1311,6 +1504,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbOrdered->TabIndex = 27;
 			this->cbOrdered->Text = L"Show photos in sequential order (Disable randomizer)";
 			this->cbOrdered->UseVisualStyleBackColor = true;
+			// 
+			// label13
+			// 
 			this->label13->AutoSize = true;
 			this->label13->Location = System::Drawing::Point(3, 154);
 			this->label13->Margin = System::Windows::Forms::Padding(3, 4, 3, 0);
@@ -1318,15 +1514,22 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label13->Size = System::Drawing::Size(90, 13);
 			this->label13->TabIndex = 32;
 			this->label13->Text = L"Mouse sensitivity:";
+			// 
+			// cbMouseSensitivity
+			// 
 			this->cbMouseSensitivity->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->flowLayoutPanel4->SetFlowBreak(this->cbMouseSensitivity, true);
 			this->cbMouseSensitivity->FormattingEnabled = true;
-			this->cbMouseSensitivity->Items->AddRange(gcnew cli::array< System::Object^  >(4) {L"Sensitive", L"Normal", L"Insensitive", L"Ignore movement"});
+			this->cbMouseSensitivity->Items->AddRange(gcnew cli::array< System::Object^  >(4) {L"Sensitive", L"Normal", L"Insensitive", 
+				L"Ignore movement"});
 			this->cbMouseSensitivity->Location = System::Drawing::Point(99, 150);
 			this->cbMouseSensitivity->Margin = System::Windows::Forms::Padding(3, 0, 3, 3);
 			this->cbMouseSensitivity->Name = L"cbMouseSensitivity";
 			this->cbMouseSensitivity->Size = System::Drawing::Size(121, 21);
 			this->cbMouseSensitivity->TabIndex = 33;
+			// 
+			// cbMouseNav
+			// 
 			this->cbMouseNav->AutoSize = true;
 			this->cbMouseNav->Location = System::Drawing::Point(7, 177);
 			this->cbMouseNav->Margin = System::Windows::Forms::Padding(7, 3, 3, 3);
@@ -1335,6 +1538,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbMouseNav->TabIndex = 43;
 			this->cbMouseNav->Text = L"Use mouse to browse (left button: next; right button: previous)";
 			this->cbMouseNav->UseVisualStyleBackColor = true;
+			// 
+			// cbWatchFolders
+			// 
 			this->cbWatchFolders->AutoSize = true;
 			this->cbWatchFolders->Location = System::Drawing::Point(7, 200);
 			this->cbWatchFolders->Margin = System::Windows::Forms::Padding(7, 3, 3, 3);
@@ -1343,14 +1549,20 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbWatchFolders->TabIndex = 44;
 			this->cbWatchFolders->Text = L"Watch photo folder for changes";
 			this->cbWatchFolders->UseVisualStyleBackColor = true;
+			// 
+			// cbOnlyEscapeExits
+			// 
 			this->cbOnlyEscapeExits->AutoSize = true;
 			this->cbOnlyEscapeExits->Location = System::Drawing::Point(7, 223);
 			this->cbOnlyEscapeExits->Margin = System::Windows::Forms::Padding(7, 3, 3, 3);
 			this->cbOnlyEscapeExits->Name = L"cbOnlyEscapeExits";
-			this->cbOnlyEscapeExits->Size = System::Drawing::Size(253, 17);
+			this->cbOnlyEscapeExits->Size = System::Drawing::Size(230, 17);
 			this->cbOnlyEscapeExits->TabIndex = 40;
-			this->cbOnlyEscapeExits->Text = L"On keyboard only Escape key exits screensaver";
+			this->cbOnlyEscapeExits->Text = L"Escape key only key that exits screensaver";
 			this->cbOnlyEscapeExits->UseVisualStyleBackColor = true;
+			// 
+			// cbDebug
+			// 
 			this->cbDebug->AutoSize = true;
 			this->cbDebug->Location = System::Drawing::Point(7, 246);
 			this->cbDebug->Margin = System::Windows::Forms::Padding(7, 3, 3, 3);
@@ -1359,6 +1571,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbDebug->TabIndex = 34;
 			this->cbDebug->Text = L"Enabled debugging information";
 			this->cbDebug->UseVisualStyleBackColor = true;
+			// 
+			// cbCloseAfterImageLocate
+			// 
 			this->cbCloseAfterImageLocate->AutoSize = true;
 			this->cbCloseAfterImageLocate->Checked = true;
 			this->cbCloseAfterImageLocate->CheckState = System::Windows::Forms::CheckState::Checked;
@@ -1369,6 +1584,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbCloseAfterImageLocate->TabIndex = 39;
 			this->cbCloseAfterImageLocate->Text = L"Close screensaver after locating image(s) in Windows Explorer";
 			this->cbCloseAfterImageLocate->UseVisualStyleBackColor = true;
+			// 
+			// cbDeleteKey
+			// 
 			this->cbDeleteKey->AutoSize = true;
 			this->cbDeleteKey->Checked = true;
 			this->cbDeleteKey->CheckState = System::Windows::Forms::CheckState::Checked;
@@ -1380,6 +1598,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbDeleteKey->Text = L"Enable delete key";
 			this->cbDeleteKey->UseVisualStyleBackColor = true;
 			this->cbDeleteKey->CheckedChanged += gcnew System::EventHandler(this, &fConfig::cbDeleteKey_CheckedChanged);
+			// 
+			// cbConfirmDelete
+			// 
 			this->cbConfirmDelete->AutoSize = true;
 			this->cbConfirmDelete->Checked = true;
 			this->cbConfirmDelete->CheckState = System::Windows::Forms::CheckState::Checked;
@@ -1390,6 +1611,70 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbConfirmDelete->TabIndex = 42;
 			this->cbConfirmDelete->Text = L"Show confirm delete dialog";
 			this->cbConfirmDelete->UseVisualStyleBackColor = true;
+			// 
+			// tpMore
+			// 
+			this->tpMore->Controls->Add(this->cbBackupJPEGRotation);
+			this->tpMore->Controls->Add(this->cbSaveJPEGRotation);
+			this->tpMore->Controls->Add(this->label60);
+			this->tpMore->Controls->Add(this->label59);
+			this->tpMore->Location = System::Drawing::Point(4, 40);
+			this->tpMore->Name = L"tpMore";
+			this->tpMore->Size = System::Drawing::Size(348, 313);
+			this->tpMore->TabIndex = 10;
+			this->tpMore->Text = L"More";
+			this->tpMore->UseVisualStyleBackColor = true;
+			// 
+			// cbBackupJPEGRotation
+			// 
+			this->cbBackupJPEGRotation->AutoSize = true;
+			this->cbBackupJPEGRotation->Checked = true;
+			this->cbBackupJPEGRotation->CheckState = System::Windows::Forms::CheckState::Checked;
+			this->cbBackupJPEGRotation->Dock = System::Windows::Forms::DockStyle::Top;
+			this->cbBackupJPEGRotation->Location = System::Drawing::Point(0, 35);
+			this->cbBackupJPEGRotation->Name = L"cbBackupJPEGRotation";
+			this->cbBackupJPEGRotation->Size = System::Drawing::Size(348, 17);
+			this->cbBackupJPEGRotation->TabIndex = 6;
+			this->cbBackupJPEGRotation->Text = L"Backup original image before rotation (filename.bak)";
+			this->cbBackupJPEGRotation->UseVisualStyleBackColor = true;
+			// 
+			// cbSaveJPEGRotation
+			// 
+			this->cbSaveJPEGRotation->AutoSize = true;
+			this->cbSaveJPEGRotation->Dock = System::Windows::Forms::DockStyle::Top;
+			this->cbSaveJPEGRotation->Location = System::Drawing::Point(0, 18);
+			this->cbSaveJPEGRotation->Name = L"cbSaveJPEGRotation";
+			this->cbSaveJPEGRotation->Size = System::Drawing::Size(348, 17);
+			this->cbSaveJPEGRotation->TabIndex = 5;
+			this->cbSaveJPEGRotation->Text = L"Save Exif.Image.Orientation to file";
+			this->cbSaveJPEGRotation->UseVisualStyleBackColor = true;
+			// 
+			// label60
+			// 
+			this->label60->AutoSize = true;
+			this->label60->Dock = System::Windows::Forms::DockStyle::Top;
+			this->label60->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
+				static_cast<System::Byte>(0)));
+			this->label60->Location = System::Drawing::Point(0, 0);
+			this->label60->Margin = System::Windows::Forms::Padding(0, 0, 3, 0);
+			this->label60->Name = L"label60";
+			this->label60->Padding = System::Windows::Forms::Padding(17, 5, 0, 0);
+			this->label60->Size = System::Drawing::Size(280, 18);
+			this->label60->TabIndex = 4;
+			this->label60->Text = L"Image rotation (Set to Exif.Image.Orientation)";
+			// 
+			// label59
+			// 
+			this->label59->BackColor = System::Drawing::SystemColors::Info;
+			this->label59->Location = System::Drawing::Point(0, 55);
+			this->label59->Name = L"label59";
+			this->label59->Padding = System::Windows::Forms::Padding(17, 3, 0, 0);
+			this->label59->Size = System::Drawing::Size(348, 86);
+			this->label59->TabIndex = 3;
+			this->label59->Text = resources->GetString(L"label59.Text");
+			// 
+			// tpClock
+			// 
 			this->tpClock->Controls->Add(this->flowLayoutPanel2);
 			this->tpClock->Location = System::Drawing::Point(4, 40);
 			this->tpClock->Name = L"tpClock";
@@ -1398,6 +1683,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tpClock->TabIndex = 1;
 			this->tpClock->Text = L"Clock";
 			this->tpClock->UseVisualStyleBackColor = true;
+			// 
+			// flowLayoutPanel2
+			// 
 			this->flowLayoutPanel2->Controls->Add(this->lMonitors);
 			this->flowLayoutPanel2->Controls->Add(this->cbClockMonitor);
 			this->flowLayoutPanel2->Controls->Add(this->groupBox2);
@@ -1405,11 +1693,17 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->flowLayoutPanel2->Controls->Add(this->btnClockFont);
 			this->flowLayoutPanel2->Controls->Add(this->label49);
 			this->flowLayoutPanel2->Controls->Add(this->tbClockMask);
-			this->flowLayoutPanel2->Controls->Add(this->cbRandomClock);
+			this->flowLayoutPanel2->Controls->Add(this->label12);
+			this->flowLayoutPanel2->Controls->Add(this->cbClockPosHorz);
+			this->flowLayoutPanel2->Controls->Add(this->label50);
+			this->flowLayoutPanel2->Controls->Add(this->cbClockPosVert);
 			this->flowLayoutPanel2->Location = System::Drawing::Point(3, 6);
 			this->flowLayoutPanel2->Name = L"flowLayoutPanel2";
-			this->flowLayoutPanel2->Size = System::Drawing::Size(313, 300);
+			this->flowLayoutPanel2->Size = System::Drawing::Size(313, 304);
 			this->flowLayoutPanel2->TabIndex = 0;
+			// 
+			// lMonitors
+			// 
 			this->lMonitors->AutoSize = true;
 			this->lMonitors->Location = System::Drawing::Point(3, 0);
 			this->lMonitors->Name = L"lMonitors";
@@ -1417,6 +1711,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->lMonitors->Size = System::Drawing::Size(78, 20);
 			this->lMonitors->TabIndex = 0;
 			this->lMonitors->Text = L"Select Monitor:";
+			// 
+			// cbClockMonitor
+			// 
 			this->cbClockMonitor->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->flowLayoutPanel2->SetFlowBreak(this->cbClockMonitor, true);
 			this->cbClockMonitor->FormattingEnabled = true;
@@ -1425,6 +1722,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbClockMonitor->Size = System::Drawing::Size(211, 21);
 			this->cbClockMonitor->TabIndex = 1;
 			this->cbClockMonitor->SelectedIndexChanged += gcnew System::EventHandler(this, &fConfig::cbClockMonitor_SelectedIndexChanged);
+			// 
+			// groupBox2
+			// 
 			this->groupBox2->Controls->Add(this->rbClockRun);
 			this->groupBox2->Controls->Add(this->rbClockTime);
 			this->groupBox2->Controls->Add(this->rbClockNo);
@@ -1436,6 +1736,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->groupBox2->TabIndex = 2;
 			this->groupBox2->TabStop = false;
 			this->groupBox2->Text = L"Type";
+			// 
+			// rbClockRun
+			// 
 			this->rbClockRun->AutoSize = true;
 			this->rbClockRun->Location = System::Drawing::Point(6, 65);
 			this->rbClockRun->Name = L"rbClockRun";
@@ -1445,6 +1748,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->rbClockRun->Text = L"Screensaver running time";
 			this->rbClockRun->UseVisualStyleBackColor = true;
 			this->rbClockRun->CheckedChanged += gcnew System::EventHandler(this, &fConfig::rbClockRun_CheckedChanged);
+			// 
+			// rbClockTime
+			// 
 			this->rbClockTime->AutoSize = true;
 			this->rbClockTime->Location = System::Drawing::Point(6, 42);
 			this->rbClockTime->Name = L"rbClockTime";
@@ -1454,6 +1760,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->rbClockTime->Text = L"Current time";
 			this->rbClockTime->UseVisualStyleBackColor = true;
 			this->rbClockTime->CheckedChanged += gcnew System::EventHandler(this, &fConfig::rbClockTime_CheckedChanged);
+			// 
+			// rbClockNo
+			// 
 			this->rbClockNo->AutoSize = true;
 			this->rbClockNo->Location = System::Drawing::Point(6, 19);
 			this->rbClockNo->Name = L"rbClockNo";
@@ -1463,6 +1772,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->rbClockNo->Text = L"No clock";
 			this->rbClockNo->UseVisualStyleBackColor = true;
 			this->rbClockNo->CheckedChanged += gcnew System::EventHandler(this, &fConfig::rbClockNo_CheckedChanged);
+			// 
+			// label9
+			// 
 			this->label9->AutoSize = true;
 			this->label9->Location = System::Drawing::Point(3, 119);
 			this->label9->Name = L"label9";
@@ -1470,7 +1782,10 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label9->Size = System::Drawing::Size(58, 73);
 			this->label9->TabIndex = 3;
 			this->label9->Text = L"Clock font:";
-			this->btnClockFont->Font = (gcnew System::Drawing::Font(L"Arial", 63.75, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+			// 
+			// btnClockFont
+			// 
+			this->btnClockFont->Font = (gcnew System::Drawing::Font(L"Arial", 63.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
 			this->btnClockFont->ForeColor = System::Drawing::Color::White;
 			this->btnClockFont->Location = System::Drawing::Point(67, 122);
@@ -1480,6 +1795,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnClockFont->Text = L"14:23:01";
 			this->btnClockFont->UseVisualStyleBackColor = true;
 			this->btnClockFont->Click += gcnew System::EventHandler(this, &fConfig::btnClockFont_Click);
+			// 
+			// label49
+			// 
 			this->label49->AutoSize = true;
 			this->label49->Location = System::Drawing::Point(3, 240);
 			this->label49->Margin = System::Windows::Forms::Padding(3, 5, 3, 0);
@@ -1487,18 +1805,61 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label49->Size = System::Drawing::Size(70, 13);
 			this->label49->TabIndex = 5;
 			this->label49->Text = L"Format mask:";
+			// 
+			// tbClockMask
+			// 
 			this->tbClockMask->Location = System::Drawing::Point(79, 238);
 			this->tbClockMask->Name = L"tbClockMask";
 			this->tbClockMask->Size = System::Drawing::Size(224, 20);
 			this->tbClockMask->TabIndex = 6;
 			this->tbClockMask->Text = L"HH:mm:ss";
-			this->cbRandomClock->AutoSize = true;
-			this->cbRandomClock->Location = System::Drawing::Point(3, 264);
-			this->cbRandomClock->Name = L"cbRandomClock";
-			this->cbRandomClock->Size = System::Drawing::Size(147, 17);
-			this->cbRandomClock->TabIndex = 7;
-			this->cbRandomClock->Text = L"Randomise clock position";
-			this->cbRandomClock->UseVisualStyleBackColor = true;
+			// 
+			// label12
+			// 
+			this->label12->AutoSize = true;
+			this->label12->Location = System::Drawing::Point(3, 264);
+			this->label12->Margin = System::Windows::Forms::Padding(3, 3, 3, 0);
+			this->label12->Name = L"label12";
+			this->label12->Size = System::Drawing::Size(103, 13);
+			this->label12->TabIndex = 8;
+			this->label12->Text = L"Position - Horizontal:";
+			// 
+			// cbClockPosHorz
+			// 
+			this->cbClockPosHorz->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->cbClockPosHorz->FormattingEnabled = true;
+			this->cbClockPosHorz->Items->AddRange(gcnew cli::array< System::Object^  >(4) {L"Left", L"Middle", L"Right", L"Random"});
+			this->cbClockPosHorz->Location = System::Drawing::Point(112, 261);
+			this->cbClockPosHorz->Margin = System::Windows::Forms::Padding(3, 0, 3, 3);
+			this->cbClockPosHorz->Name = L"cbClockPosHorz";
+			this->cbClockPosHorz->Size = System::Drawing::Size(65, 21);
+			this->cbClockPosHorz->TabIndex = 11;
+			this->cbClockPosHorz->SelectedIndexChanged += gcnew System::EventHandler(this, &fConfig::cbClockPosHorz_SelectedIndexChanged);
+			// 
+			// label50
+			// 
+			this->label50->AutoSize = true;
+			this->label50->Location = System::Drawing::Point(183, 264);
+			this->label50->Margin = System::Windows::Forms::Padding(3, 3, 3, 0);
+			this->label50->Name = L"label50";
+			this->label50->Size = System::Drawing::Size(45, 13);
+			this->label50->TabIndex = 10;
+			this->label50->Text = L"Vertical:";
+			// 
+			// cbClockPosVert
+			// 
+			this->cbClockPosVert->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->cbClockPosVert->FormattingEnabled = true;
+			this->cbClockPosVert->Items->AddRange(gcnew cli::array< System::Object^  >(4) {L"Top", L"Middle", L"Bottom", L"Random"});
+			this->cbClockPosVert->Location = System::Drawing::Point(234, 261);
+			this->cbClockPosVert->Margin = System::Windows::Forms::Padding(3, 0, 3, 3);
+			this->cbClockPosVert->Name = L"cbClockPosVert";
+			this->cbClockPosVert->Size = System::Drawing::Size(65, 21);
+			this->cbClockPosVert->TabIndex = 9;
+			this->cbClockPosVert->SelectedIndexChanged += gcnew System::EventHandler(this, &fConfig::cbClockPosVert_SelectedIndexChanged);
+			// 
+			// tpCalendar
+			// 
 			this->tpCalendar->Controls->Add(this->lCalendarInfo);
 			this->tpCalendar->Controls->Add(this->flowLayoutPanel5);
 			this->tpCalendar->Location = System::Drawing::Point(4, 40);
@@ -1507,6 +1868,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tpCalendar->TabIndex = 7;
 			this->tpCalendar->Text = L"Calendar";
 			this->tpCalendar->UseVisualStyleBackColor = true;
+			// 
+			// lCalendarInfo
+			// 
 			this->lCalendarInfo->BackColor = System::Drawing::SystemColors::Info;
 			this->lCalendarInfo->Location = System::Drawing::Point(3, 248);
 			this->lCalendarInfo->Name = L"lCalendarInfo";
@@ -1515,6 +1879,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->lCalendarInfo->TabIndex = 1;
 			this->lCalendarInfo->Text = L"When screensaver is running: press \'C\' to select calendar opacity and press \'Ctrl" 
 				L"+C\'  to reposition and resize.";
+			// 
+			// flowLayoutPanel5
+			// 
 			this->flowLayoutPanel5->Controls->Add(this->splitContainer1);
 			this->flowLayoutPanel5->Controls->Add(this->btnCalendarFont);
 			this->flowLayoutPanel5->Controls->Add(this->label23);
@@ -1544,9 +1911,15 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->flowLayoutPanel5->Name = L"flowLayoutPanel5";
 			this->flowLayoutPanel5->Size = System::Drawing::Size(345, 265);
 			this->flowLayoutPanel5->TabIndex = 0;
+			// 
+			// splitContainer1
+			// 
 			this->splitContainer1->Location = System::Drawing::Point(0, 0);
 			this->splitContainer1->Margin = System::Windows::Forms::Padding(0);
 			this->splitContainer1->Name = L"splitContainer1";
+			// 
+			// splitContainer1.Panel1
+			// 
 			this->splitContainer1->Panel1->Controls->Add(this->label22);
 			this->splitContainer1->Panel1->Controls->Add(this->cbCurrentMonthCalendar);
 			this->splitContainer1->Panel1->Controls->Add(this->label21);
@@ -1554,6 +1927,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->splitContainer1->Panel1->Controls->Add(this->nupNrFolCalendars);
 			this->splitContainer1->Panel1->Controls->Add(this->nupNrPrevCalendars);
 			this->splitContainer1->Panel1->Controls->Add(this->label19);
+			// 
+			// splitContainer1.Panel2
+			// 
 			this->splitContainer1->Panel2->Controls->Add(this->label30);
 			this->splitContainer1->Panel2->Controls->Add(this->label29);
 			this->splitContainer1->Panel2->Controls->Add(this->label24);
@@ -1562,6 +1938,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->splitContainer1->Size = System::Drawing::Size(339, 100);
 			this->splitContainer1->SplitterDistance = 190;
 			this->splitContainer1->TabIndex = 31;
+			// 
+			// label22
+			// 
 			this->label22->AutoSize = true;
 			this->label22->Location = System::Drawing::Point(98, 60);
 			this->label22->Name = L"label22";
@@ -1569,6 +1948,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label22->Size = System::Drawing::Size(91, 17);
 			this->label22->TabIndex = 6;
 			this->label22->Text = L"month(s) following";
+			// 
+			// cbCurrentMonthCalendar
+			// 
 			this->cbCurrentMonthCalendar->AutoSize = true;
 			this->cbCurrentMonthCalendar->Location = System::Drawing::Point(3, 6);
 			this->cbCurrentMonthCalendar->Name = L"cbCurrentMonthCalendar";
@@ -1576,6 +1958,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbCurrentMonthCalendar->TabIndex = 1;
 			this->cbCurrentMonthCalendar->Text = L"Show calendar for current month";
 			this->cbCurrentMonthCalendar->UseVisualStyleBackColor = true;
+			// 
+			// label21
+			// 
 			this->label21->AutoSize = true;
 			this->label21->Location = System::Drawing::Point(0, 55);
 			this->label21->Name = L"label21";
@@ -1583,6 +1968,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label21->Size = System::Drawing::Size(37, 17);
 			this->label21->TabIndex = 5;
 			this->label21->Text = L"Show ";
+			// 
+			// label20
+			// 
 			this->label20->AutoSize = true;
 			this->label20->Location = System::Drawing::Point(98, 29);
 			this->label20->Name = L"label20";
@@ -1590,16 +1978,25 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label20->Size = System::Drawing::Size(90, 17);
 			this->label20->TabIndex = 3;
 			this->label20->Text = L"month(s) previous";
+			// 
+			// nupNrFolCalendars
+			// 
 			this->nupNrFolCalendars->Location = System::Drawing::Point(43, 58);
 			this->nupNrFolCalendars->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {12, 0, 0, 0});
 			this->nupNrFolCalendars->Name = L"nupNrFolCalendars";
 			this->nupNrFolCalendars->Size = System::Drawing::Size(49, 20);
 			this->nupNrFolCalendars->TabIndex = 4;
+			// 
+			// nupNrPrevCalendars
+			// 
 			this->nupNrPrevCalendars->Location = System::Drawing::Point(43, 32);
 			this->nupNrPrevCalendars->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {12, 0, 0, 0});
 			this->nupNrPrevCalendars->Name = L"nupNrPrevCalendars";
 			this->nupNrPrevCalendars->Size = System::Drawing::Size(49, 20);
 			this->nupNrPrevCalendars->TabIndex = 0;
+			// 
+			// label19
+			// 
 			this->label19->AutoSize = true;
 			this->label19->Location = System::Drawing::Point(0, 29);
 			this->label19->Name = L"label19";
@@ -1607,24 +2004,36 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label19->Size = System::Drawing::Size(37, 17);
 			this->label19->TabIndex = 2;
 			this->label19->Text = L"Show ";
+			// 
+			// label30
+			// 
 			this->label30->AutoSize = true;
 			this->label30->Location = System::Drawing::Point(4, 7);
 			this->label30->Name = L"label30";
 			this->label30->Size = System::Drawing::Size(88, 13);
 			this->label30->TabIndex = 33;
 			this->label30->Text = L"Calendar Opacity";
+			// 
+			// label29
+			// 
 			this->label29->AutoSize = true;
 			this->label29->Location = System::Drawing::Point(4, 64);
 			this->label29->Name = L"label29";
 			this->label29->Size = System::Drawing::Size(25, 13);
 			this->label29->TabIndex = 32;
 			this->label29->Text = L"2nd";
+			// 
+			// label24
+			// 
 			this->label24->AutoSize = true;
 			this->label24->Location = System::Drawing::Point(4, 32);
 			this->label24->Name = L"label24";
 			this->label24->Size = System::Drawing::Size(21, 13);
 			this->label24->TabIndex = 31;
 			this->label24->Text = L"1st";
+			// 
+			// tbHigh
+			// 
 			this->tbHigh->AutoSize = false;
 			this->tbHigh->BackColor = System::Drawing::SystemColors::ControlLightLight;
 			this->tbHigh->LargeChange = 10;
@@ -1635,6 +2044,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tbHigh->TabIndex = 30;
 			this->tbHigh->TickFrequency = 10;
 			this->tbHigh->Value = 65;
+			// 
+			// tbLow
+			// 
 			this->tbLow->AutoSize = false;
 			this->tbLow->BackColor = System::Drawing::SystemColors::ControlLightLight;
 			this->tbLow->LargeChange = 10;
@@ -1645,6 +2057,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tbLow->TabIndex = 29;
 			this->tbLow->TickFrequency = 10;
 			this->tbLow->Value = 30;
+			// 
+			// btnCalendarFont
+			// 
 			this->btnCalendarFont->Font = (gcnew System::Drawing::Font(L"Trebuchet MS", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
 			this->btnCalendarFont->ForeColor = System::Drawing::Color::White;
@@ -1655,6 +2070,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnCalendarFont->Text = L"Calendar Font";
 			this->btnCalendarFont->UseVisualStyleBackColor = true;
 			this->btnCalendarFont->Click += gcnew System::EventHandler(this, &fConfig::btnCalendarFont_Click);
+			// 
+			// label23
+			// 
 			this->label23->AutoSize = true;
 			this->label23->Location = System::Drawing::Point(136, 100);
 			this->label23->Name = L"label23";
@@ -1662,6 +2080,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label23->Size = System::Drawing::Size(101, 20);
 			this->label23->TabIndex = 12;
 			this->label23->Text = L"Set all backgrounds";
+			// 
+			// btnAllBackgrounds
+			// 
 			this->btnAllBackgrounds->BackColor = System::Drawing::Color::White;
 			this->flowLayoutPanel5->SetFlowBreak(this->btnAllBackgrounds, true);
 			this->btnAllBackgrounds->ForeColor = System::Drawing::Color::White;
@@ -1672,12 +2093,18 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnAllBackgrounds->Text = L"Background Color";
 			this->btnAllBackgrounds->UseVisualStyleBackColor = false;
 			this->btnAllBackgrounds->Click += gcnew System::EventHandler(this, &fConfig::btnAllBackgrounds_Click);
+			// 
+			// label36
+			// 
 			this->label36->Location = System::Drawing::Point(3, 136);
 			this->label36->Name = L"label36";
 			this->label36->Size = System::Drawing::Size(99, 13);
 			this->label36->TabIndex = 37;
 			this->label36->Text = L"Pick colors";
 			this->label36->TextAlign = System::Drawing::ContentAlignment::BottomLeft;
+			// 
+			// label35
+			// 
 			this->label35->Location = System::Drawing::Point(105, 136);
 			this->label35->Margin = System::Windows::Forms::Padding(0);
 			this->label35->Name = L"label35";
@@ -1685,6 +2112,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label35->TabIndex = 36;
 			this->label35->Text = L"Front";
 			this->label35->TextAlign = System::Drawing::ContentAlignment::BottomCenter;
+			// 
+			// label34
+			// 
 			this->label34->Location = System::Drawing::Point(137, 136);
 			this->label34->Margin = System::Windows::Forms::Padding(0);
 			this->label34->Name = L"label34";
@@ -1692,12 +2122,18 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label34->TabIndex = 35;
 			this->label34->Text = L"Back";
 			this->label34->TextAlign = System::Drawing::ContentAlignment::BottomCenter;
+			// 
+			// label31
+			// 
 			this->label31->Location = System::Drawing::Point(172, 136);
 			this->label31->Name = L"label31";
 			this->label31->Size = System::Drawing::Size(99, 13);
 			this->label31->TabIndex = 40;
 			this->label31->Text = L"Pick colors";
 			this->label31->TextAlign = System::Drawing::ContentAlignment::BottomLeft;
+			// 
+			// label32
+			// 
 			this->label32->Location = System::Drawing::Point(274, 136);
 			this->label32->Margin = System::Windows::Forms::Padding(0);
 			this->label32->Name = L"label32";
@@ -1705,6 +2141,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label32->TabIndex = 39;
 			this->label32->Text = L"Front";
 			this->label32->TextAlign = System::Drawing::ContentAlignment::BottomCenter;
+			// 
+			// label33
+			// 
 			this->label33->Location = System::Drawing::Point(306, 136);
 			this->label33->Margin = System::Windows::Forms::Padding(0);
 			this->label33->Name = L"label33";
@@ -1712,12 +2151,18 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label33->TabIndex = 38;
 			this->label33->Text = L"Back";
 			this->label33->TextAlign = System::Drawing::ContentAlignment::BottomCenter;
+			// 
+			// label25
+			// 
 			this->label25->Location = System::Drawing::Point(3, 149);
 			this->label25->Name = L"label25";
 			this->label25->Padding = System::Windows::Forms::Padding(0, 7, 0, 0);
 			this->label25->Size = System::Drawing::Size(100, 20);
 			this->label25->TabIndex = 18;
 			this->label25->Text = L"Title (month/year)";
+			// 
+			// btnCalTitleFront
+			// 
 			this->btnCalTitleFront->BackColor = System::Drawing::Color::MidnightBlue;
 			this->btnCalTitleFront->ForeColor = System::Drawing::Color::White;
 			this->btnCalTitleFront->Location = System::Drawing::Point(109, 152);
@@ -1727,6 +2172,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnCalTitleFront->Text = L"Foreground";
 			this->btnCalTitleFront->UseVisualStyleBackColor = false;
 			this->btnCalTitleFront->Click += gcnew System::EventHandler(this, &fConfig::btnCalTitleFront_Click);
+			// 
+			// btnCalTitleBack
+			// 
 			this->btnCalTitleBack->BackColor = System::Drawing::Color::White;
 			this->btnCalTitleBack->ForeColor = System::Drawing::Color::White;
 			this->btnCalTitleBack->Location = System::Drawing::Point(140, 152);
@@ -1736,12 +2184,18 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnCalTitleBack->Text = L"Background";
 			this->btnCalTitleBack->UseVisualStyleBackColor = false;
 			this->btnCalTitleBack->Click += gcnew System::EventHandler(this, &fConfig::btnCalTitleBack_Click);
+			// 
+			// label26
+			// 
 			this->label26->Location = System::Drawing::Point(171, 149);
 			this->label26->Name = L"label26";
 			this->label26->Padding = System::Windows::Forms::Padding(0, 7, 0, 0);
 			this->label26->Size = System::Drawing::Size(100, 20);
 			this->label26->TabIndex = 21;
 			this->label26->Text = L"Days Mon-Sun";
+			// 
+			// btnDayNamesFront
+			// 
 			this->btnDayNamesFront->BackColor = System::Drawing::Color::Red;
 			this->btnDayNamesFront->ForeColor = System::Drawing::Color::White;
 			this->btnDayNamesFront->Location = System::Drawing::Point(277, 152);
@@ -1751,6 +2205,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnDayNamesFront->Text = L"Foreground";
 			this->btnDayNamesFront->UseVisualStyleBackColor = false;
 			this->btnDayNamesFront->Click += gcnew System::EventHandler(this, &fConfig::btnDayNamesFront_Click);
+			// 
+			// btnDayNamesBack
+			// 
 			this->btnDayNamesBack->BackColor = System::Drawing::Color::White;
 			this->btnDayNamesBack->ForeColor = System::Drawing::Color::White;
 			this->btnDayNamesBack->Location = System::Drawing::Point(308, 152);
@@ -1760,12 +2217,18 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnDayNamesBack->Text = L"Background";
 			this->btnDayNamesBack->UseVisualStyleBackColor = false;
 			this->btnDayNamesBack->Click += gcnew System::EventHandler(this, &fConfig::btnDayNamesBack_Click);
+			// 
+			// label27
+			// 
 			this->label27->Location = System::Drawing::Point(3, 178);
 			this->label27->Name = L"label27";
 			this->label27->Padding = System::Windows::Forms::Padding(0, 7, 0, 0);
 			this->label27->Size = System::Drawing::Size(100, 20);
 			this->label27->TabIndex = 24;
 			this->label27->Text = L"Days current month";
+			// 
+			// btnCalDayFront
+			// 
 			this->btnCalDayFront->BackColor = System::Drawing::Color::Black;
 			this->btnCalDayFront->ForeColor = System::Drawing::Color::White;
 			this->btnCalDayFront->Location = System::Drawing::Point(109, 181);
@@ -1775,6 +2238,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnCalDayFront->Text = L"Foreground";
 			this->btnCalDayFront->UseVisualStyleBackColor = false;
 			this->btnCalDayFront->Click += gcnew System::EventHandler(this, &fConfig::btnCalDayFront_Click);
+			// 
+			// btnCalDayBack
+			// 
 			this->btnCalDayBack->BackColor = System::Drawing::Color::White;
 			this->btnCalDayBack->ForeColor = System::Drawing::Color::White;
 			this->btnCalDayBack->Location = System::Drawing::Point(140, 181);
@@ -1784,12 +2250,18 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnCalDayBack->Text = L"Background";
 			this->btnCalDayBack->UseVisualStyleBackColor = false;
 			this->btnCalDayBack->Click += gcnew System::EventHandler(this, &fConfig::btnCalDayBack_Click);
+			// 
+			// label28
+			// 
 			this->label28->Location = System::Drawing::Point(171, 178);
 			this->label28->Name = L"label28";
 			this->label28->Padding = System::Windows::Forms::Padding(0, 7, 0, 0);
 			this->label28->Size = System::Drawing::Size(100, 20);
 			this->label28->TabIndex = 27;
 			this->label28->Text = L"Today";
+			// 
+			// btnCalTodayFront
+			// 
 			this->btnCalTodayFront->BackColor = System::Drawing::Color::White;
 			this->btnCalTodayFront->ForeColor = System::Drawing::Color::White;
 			this->btnCalTodayFront->Location = System::Drawing::Point(277, 181);
@@ -1799,6 +2271,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnCalTodayFront->Text = L"Foreground";
 			this->btnCalTodayFront->UseVisualStyleBackColor = false;
 			this->btnCalTodayFront->Click += gcnew System::EventHandler(this, &fConfig::btnCalTodayFront_Click);
+			// 
+			// btnCalTodayBack
+			// 
 			this->btnCalTodayBack->BackColor = System::Drawing::Color::Red;
 			this->btnCalTodayBack->ForeColor = System::Drawing::Color::White;
 			this->btnCalTodayBack->Location = System::Drawing::Point(308, 181);
@@ -1808,12 +2283,18 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnCalTodayBack->Text = L"Background";
 			this->btnCalTodayBack->UseVisualStyleBackColor = false;
 			this->btnCalTodayBack->Click += gcnew System::EventHandler(this, &fConfig::btnCalTodayBack_Click);
+			// 
+			// label37
+			// 
 			this->label37->Location = System::Drawing::Point(3, 207);
 			this->label37->Name = L"label37";
 			this->label37->Padding = System::Windows::Forms::Padding(0, 7, 0, 0);
 			this->label37->Size = System::Drawing::Size(100, 20);
 			this->label37->TabIndex = 42;
 			this->label37->Text = L"Days other months";
+			// 
+			// btnCalDaysOtherFront
+			// 
 			this->btnCalDaysOtherFront->BackColor = System::Drawing::Color::DimGray;
 			this->btnCalDaysOtherFront->ForeColor = System::Drawing::Color::White;
 			this->btnCalDaysOtherFront->Location = System::Drawing::Point(109, 210);
@@ -1823,6 +2304,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnCalDaysOtherFront->Text = L"Foreground";
 			this->btnCalDaysOtherFront->UseVisualStyleBackColor = false;
 			this->btnCalDaysOtherFront->Click += gcnew System::EventHandler(this, &fConfig::btnCalDaysOtherFront_Click);
+			// 
+			// btnCalDaysOtherBack
+			// 
 			this->btnCalDaysOtherBack->BackColor = System::Drawing::Color::White;
 			this->btnCalDaysOtherBack->ForeColor = System::Drawing::Color::White;
 			this->btnCalDaysOtherBack->Location = System::Drawing::Point(140, 210);
@@ -1832,6 +2316,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnCalDaysOtherBack->Text = L"Background";
 			this->btnCalDaysOtherBack->UseVisualStyleBackColor = false;
 			this->btnCalDaysOtherBack->Click += gcnew System::EventHandler(this, &fConfig::btnCalDaysOtherBack_Click);
+			// 
+			// tpWallpaper
+			// 
 			this->tpWallpaper->Controls->Add(this->groupBox5);
 			this->tpWallpaper->Controls->Add(this->panel1);
 			this->tpWallpaper->Controls->Add(this->groupBox4);
@@ -1843,6 +2330,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tpWallpaper->TabIndex = 2;
 			this->tpWallpaper->Text = L"Wallpaper";
 			this->tpWallpaper->UseVisualStyleBackColor = true;
+			// 
+			// groupBox5
+			// 
 			this->groupBox5->Controls->Add(this->flowLayoutPanel3);
 			this->groupBox5->Dock = System::Windows::Forms::DockStyle::Top;
 			this->groupBox5->Location = System::Drawing::Point(3, 220);
@@ -1851,6 +2341,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->groupBox5->TabIndex = 7;
 			this->groupBox5->TabStop = false;
 			this->groupBox5->Text = L"Wallpaper folder";
+			// 
+			// flowLayoutPanel3
+			// 
 			this->flowLayoutPanel3->Controls->Add(this->cbWallpaperFolder);
 			this->flowLayoutPanel3->Controls->Add(this->tbWallpaperFolder);
 			this->flowLayoutPanel3->Controls->Add(this->btnWallpaperFolder);
@@ -1860,6 +2353,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->flowLayoutPanel3->Name = L"flowLayoutPanel3";
 			this->flowLayoutPanel3->Size = System::Drawing::Size(336, 49);
 			this->flowLayoutPanel3->TabIndex = 1;
+			// 
+			// cbWallpaperFolder
+			// 
 			this->cbWallpaperFolder->AutoSize = true;
 			this->flowLayoutPanel3->SetFlowBreak(this->cbWallpaperFolder, true);
 			this->cbWallpaperFolder->Location = System::Drawing::Point(3, 3);
@@ -1870,11 +2366,17 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbWallpaperFolder->Text = L"Use separate wallpaper folder";
 			this->cbWallpaperFolder->UseVisualStyleBackColor = true;
 			this->cbWallpaperFolder->CheckedChanged += gcnew System::EventHandler(this, &fConfig::cbWallpaperFolder_CheckedChanged);
+			// 
+			// tbWallpaperFolder
+			// 
 			this->tbWallpaperFolder->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->tbWallpaperFolder->Location = System::Drawing::Point(3, 23);
 			this->tbWallpaperFolder->Name = L"tbWallpaperFolder";
 			this->tbWallpaperFolder->Size = System::Drawing::Size(220, 20);
 			this->tbWallpaperFolder->TabIndex = 2;
+			// 
+			// btnWallpaperFolder
+			// 
 			this->btnWallpaperFolder->Location = System::Drawing::Point(229, 23);
 			this->btnWallpaperFolder->Name = L"btnWallpaperFolder";
 			this->btnWallpaperFolder->Size = System::Drawing::Size(75, 23);
@@ -1882,6 +2384,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnWallpaperFolder->Text = L"&Browse";
 			this->btnWallpaperFolder->UseVisualStyleBackColor = true;
 			this->btnWallpaperFolder->Click += gcnew System::EventHandler(this, &fConfig::btnWallpaperFolder_Click);
+			// 
+			// panel1
+			// 
 			this->panel1->Controls->Add(this->btnWallpaperBackgroundColor);
 			this->panel1->Controls->Add(this->label10);
 			this->panel1->Dock = System::Windows::Forms::DockStyle::Top;
@@ -1889,6 +2394,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->panel1->Name = L"panel1";
 			this->panel1->Size = System::Drawing::Size(342, 34);
 			this->panel1->TabIndex = 6;
+			// 
+			// btnWallpaperBackgroundColor
+			// 
 			this->btnWallpaperBackgroundColor->BackColor = System::Drawing::Color::SteelBlue;
 			this->btnWallpaperBackgroundColor->ForeColor = System::Drawing::Color::White;
 			this->btnWallpaperBackgroundColor->Location = System::Drawing::Point(106, 5);
@@ -1898,12 +2406,18 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnWallpaperBackgroundColor->Text = L"Select color";
 			this->btnWallpaperBackgroundColor->UseVisualStyleBackColor = false;
 			this->btnWallpaperBackgroundColor->Click += gcnew System::EventHandler(this, &fConfig::btnWallpaperBackgroundColor_Click);
+			// 
+			// label10
+			// 
 			this->label10->AutoSize = true;
 			this->label10->Location = System::Drawing::Point(6, 10);
 			this->label10->Name = L"label10";
 			this->label10->Size = System::Drawing::Size(94, 13);
 			this->label10->TabIndex = 6;
 			this->label10->Text = L"Background color:";
+			// 
+			// groupBox4
+			// 
 			this->groupBox4->Controls->Add(this->btnWallpaperFilenameFont);
 			this->groupBox4->Controls->Add(this->label8);
 			this->groupBox4->Controls->Add(this->cbWallpaperStretch);
@@ -1915,7 +2429,10 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->groupBox4->TabIndex = 1;
 			this->groupBox4->TabStop = false;
 			this->groupBox4->Text = L"Filenames";
-			this->btnWallpaperFilenameFont->Font = (gcnew System::Drawing::Font(L"Arial", 8.25, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+			// 
+			// btnWallpaperFilenameFont
+			// 
+			this->btnWallpaperFilenameFont->Font = (gcnew System::Drawing::Font(L"Arial", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
 			this->btnWallpaperFilenameFont->ForeColor = System::Drawing::Color::White;
 			this->btnWallpaperFilenameFont->Location = System::Drawing::Point(85, 66);
@@ -1926,12 +2443,18 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnWallpaperFilenameFont->Text = L"Select font";
 			this->btnWallpaperFilenameFont->UseVisualStyleBackColor = true;
 			this->btnWallpaperFilenameFont->Click += gcnew System::EventHandler(this, &fConfig::btnWallpaperFilenameFont_Click);
+			// 
+			// label8
+			// 
 			this->label8->AutoSize = true;
 			this->label8->Location = System::Drawing::Point(6, 71);
 			this->label8->Name = L"label8";
 			this->label8->Size = System::Drawing::Size(73, 13);
 			this->label8->TabIndex = 2;
 			this->label8->Text = L"Filename font:";
+			// 
+			// cbWallpaperStretch
+			// 
 			this->cbWallpaperStretch->AutoSize = true;
 			this->cbWallpaperStretch->Checked = true;
 			this->cbWallpaperStretch->CheckState = System::Windows::Forms::CheckState::Checked;
@@ -1942,6 +2465,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbWallpaperStretch->TabIndex = 1;
 			this->cbWallpaperStretch->Text = L"Stretch small images";
 			this->cbWallpaperStretch->UseVisualStyleBackColor = true;
+			// 
+			// cbWallpaperFilenames
+			// 
 			this->cbWallpaperFilenames->AutoSize = true;
 			this->cbWallpaperFilenames->Checked = true;
 			this->cbWallpaperFilenames->CheckState = System::Windows::Forms::CheckState::Checked;
@@ -1951,6 +2477,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbWallpaperFilenames->TabIndex = 0;
 			this->cbWallpaperFilenames->Text = L"Display filename(s) on wallpaper";
 			this->cbWallpaperFilenames->UseVisualStyleBackColor = true;
+			// 
+			// groupBox3
+			// 
 			this->groupBox3->Controls->Add(this->rbWallpaperNone);
 			this->groupBox3->Controls->Add(this->rbWallpaperDaily);
 			this->groupBox3->Controls->Add(this->rbWallpaperRun);
@@ -1961,6 +2490,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->groupBox3->TabIndex = 0;
 			this->groupBox3->TabStop = false;
 			this->groupBox3->Text = L"Change wallpaper";
+			// 
+			// rbWallpaperNone
+			// 
 			this->rbWallpaperNone->AutoSize = true;
 			this->rbWallpaperNone->Checked = true;
 			this->rbWallpaperNone->Location = System::Drawing::Point(7, 68);
@@ -1970,6 +2502,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->rbWallpaperNone->TabStop = true;
 			this->rbWallpaperNone->Text = L"Never (Do not change wallpaper)";
 			this->rbWallpaperNone->UseVisualStyleBackColor = true;
+			// 
+			// rbWallpaperDaily
+			// 
 			this->rbWallpaperDaily->AutoSize = true;
 			this->rbWallpaperDaily->Location = System::Drawing::Point(7, 43);
 			this->rbWallpaperDaily->Name = L"rbWallpaperDaily";
@@ -1977,6 +2512,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->rbWallpaperDaily->TabIndex = 1;
 			this->rbWallpaperDaily->Text = L"Daily";
 			this->rbWallpaperDaily->UseVisualStyleBackColor = true;
+			// 
+			// rbWallpaperRun
+			// 
 			this->rbWallpaperRun->AutoSize = true;
 			this->rbWallpaperRun->Location = System::Drawing::Point(7, 20);
 			this->rbWallpaperRun->Name = L"rbWallpaperRun";
@@ -1984,6 +2522,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->rbWallpaperRun->TabIndex = 0;
 			this->rbWallpaperRun->Text = L"After each screensaver run";
 			this->rbWallpaperRun->UseVisualStyleBackColor = true;
+			// 
+			// tpMonitors
+			// 
 			this->tpMonitors->Controls->Add(this->groupBox6);
 			this->tpMonitors->Location = System::Drawing::Point(4, 40);
 			this->tpMonitors->Name = L"tpMonitors";
@@ -1992,6 +2533,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tpMonitors->TabIndex = 4;
 			this->tpMonitors->Text = L"Monitors";
 			this->tpMonitors->UseVisualStyleBackColor = true;
+			// 
+			// groupBox6
+			// 
 			this->groupBox6->Controls->Add(this->label38);
 			this->groupBox6->Controls->Add(this->cbMonitorSequence);
 			this->groupBox6->Controls->Add(this->cbSameImage);
@@ -2006,6 +2550,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->groupBox6->TabIndex = 0;
 			this->groupBox6->TabStop = false;
 			this->groupBox6->Text = L"Multi monitors settings";
+			// 
+			// label38
+			// 
 			this->label38->BackColor = System::Drawing::SystemColors::Info;
 			this->label38->Dock = System::Windows::Forms::DockStyle::Top;
 			this->label38->Location = System::Drawing::Point(3, 96);
@@ -2014,6 +2561,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label38->Size = System::Drawing::Size(336, 16);
 			this->label38->TabIndex = 7;
 			this->label38->Text = L"Only for sequential display, not with randomised photos.";
+			// 
+			// cbMonitorSequence
+			// 
 			this->cbMonitorSequence->AutoSize = true;
 			this->cbMonitorSequence->Dock = System::Windows::Forms::DockStyle::Top;
 			this->cbMonitorSequence->Location = System::Drawing::Point(3, 79);
@@ -2022,6 +2572,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbMonitorSequence->TabIndex = 6;
 			this->cbMonitorSequence->Text = L"Move images from monitor to monitor in sequence";
 			this->cbMonitorSequence->UseVisualStyleBackColor = true;
+			// 
+			// cbSameImage
+			// 
 			this->cbSameImage->AutoSize = true;
 			this->cbSameImage->Dock = System::Windows::Forms::DockStyle::Top;
 			this->cbSameImage->Location = System::Drawing::Point(3, 62);
@@ -2030,6 +2583,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbSameImage->TabIndex = 10;
 			this->cbSameImage->Text = L"Show same image on all monitors";
 			this->cbSameImage->UseVisualStyleBackColor = true;
+			// 
+			// tbInfo
+			// 
 			this->tbInfo->Location = System::Drawing::Point(188, 118);
 			this->tbInfo->Multiline = true;
 			this->tbInfo->Name = L"tbInfo";
@@ -2037,6 +2593,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tbInfo->Size = System::Drawing::Size(134, 53);
 			this->tbInfo->TabIndex = 9;
 			this->tbInfo->Visible = false;
+			// 
+			// btnCopyMonInfo
+			// 
 			this->btnCopyMonInfo->AccessibleDescription = L"The information copied can be requested by the developer if you have issues with " 
 				L"your multi monitor setup.";
 			this->btnCopyMonInfo->AccessibleRole = System::Windows::Forms::AccessibleRole::HelpBalloon;
@@ -2047,6 +2606,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnCopyMonInfo->Text = L"Copy monitor info to clipboard";
 			this->btnCopyMonInfo->UseVisualStyleBackColor = true;
 			this->btnCopyMonInfo->Click += gcnew System::EventHandler(this, &fConfig::btnCopyMonInfo_Click);
+			// 
+			// label11
+			// 
 			this->label11->BackColor = System::Drawing::SystemColors::Info;
 			this->label11->Dock = System::Windows::Forms::DockStyle::Top;
 			this->label11->Location = System::Drawing::Point(3, 33);
@@ -2056,6 +2618,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label11->TabIndex = 5;
 			this->label11->Text = L"If a panorama photo is to be displayed on the main monitor it will be automatical" 
 				L"ly stretched over all available monitors.";
+			// 
+			// cbPanoramaStretch
+			// 
 			this->cbPanoramaStretch->AutoSize = true;
 			this->cbPanoramaStretch->Checked = true;
 			this->cbPanoramaStretch->CheckState = System::Windows::Forms::CheckState::Checked;
@@ -2066,6 +2631,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbPanoramaStretch->TabIndex = 4;
 			this->cbPanoramaStretch->Text = L"Smart stretch panorama photos";
 			this->cbPanoramaStretch->UseVisualStyleBackColor = true;
+			// 
+			// tpRaw
+			// 
 			this->tpRaw->Controls->Add(this->label51);
 			this->tpRaw->Controls->Add(this->cbEnableRaw);
 			this->tpRaw->Controls->Add(this->gbRawAdvanced);
@@ -2076,6 +2644,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tpRaw->TabIndex = 9;
 			this->tpRaw->Text = L"RAW";
 			this->tpRaw->UseVisualStyleBackColor = true;
+			// 
+			// label51
+			// 
 			this->label51->Anchor = System::Windows::Forms::AnchorStyles::None;
 			this->label51->BackColor = System::Drawing::SystemColors::Info;
 			this->label51->Location = System::Drawing::Point(3, 3);
@@ -2085,6 +2656,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label51->TabIndex = 9;
 			this->label51->Text = L"To display RAW files JPG versions are created and stored.\r\nPlease note screensave" 
 				L"r will run slow whilst an image is converted.";
+			// 
+			// cbEnableRaw
+			// 
 			this->cbEnableRaw->AutoSize = true;
 			this->cbEnableRaw->Location = System::Drawing::Point(14, 35);
 			this->cbEnableRaw->Name = L"cbEnableRaw";
@@ -2092,6 +2666,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbEnableRaw->TabIndex = 10;
 			this->cbEnableRaw->Text = L"Show RAW files (Cached as JPG)";
 			this->cbEnableRaw->UseVisualStyleBackColor = true;
+			// 
+			// gbRawAdvanced
+			// 
 			this->gbRawAdvanced->Controls->Add(this->label55);
 			this->gbRawAdvanced->Controls->Add(this->tbRawParameters);
 			this->gbRawAdvanced->Controls->Add(this->label54);
@@ -2110,6 +2687,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->gbRawAdvanced->TabIndex = 8;
 			this->gbRawAdvanced->TabStop = false;
 			this->gbRawAdvanced->Text = L"Advanced settings";
+			// 
+			// label55
+			// 
 			this->label55->AutoSize = true;
 			this->label55->Location = System::Drawing::Point(4, 189);
 			this->label55->Margin = System::Windows::Forms::Padding(3, 7, 3, 0);
@@ -2117,16 +2697,25 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label55->Size = System::Drawing::Size(89, 13);
 			this->label55->TabIndex = 14;
 			this->label55->Text = L"RAW extensions:";
+			// 
+			// tbRawParameters
+			// 
 			this->tbRawParameters->Location = System::Drawing::Point(7, 160);
 			this->tbRawParameters->Name = L"tbRawParameters";
 			this->tbRawParameters->Size = System::Drawing::Size(326, 20);
 			this->tbRawParameters->TabIndex = 12;
+			// 
+			// label54
+			// 
 			this->label54->BackColor = System::Drawing::SystemColors::Info;
 			this->label54->Location = System::Drawing::Point(4, 139);
 			this->label54->Name = L"label54";
 			this->label54->Size = System::Drawing::Size(342, 18);
 			this->label54->TabIndex = 11;
 			this->label54->Text = L"Convertor parameters: (Use #RAW# #JPG# placeholders)";
+			// 
+			// label52
+			// 
 			this->label52->AutoSize = true;
 			this->label52->Location = System::Drawing::Point(6, 120);
 			this->label52->Margin = System::Windows::Forms::Padding(3, 7, 3, 0);
@@ -2134,10 +2723,16 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label52->Size = System::Drawing::Size(56, 13);
 			this->label52->TabIndex = 9;
 			this->label52->Text = L"Converter:";
+			// 
+			// tbRawConverter
+			// 
 			this->tbRawConverter->Location = System::Drawing::Point(90, 117);
 			this->tbRawConverter->Name = L"tbRawConverter";
 			this->tbRawConverter->Size = System::Drawing::Size(159, 20);
 			this->tbRawConverter->TabIndex = 8;
+			// 
+			// btnRawConverter
+			// 
 			this->btnRawConverter->Location = System::Drawing::Point(257, 115);
 			this->btnRawConverter->Name = L"btnRawConverter";
 			this->btnRawConverter->Size = System::Drawing::Size(75, 23);
@@ -2145,6 +2740,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnRawConverter->Text = L"&Browse";
 			this->btnRawConverter->UseVisualStyleBackColor = true;
 			this->btnRawConverter->Click += gcnew System::EventHandler(this, &fConfig::btnRawConverter_Click);
+			// 
+			// cbRawCacheInFolder
+			// 
 			this->cbRawCacheInFolder->AutoSize = true;
 			this->cbRawCacheInFolder->Location = System::Drawing::Point(12, 19);
 			this->cbRawCacheInFolder->Name = L"cbRawCacheInFolder";
@@ -2153,6 +2751,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbRawCacheInFolder->Text = L"Cache JPEG file in same folder as RAW file";
 			this->cbRawCacheInFolder->UseVisualStyleBackColor = true;
 			this->cbRawCacheInFolder->CheckStateChanged += gcnew System::EventHandler(this, &fConfig::cbRawCacheInFolder_CheckStateChanged);
+			// 
+			// groupBox8
+			// 
 			this->groupBox8->Controls->Add(this->rbRawCacheDimensionsOriginal);
 			this->groupBox8->Controls->Add(this->rbRawCacheDimensionsMonitor);
 			this->groupBox8->Location = System::Drawing::Point(6, 66);
@@ -2161,6 +2762,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->groupBox8->TabIndex = 6;
 			this->groupBox8->TabStop = false;
 			this->groupBox8->Text = L"Cached image size";
+			// 
+			// rbRawCacheDimensionsOriginal
+			// 
 			this->rbRawCacheDimensionsOriginal->AutoSize = true;
 			this->rbRawCacheDimensionsOriginal->Location = System::Drawing::Point(185, 19);
 			this->rbRawCacheDimensionsOriginal->Name = L"rbRawCacheDimensionsOriginal";
@@ -2168,6 +2772,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->rbRawCacheDimensionsOriginal->TabIndex = 2;
 			this->rbRawCacheDimensionsOriginal->Text = L"Keep original size";
 			this->rbRawCacheDimensionsOriginal->UseVisualStyleBackColor = true;
+			// 
+			// rbRawCacheDimensionsMonitor
+			// 
 			this->rbRawCacheDimensionsMonitor->AutoSize = true;
 			this->rbRawCacheDimensionsMonitor->Checked = true;
 			this->rbRawCacheDimensionsMonitor->Location = System::Drawing::Point(6, 19);
@@ -2177,6 +2784,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->rbRawCacheDimensionsMonitor->TabStop = true;
 			this->rbRawCacheDimensionsMonitor->Text = L"Biggest monitor (recommended)";
 			this->rbRawCacheDimensionsMonitor->UseVisualStyleBackColor = true;
+			// 
+			// lSeparateFolder
+			// 
 			this->lSeparateFolder->AutoSize = true;
 			this->lSeparateFolder->ForeColor = System::Drawing::SystemColors::ControlText;
 			this->lSeparateFolder->Location = System::Drawing::Point(7, 42);
@@ -2185,10 +2795,16 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->lSeparateFolder->Size = System::Drawing::Size(82, 13);
 			this->lSeparateFolder->TabIndex = 4;
 			this->lSeparateFolder->Text = L"Separate folder:";
+			// 
+			// tbRawCacheFolder
+			// 
 			this->tbRawCacheFolder->Location = System::Drawing::Point(91, 39);
 			this->tbRawCacheFolder->Name = L"tbRawCacheFolder";
 			this->tbRawCacheFolder->Size = System::Drawing::Size(159, 20);
 			this->tbRawCacheFolder->TabIndex = 3;
+			// 
+			// btnRawCacheFolder
+			// 
 			this->btnRawCacheFolder->Location = System::Drawing::Point(258, 37);
 			this->btnRawCacheFolder->Name = L"btnRawCacheFolder";
 			this->btnRawCacheFolder->Size = System::Drawing::Size(75, 23);
@@ -2196,10 +2812,16 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnRawCacheFolder->Text = L"&Browse";
 			this->btnRawCacheFolder->UseVisualStyleBackColor = true;
 			this->btnRawCacheFolder->Click += gcnew System::EventHandler(this, &fConfig::btnRawCacheFolder_Click);
+			// 
+			// tbRawExtensions
+			// 
 			this->tbRawExtensions->Location = System::Drawing::Point(93, 186);
 			this->tbRawExtensions->Name = L"tbRawExtensions";
 			this->tbRawExtensions->Size = System::Drawing::Size(239, 20);
 			this->tbRawExtensions->TabIndex = 13;
+			// 
+			// tpShortcuts
+			// 
 			this->tpShortcuts->Controls->Add(this->rtbShortcutKeys);
 			this->tpShortcuts->Location = System::Drawing::Point(4, 40);
 			this->tpShortcuts->Name = L"tpShortcuts";
@@ -2208,6 +2830,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tpShortcuts->TabIndex = 3;
 			this->tpShortcuts->Text = L"Keys";
 			this->tpShortcuts->UseVisualStyleBackColor = true;
+			// 
+			// rtbShortcutKeys
+			// 
 			this->rtbShortcutKeys->BackColor = System::Drawing::SystemColors::ControlLightLight;
 			this->rtbShortcutKeys->BorderStyle = System::Windows::Forms::BorderStyle::None;
 			this->rtbShortcutKeys->Dock = System::Windows::Forms::DockStyle::Fill;
@@ -2218,6 +2843,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->rtbShortcutKeys->TabIndex = 0;
 			this->rtbShortcutKeys->Text = resources->GetString(L"rtbShortcutKeys.Text");
 			this->rtbShortcutKeys->LinkClicked += gcnew System::Windows::Forms::LinkClickedEventHandler(this, &fConfig::rtbShortcutKeys_LinkClicked);
+			// 
+			// tpMetadata
+			// 
 			this->tpMetadata->Controls->Add(this->label42);
 			this->tpMetadata->Controls->Add(this->nupMetadata);
 			this->tpMetadata->Controls->Add(this->label41);
@@ -2232,50 +2860,74 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tpMetadata->TabIndex = 8;
 			this->tpMetadata->Text = L"Metadata";
 			this->tpMetadata->UseVisualStyleBackColor = true;
+			// 
+			// label42
+			// 
 			this->label42->AutoSize = true;
-			this->label42->Location = System::Drawing::Point(89, 138);
+			this->label42->Location = System::Drawing::Point(92, 154);
 			this->label42->Name = L"label42";
 			this->label42->Size = System::Drawing::Size(132, 13);
 			this->label42->TabIndex = 15;
 			this->label42->Text = L"floating metadata windows";
-			this->nupMetadata->Location = System::Drawing::Point(43, 136);
+			// 
+			// nupMetadata
+			// 
+			this->nupMetadata->Location = System::Drawing::Point(46, 152);
 			this->nupMetadata->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {25, 0, 0, 0});
 			this->nupMetadata->Name = L"nupMetadata";
 			this->nupMetadata->Size = System::Drawing::Size(40, 20);
 			this->nupMetadata->TabIndex = 14;
+			// 
+			// label41
+			// 
 			this->label41->AutoSize = true;
-			this->label41->Location = System::Drawing::Point(3, 138);
+			this->label41->Location = System::Drawing::Point(6, 154);
 			this->label41->Name = L"label41";
 			this->label41->Size = System::Drawing::Size(34, 13);
 			this->label41->TabIndex = 13;
 			this->label41->Text = L"Show";
+			// 
+			// panel4
+			// 
 			this->panel4->Controls->Add(this->label44);
 			this->panel4->Controls->Add(this->label45);
 			this->panel4->Controls->Add(this->label46);
 			this->panel4->Controls->Add(this->tbMDHigh);
 			this->panel4->Controls->Add(this->tbMDLow);
-			this->panel4->Location = System::Drawing::Point(6, 162);
+			this->panel4->Location = System::Drawing::Point(9, 178);
 			this->panel4->Name = L"panel4";
 			this->panel4->Size = System::Drawing::Size(142, 82);
 			this->panel4->TabIndex = 12;
+			// 
+			// label44
+			// 
 			this->label44->AutoSize = true;
 			this->label44->Location = System::Drawing::Point(3, 0);
 			this->label44->Name = L"label44";
 			this->label44->Size = System::Drawing::Size(91, 13);
 			this->label44->TabIndex = 38;
 			this->label44->Text = L"Metadata Opacity";
+			// 
+			// label45
+			// 
 			this->label45->AutoSize = true;
 			this->label45->Location = System::Drawing::Point(3, 57);
 			this->label45->Name = L"label45";
 			this->label45->Size = System::Drawing::Size(25, 13);
 			this->label45->TabIndex = 37;
 			this->label45->Text = L"2nd";
+			// 
+			// label46
+			// 
 			this->label46->AutoSize = true;
 			this->label46->Location = System::Drawing::Point(3, 25);
 			this->label46->Name = L"label46";
 			this->label46->Size = System::Drawing::Size(21, 13);
 			this->label46->TabIndex = 36;
 			this->label46->Text = L"1st";
+			// 
+			// tbMDHigh
+			// 
 			this->tbMDHigh->AutoSize = false;
 			this->tbMDHigh->BackColor = System::Drawing::SystemColors::ControlLightLight;
 			this->tbMDHigh->LargeChange = 10;
@@ -2286,6 +2938,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tbMDHigh->TabIndex = 35;
 			this->tbMDHigh->TickFrequency = 10;
 			this->tbMDHigh->Value = 90;
+			// 
+			// tbMDLow
+			// 
 			this->tbMDLow->AutoSize = false;
 			this->tbMDLow->BackColor = System::Drawing::SystemColors::ControlLightLight;
 			this->tbMDLow->LargeChange = 10;
@@ -2296,12 +2951,18 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tbMDLow->TabIndex = 34;
 			this->tbMDLow->TickFrequency = 10;
 			this->tbMDLow->Value = 50;
+			// 
+			// label39
+			// 
 			this->label39->AutoSize = true;
-			this->label39->Location = System::Drawing::Point(0, 117);
+			this->label39->Location = System::Drawing::Point(3, 133);
 			this->label39->Name = L"label39";
 			this->label39->Size = System::Drawing::Size(133, 13);
 			this->label39->TabIndex = 4;
 			this->label39->Text = L"Floating metadata settings:";
+			// 
+			// label40
+			// 
 			this->label40->BackColor = System::Drawing::SystemColors::Info;
 			this->label40->Location = System::Drawing::Point(0, 269);
 			this->label40->Name = L"label40";
@@ -2309,39 +2970,92 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label40->Size = System::Drawing::Size(348, 23);
 			this->label40->TabIndex = 2;
 			this->label40->Text = L"Press Ctrl+M when screensaver is running to reposition and resize.";
+			// 
+			// panel2
+			// 
+			this->panel2->Controls->Add(this->label58);
+			this->panel2->Controls->Add(this->label57);
+			this->panel2->Controls->Add(this->label56);
+			this->panel2->Controls->Add(this->cbMetaDataVert);
+			this->panel2->Controls->Add(this->cbMetaDataHorz);
 			this->panel2->Controls->Add(this->btnMetadataFont);
 			this->panel2->Controls->Add(this->cbQuickSimpleMetadata);
-			this->panel2->Controls->Add(this->cbLocation);
 			this->panel2->Controls->Add(this->tbSimpleMetadata);
 			this->panel2->Location = System::Drawing::Point(3, 26);
 			this->panel2->Name = L"panel2";
-			this->panel2->Size = System::Drawing::Size(339, 86);
+			this->panel2->Size = System::Drawing::Size(339, 104);
 			this->panel2->TabIndex = 1;
-			this->btnMetadataFont->Font = (gcnew System::Drawing::Font(L"Arial", 8.25, System::Drawing::FontStyle::Bold));
+			// 
+			// label58
+			// 
+			this->label58->AutoSize = true;
+			this->label58->Location = System::Drawing::Point(250, 60);
+			this->label58->Name = L"label58";
+			this->label58->Size = System::Drawing::Size(76, 13);
+			this->label58->TabIndex = 9;
+			this->label58->Text = L"Metadata font:";
+			// 
+			// label57
+			// 
+			this->label57->AutoSize = true;
+			this->label57->Location = System::Drawing::Point(104, 60);
+			this->label57->Name = L"label57";
+			this->label57->Size = System::Drawing::Size(117, 13);
+			this->label57->TabIndex = 8;
+			this->label57->Text = L"Quick simple metadata:";
+			// 
+			// label56
+			// 
+			this->label56->AutoSize = true;
+			this->label56->Location = System::Drawing::Point(1, 60);
+			this->label56->Name = L"label56";
+			this->label56->Size = System::Drawing::Size(47, 13);
+			this->label56->TabIndex = 7;
+			this->label56->Text = L"Position:";
+			// 
+			// cbMetaDataVert
+			// 
+			this->cbMetaDataVert->FormattingEnabled = true;
+			this->cbMetaDataVert->Items->AddRange(gcnew cli::array< System::Object^  >(4) {L"Top", L"Middle", L"Bottom", L"Random"});
+			this->cbMetaDataVert->Location = System::Drawing::Point(53, 78);
+			this->cbMetaDataVert->Name = L"cbMetaDataVert";
+			this->cbMetaDataVert->Size = System::Drawing::Size(44, 21);
+			this->cbMetaDataVert->TabIndex = 6;
+			// 
+			// cbMetaDataHorz
+			// 
+			this->cbMetaDataHorz->FormattingEnabled = true;
+			this->cbMetaDataHorz->Items->AddRange(gcnew cli::array< System::Object^  >(4) {L"Left", L"Middle", L"Right", L"Random"});
+			this->cbMetaDataHorz->Location = System::Drawing::Point(4, 77);
+			this->cbMetaDataHorz->Name = L"cbMetaDataHorz";
+			this->cbMetaDataHorz->Size = System::Drawing::Size(44, 21);
+			this->cbMetaDataHorz->TabIndex = 5;
+			// 
+			// btnMetadataFont
+			// 
+			this->btnMetadataFont->Font = (gcnew System::Drawing::Font(L"Arial", 8.25F, System::Drawing::FontStyle::Bold));
 			this->btnMetadataFont->ForeColor = System::Drawing::Color::White;
-			this->btnMetadataFont->Location = System::Drawing::Point(250, 58);
+			this->btnMetadataFont->Location = System::Drawing::Point(250, 76);
 			this->btnMetadataFont->Name = L"btnMetadataFont";
 			this->btnMetadataFont->Size = System::Drawing::Size(86, 25);
 			this->btnMetadataFont->TabIndex = 4;
-			this->btnMetadataFont->Text = L"Metadata Font";
+			this->btnMetadataFont->Text = L"Set Font";
 			this->btnMetadataFont->UseVisualStyleBackColor = true;
 			this->btnMetadataFont->Click += gcnew System::EventHandler(this, &fConfig::btnMetadataFont_Click);
+			// 
+			// cbQuickSimpleMetadata
+			// 
 			this->cbQuickSimpleMetadata->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->cbQuickSimpleMetadata->FormattingEnabled = true;
 			this->cbQuickSimpleMetadata->Items->AddRange(gcnew cli::array< System::Object^  >(1) {L"Quick select metadata"});
-			this->cbQuickSimpleMetadata->Location = System::Drawing::Point(104, 60);
+			this->cbQuickSimpleMetadata->Location = System::Drawing::Point(104, 78);
 			this->cbQuickSimpleMetadata->Name = L"cbQuickSimpleMetadata";
 			this->cbQuickSimpleMetadata->Size = System::Drawing::Size(140, 21);
 			this->cbQuickSimpleMetadata->TabIndex = 3;
 			this->cbQuickSimpleMetadata->SelectedIndexChanged += gcnew System::EventHandler(this, &fConfig::cbQuickSimpleMetadata_SelectedIndexChanged);
-			this->cbLocation->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
-			this->cbLocation->FormattingEnabled = true;
-			this->cbLocation->Items->AddRange(gcnew cli::array< System::Object^  >(9) {L"Top Left", L"Top Middle", L"Top Right", L"Middle Left", 
-				L"Middle Middle", L"Middle Right", L"Bottom Left", L"Bottom Middle", L"Bottom Right"});
-			this->cbLocation->Location = System::Drawing::Point(3, 60);
-			this->cbLocation->Name = L"cbLocation";
-			this->cbLocation->Size = System::Drawing::Size(95, 21);
-			this->cbLocation->TabIndex = 1;
+			// 
+			// tbSimpleMetadata
+			// 
 			this->tbSimpleMetadata->Location = System::Drawing::Point(3, 3);
 			this->tbSimpleMetadata->Multiline = true;
 			this->tbSimpleMetadata->Name = L"tbSimpleMetadata";
@@ -2349,6 +3063,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tbSimpleMetadata->Size = System::Drawing::Size(333, 54);
 			this->tbSimpleMetadata->TabIndex = 0;
 			this->tbSimpleMetadata->WordWrap = false;
+			// 
+			// cbMetadata
+			// 
 			this->cbMetadata->AutoSize = true;
 			this->cbMetadata->Checked = true;
 			this->cbMetadata->CheckState = System::Windows::Forms::CheckState::Checked;
@@ -2358,6 +3075,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbMetadata->TabIndex = 0;
 			this->cbMetadata->Text = L"Show metadata (EXIF/IPTC/XMP)";
 			this->cbMetadata->UseVisualStyleBackColor = true;
+			// 
+			// tpSupport
+			// 
 			this->tpSupport->Controls->Add(this->rtbDonate);
 			this->tpSupport->Location = System::Drawing::Point(4, 40);
 			this->tpSupport->Name = L"tpSupport";
@@ -2366,6 +3086,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tpSupport->TabIndex = 5;
 			this->tpSupport->Text = L"Donate";
 			this->tpSupport->UseVisualStyleBackColor = true;
+			// 
+			// rtbDonate
+			// 
 			this->rtbDonate->BackColor = System::Drawing::SystemColors::ControlLightLight;
 			this->rtbDonate->BorderStyle = System::Windows::Forms::BorderStyle::None;
 			this->rtbDonate->Dock = System::Windows::Forms::DockStyle::Fill;
@@ -2376,6 +3099,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->rtbDonate->TabIndex = 1;
 			this->rtbDonate->Text = resources->GetString(L"rtbDonate.Text");
 			this->rtbDonate->LinkClicked += gcnew System::Windows::Forms::LinkClickedEventHandler(this, &fConfig::rtbShortcutKeys_LinkClicked);
+			// 
+			// btnOk
+			// 
 			this->btnOk->Location = System::Drawing::Point(266, 456);
 			this->btnOk->Name = L"btnOk";
 			this->btnOk->Size = System::Drawing::Size(96, 23);
@@ -2383,6 +3109,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnOk->Text = L"&Ok";
 			this->btnOk->UseVisualStyleBackColor = true;
 			this->btnOk->Click += gcnew System::EventHandler(this, &fConfig::btnOk_Click);
+			// 
+			// btnCancel
+			// 
 			this->btnCancel->Location = System::Drawing::Point(265, 483);
 			this->btnCancel->Name = L"btnCancel";
 			this->btnCancel->Size = System::Drawing::Size(97, 23);
@@ -2390,6 +3119,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnCancel->Text = L"&Cancel";
 			this->btnCancel->UseVisualStyleBackColor = true;
 			this->btnCancel->Click += gcnew System::EventHandler(this, &fConfig::btnCancel_Click);
+			// 
+			// lVersionInfo
+			// 
 			this->lVersionInfo->AutoSize = true;
 			this->lVersionInfo->Font = (gcnew System::Drawing::Font(L"Arial", 16, System::Drawing::FontStyle::Bold));
 			this->lVersionInfo->ForeColor = System::Drawing::SystemColors::HotTrack;
@@ -2397,8 +3129,11 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->lVersionInfo->Name = L"lVersionInfo";
 			this->lVersionInfo->Size = System::Drawing::Size(366, 26);
 			this->lVersionInfo->TabIndex = 3;
-			this->lVersionInfo->Text = L"Random Photo Screensaver 3.4.11";
+			this->lVersionInfo->Text = L"Random Photo Screensaver 3.4.12";
 			this->lVersionInfo->TextAlign = System::Drawing::ContentAlignment::TopCenter;
+			// 
+			// rtbDonation
+			// 
 			this->rtbDonation->BackColor = System::Drawing::SystemColors::Control;
 			this->rtbDonation->BorderStyle = System::Windows::Forms::BorderStyle::None;
 			this->rtbDonation->Cursor = System::Windows::Forms::Cursors::Hand;
@@ -2409,9 +3144,12 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->rtbDonation->TabIndex = 4;
 			this->rtbDonation->Text = resources->GetString(L"rtbDonation.Text");
 			this->rtbDonation->Click += gcnew System::EventHandler(this, &fConfig::rtbDonation_Click);
+			// 
+			// btnDonate
+			// 
 			this->btnDonate->BackColor = System::Drawing::Color::Gold;
 			this->btnDonate->Cursor = System::Windows::Forms::Cursors::Hand;
-			this->btnDonate->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
+			this->btnDonate->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
 				static_cast<System::Byte>(0)));
 			this->btnDonate->Location = System::Drawing::Point(190, 512);
 			this->btnDonate->Name = L"btnDonate";
@@ -2420,6 +3158,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->btnDonate->Text = L"Donate";
 			this->btnDonate->UseVisualStyleBackColor = false;
 			this->btnDonate->Click += gcnew System::EventHandler(this, &fConfig::btnDonate_Click);
+			// 
+			// pictureBox1
+			// 
 			this->pictureBox1->Cursor = System::Windows::Forms::Cursors::Hand;
 			this->pictureBox1->Image = (cli::safe_cast<System::Drawing::Image^  >(resources->GetObject(L"pictureBox1.Image")));
 			this->pictureBox1->InitialImage = (cli::safe_cast<System::Drawing::Image^  >(resources->GetObject(L"pictureBox1.InitialImage")));
@@ -2429,6 +3170,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->pictureBox1->TabIndex = 6;
 			this->pictureBox1->TabStop = false;
 			this->pictureBox1->Click += gcnew System::EventHandler(this, &fConfig::pictureBox1_Click);
+			// 
+			// label14
+			// 
 			this->label14->AutoSize = true;
 			this->label14->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(255)), static_cast<System::Int32>(static_cast<System::Byte>(204)), 
 				static_cast<System::Int32>(static_cast<System::Byte>(0)));
@@ -2442,6 +3186,9 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label14->TabIndex = 7;
 			this->label14->Text = L"beta";
 			this->label14->Visible = false;
+			// 
+			// fConfig
+			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(369, 550);
@@ -2470,6 +3217,8 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->flowLayoutPanel4->ResumeLayout(false);
 			this->flowLayoutPanel4->PerformLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->nupFolderInfoTimeout))->EndInit();
+			this->tpMore->ResumeLayout(false);
+			this->tpMore->PerformLayout();
 			this->tpClock->ResumeLayout(false);
 			this->flowLayoutPanel2->ResumeLayout(false);
 			this->flowLayoutPanel2->PerformLayout();
@@ -2829,6 +3578,12 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 		if (lviFileInfoSubFolders->Checked) btnFilenameInfoParts->Text = btnFilenameInfoParts->Text + "subfolders\\";
 		if (lviFileInfoFilename->Checked) btnFilenameInfoParts->Text = btnFilenameInfoParts->Text + "img_0001";
 		if (lviFileInfoExt->Checked) btnFilenameInfoParts->Text = btnFilenameInfoParts->Text + ".jpg";
+	}
+	private: System::Void cbClockPosHorz_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e) {
+		if (cbClockPosHorz->SelectedIndex != -1) this->clockPosHorz[cbClockMonitor->SelectedIndex] = cbClockPosHorz->SelectedIndex;
+	}
+	private: System::Void cbClockPosVert_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e) {
+		if (cbClockPosVert->SelectedIndex != -1) this->clockPosVert[cbClockMonitor->SelectedIndex] = cbClockPosVert->SelectedIndex;
 	}
 };
 }

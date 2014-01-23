@@ -138,9 +138,9 @@ Numpad 4 \cf1 [Left arrow]\tab\cf0 Previous random image\par
 \b0 Numpad 1\cf1  [R]\tab\cf0\tab Switch between random and\par
 \tab\tab\tab sequential order.\par
 Numpad 5\cf1  [T]\tab\cf0\tab Switch time (none, current, \par
-\tab\tab\tab running)\par
-Numpad + \cf1 [V]\cf0  \tab\tab Make clock(s) bigger\par
-Numpad -  \cf1 [B]\cf0  \tab\tab Make clock(s) smaller\par
+\tab\tab\tab running)*\par
+Numpad + \cf1 [V]\cf0  \tab\tab Make clock(s) bigger*\par
+Numpad -  \cf1 [B]\cf0  \tab\tab Make clock(s) smaller*\par
 Numpad 7\cf1  [F]\tab\cf0\tab Switch filename display on/off\par
 Numpad * \cf1 [G]\cf0  \tab\tab Make filename bigger\par
 Numpad /  \cf1 [H]\cf0  \tab\tab Make filename smaller\par
@@ -148,8 +148,12 @@ Numpad 9 \cf1 [A]\cf0\tab\tab Switch animated transitions \par
 \tab\tab\tab on/off.\par
 C\tab\tab\tab Switch calendar(s) on/off\par
 Ctrl + C\tab\tab\tab Adjust calendar position(s)\par
-E\tab\tab\tab Locate image(s) in Windows Explorer\par
-Delete\tab\tab\tab Delete image(s) from folder\par
+E\tab\tab\tab Locate image(s) in Windows Explorer*\par
+Delete\tab\tab\tab Delete image(s) from folder*\par
+W\tab\tab\tab Set image(s) as desktop wallpaper*\par
+[\tab\tab\tab Rotate image 270\'b0 clock wise*\par
+]\tab\tab\tab Rotate image 90\'b0 clock wise*\par
++\tab\tab\tab Rotate image 180\'b0*\par
 \par
 \b Metadata (EXIF/IPTC/XMP)\b0\par
 N\tab\tab\tab Switch quick metadata onf/off\par
@@ -159,7 +163,7 @@ Ctrl + M\tab\tab\tab Adjust metadata position(s)\par
 Other settings\par
 \b0 S\tab\tab\tab Open settings menu\par
 \b\par
-Multi monitor settings (if available)\par
+* Multi monitor settings (if available)\par
 \b0 0\tab\tab\tab Apply clock setting to all \par
 \tab\tab\tab monitors\par
 1...9\tab\tab\tab Select monitor 1 - 9 for clock \par
@@ -167,6 +171,14 @@ Multi monitor settings (if available)\par
 \par
 For more information visit http://www.abScreensavers.com\f1\fs20\par
 }</value>
+  </data>
+  <data name="label59.Text" xml:space="preserve">
+    <value>Use following keys to rotate image(s): 
+[ rotate image 270° CW
+] rotate image 90° CW
++ rotate image 180°
+Please note: if filename.bak exists it isn't overwritten.
+For multi monitors: select monitor with 1 ... 9 or 0 for all.</value>
   </data>
   <data name="rtbDonate.Text" xml:space="preserve">
     <value>{\rtf1\ansi\ansicpg1252\deff0\deflang2057\deflangfe2057{\fonttbl{\f0\fswiss\fprq2\fcharset0 Arial;}{\f1\fswiss\fprq2\fcharset0 Tahoma;}}

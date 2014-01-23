@@ -51,6 +51,7 @@ namespace nsRandomPhotoScreensaver {
 
 	public ref class TMetadata {
 	private:
+		fConfig^ config;
 		bool success;
 		String^ filename;
 		Exiv2Image *exiv2Image;
@@ -74,6 +75,7 @@ namespace nsRandomPhotoScreensaver {
 
 	public:
 		TMetadata(String^ _filename) : filename(_filename) {
+			config = gConfig;
 			this->success = false;
 			if (filename->Length > 0) {
 				std::string fn;
@@ -173,6 +175,52 @@ namespace nsRandomPhotoScreensaver {
 				return metadata;
 			}
 			return "";
+		}
+
+		int getExifImageOrientation() {
+			//this->metadata = gcnew TMetadata(this->rawCachedFilename);
+			ArrayList^ orientation = this->find("Exif.Image.Orientation");
+//				RotateFlipType rotation = RotateFlipType::RotateNoneFlipNone;
+			if (orientation->Count > 0) return System::Convert::ToInt32(safe_cast<TMetadataItem^>(orientation[0])->plainValue);
+			else return 0;
+		}
+
+		RotateFlipType getExifImageOrientationRFT() {
+			switch((int)this->getExifImageOrientation()) {
+				case 1: break;
+				case 2: return RotateFlipType::RotateNoneFlipX; break;
+				case 3: return RotateFlipType::Rotate180FlipNone; break;
+				case 4: return RotateFlipType::Rotate180FlipX; break;
+				case 5: return RotateFlipType::Rotate90FlipX; break;
+				case 6: return RotateFlipType::Rotate90FlipNone; break;
+				case 7: return RotateFlipType::Rotate270FlipX; break;
+				case 8: return RotateFlipType::Rotate270FlipNone; break;
+			}
+			return RotateFlipType::RotateNoneFlipNone;
+		}
+
+		bool writeExifImageOrientation(RotateFlipType rft) {
+			array<int> ^rotate90 = {1, 8, 3, 6, 1, 0, 2, 7, 4, 5, 2};
+			array<int> ^rotate180 = {1, 3, 1, 2, 4, 2, 5, 7, 5, 6, 8, 6};
+			try {
+				Exiv2::ExifData &exifData = exiv2Image->image->exifData();
+				int orientation = this->getExifImageOrientation();
+//				exifData["Exif.Image.Orientation"] = 3;
+				int i = 0;
+				if (rft == RotateFlipType::Rotate180FlipNone) {
+					while(rotate180[i] != orientation) i++;
+					exifData["Exif.Image.Orientation"] = uint32_t((_ULonglong)rotate180[i + 1]);
+				} else {
+					while(rotate90[i] != orientation) i++;
+					if (rft == RotateFlipType::Rotate270FlipNone) i++; else i--;
+					if (i < 0) i = 3;
+					exifData["Exif.Image.Orientation"] = uint32_t((_ULonglong)rotate90[i]);
+				}
+				exiv2Image->image->writeMetadata();
+			} catch(Exception ^ex) {
+				return false;
+			}
+			return true;			
 		}
 	};
 

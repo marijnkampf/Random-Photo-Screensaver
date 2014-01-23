@@ -49,9 +49,11 @@ namespace nsRandomPhotoScreensaver {
 		private: System::Windows::Forms::Panel^  panel;
 		private: int nrRows, nrCols;
 		private: bool resizing;
+						 fConfig^ config;
 
 	public:
 		fCalendar(int id, int month) {
+			config = gConfig;
 			this->id = id;
 			this->month = month;
 			days = gcnew array<System::Windows::Forms::Label^>(50);
@@ -166,7 +168,7 @@ namespace nsRandomPhotoScreensaver {
 				year = year+int((double(month+monthDif) / 12));
 				month= (month+monthDif) % 12;
 			} else {
-				month = month+monthDif;
+				month = (month+monthDif) % 12;
 				year = DateTime::Today.Year;
 			}
 

@@ -24,6 +24,9 @@
     <ClCompile Include="RPS3.0.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TTextPosition.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="autoRegistry.h">
@@ -60,6 +63,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TMetadata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TTextPosition.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

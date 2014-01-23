@@ -29,7 +29,7 @@
 #include "fConfig.h"
 #include "TConductor.h"
 #include "TMetadata.h"
-
+#include "TTextPosition.h"
 /*#include "image.hpp"
 #include "exif.hpp"
 #include "string"*/
@@ -47,6 +47,8 @@ using namespace System::Text;
 #define DEBUGINFOFILE "debuginfo.txt"
 #define MAXERRORCOUNT 25
 
+extern gcroot<nsRandomPhotoScreensaver::fConfig^> gConfig;
+
 namespace nsRandomPhotoScreensaver {
 	// http://msdn.microsoft.com/en-us/library/1b4az623.aspx
 	void setFontSize(Font^ %font, int size) {
@@ -54,11 +56,9 @@ namespace nsRandomPhotoScreensaver {
 		font = gcnew Font(font->FontFamily, size, font->Style, font->Unit, font->GdiCharSet, font->GdiVerticalFont);
 	}
 
-	enum TTextPosition {tpNone, 
-											tpTopLeft, tpTopMiddle, tpTopRight, 
-											tpMiddleLeft, tpMiddleMiddle, tpMiddleRight, 
-											tpBottomLeft, tpBottomMiddle, tpBottomRight };
-
+	//	enum TVertical { tpNone, tpTop, tpMiddle, tpBottom, tpRandom }
+//	enum THorizontal { tpNone, tpLeft, tpMiddle, tpRight, tpRandom }
+/*
 	String^ getTextPosition(TTextPosition tp) {
 		switch (tp) {
 			case tpNone: 				return "None"; break;
@@ -71,6 +71,7 @@ namespace nsRandomPhotoScreensaver {
 			case tpBottomLeft: 	return "Bottom Left"; break;
 			case tpBottomMiddle: return "Bottom Middle"; break;
 			case tpBottomRight: 	return "Bottom Right"; break;
+			case tpRandom: 	return "Random"; break;
 		}
 		return "";
 	}
@@ -86,11 +87,13 @@ namespace nsRandomPhotoScreensaver {
 		else if (String::Compare(tp, "Bottom Left", StringComparison::InvariantCultureIgnoreCase) == 0) return tpBottomLeft;
 		else if (String::Compare(tp, "Bottom Middle", StringComparison::InvariantCultureIgnoreCase) == 0) return tpBottomMiddle;
 		else if (String::Compare(tp, "Bottom Right", StringComparison::InvariantCultureIgnoreCase) == 0) return tpBottomRight;
+		else if (String::Compare(tp, "Random", StringComparison::InvariantCultureIgnoreCase) == 0) return tpRandom;
 		return tpNone;
-	}
+	}*/
 
 	public ref class TSaverMonitor {
 	private:
+		fConfig^ config;
 		IntPtr hdcPreview;
 		int id;
 		int mmWidth;
@@ -109,7 +112,7 @@ namespace nsRandomPhotoScreensaver {
 		DateTime infoTimeout;
 		String^ messageText;
 		DateTime messageTimeout;
-		TTextPosition messagePosition;
+		TTextPosition^ messagePosition;
 
 		float multiMonitorRatio;
 		String^ simpleMetadata;
@@ -129,6 +132,7 @@ namespace nsRandomPhotoScreensaver {
 		array<Bitmap^>^buffers; 
 		Bitmap^ bPreview;
 		//Graphics^ gPreview;
+		Image^ image;
 		String^ filename;
 		String^ rawCachedFilename;
 		String^ showFilename;
@@ -139,6 +143,7 @@ namespace nsRandomPhotoScreensaver {
 
 	public:	
 		TSaverMonitor(Graphics^ graphics, System::Drawing::Rectangle rectangle, int id, int mmWidth, int mmHeight, int panoX, IntPtr hdcPreview)	{
+			config = gConfig;
 			this->errorCount = 0;
 			this->hdcPreview = hdcPreview;
 			previewScale = 1;
@@ -192,18 +197,18 @@ namespace nsRandomPhotoScreensaver {
 			identify(4);
 		}
 
-		void showMessage(String^ message, TTextPosition position, int timeout) {
+		void showMessage(String^ message, TTextPosition^ position, int timeout) {
 			this->messagePosition = position;
 			this->messageText = message;
 			messageTimeout = DateTime::Now.AddSeconds(timeout);
 		}
 
-		void showMessage(String^ message, TTextPosition position) {
+		void showMessage(String^ message, TTextPosition^ position) {
 			showMessage(message, position, 4);
 		}
 
 		void showMessage(String^ message) {
-			showMessage(message, tpMiddleMiddle, 4);
+			showMessage(message, gcnew TTextPosition(TTextPosition::THorizontal::tpXMiddle, TTextPosition::TVertical::tpYMiddle), 4);
 		}
 
 		void debugFile(int m, String^ filename) {
@@ -314,7 +319,7 @@ namespace nsRandomPhotoScreensaver {
 			DrawToBuffer( grafx->Graphics );
 		}
 
-		bool LoadMonitorImage(String^ filename, TConductor^ %conductor) {
+		bool LoadImage(String^ filename, TConductor^ %conductor) {
 			//if (filename == "") return false;
 			this->showFilename = this->filename = filename;
 			this->rawCachedFilename = conductor->checkImageCache(filename);
@@ -323,7 +328,6 @@ namespace nsRandomPhotoScreensaver {
 				debugFile(this->id, filename, "No output from RAW conversion");
 				return false;
 			}
-
 
 			if ((!config->lviFileInfoBase->Checked) || (!config->lviFileInfoSubFolders->Checked) || (!config->lviFileInfoFilename->Checked) || (!config->lviFileInfoExt->Checked)) {
 				array<String^> ^parts = gcnew array<String^>(4);
@@ -348,8 +352,6 @@ namespace nsRandomPhotoScreensaver {
 			if (this->rawCachedFilename != filename) debugFile(this->id, filename + " <" + this->rawCachedFilename + ">");
 			else debugFile(this->id, filename);
 
-			GraphicsUnit units = GraphicsUnit::Pixel;
-
 			try {
 				this->backgroundBrush = gcnew SolidBrush(config->btnBackgroundColor->BackColor);
 
@@ -360,7 +362,7 @@ namespace nsRandomPhotoScreensaver {
 				}
 
 				this->metadata = gcnew TMetadata(this->rawCachedFilename);
-				ArrayList^ orientation = this->metadata->find("Exif.Image.Orientation");
+/*				ArrayList^ orientation = this->metadata->find("Exif.Image.Orientation");
 				RotateFlipType rotation = RotateFlipType::RotateNoneFlipNone;
 				if (orientation->Count > 0) {
 					switch(System::Convert::ToInt32(safe_cast<TMetadataItem^>(orientation[0])->plainValue)) {
@@ -373,10 +375,33 @@ namespace nsRandomPhotoScreensaver {
 						case 7: rotation = RotateFlipType::Rotate270FlipX; break;
 						case 8: rotation = RotateFlipType::Rotate270FlipNone; break;
 					}
+				}*/
+				RotateFlipType rotation = this->metadata->getExifImageOrientationRFT();
 
-				}
-				Image^ image = Image::FromFile(this->rawCachedFilename);
+				image = Image::FromFile(this->rawCachedFilename);
 				if (config->cbExifRotate->Checked) image->RotateFlip(rotation);
+			} catch(OutOfMemoryException ^ex) {
+				debugFile(this->id, filename, "Error reading");
+				showMessage("Error reading: '" + filename + "'");
+				conductor->removeImageFromList(filename);
+				return false;
+			} catch(FileNotFoundException ^ex) {
+				debugFile(this->id, filename, "File not found");
+				showMessage("File not found: '" + filename + "'");
+				conductor->removeImageFromList(filename);
+				return false;
+			} catch(Exception ^ex) {
+				debugFile(this->id, filename, "Other error: " + ex->Message);
+				showMessage("Other error: " + ex->Message + " '" + filename + "'");
+				conductor->removeImageFromList(filename);
+				return false;
+			}
+			return true;
+		}
+
+		bool SizeImage(TConductor^ %conductor) {
+			try {
+				GraphicsUnit units = GraphicsUnit::Pixel;
 
 				float imgRatio = (float)image->Width / (float)image->Height;
 				RectangleF targetRect;
@@ -408,25 +433,35 @@ namespace nsRandomPhotoScreensaver {
 				showMessage("Error reading: '" + filename + "'");
 				conductor->removeImageFromList(filename);
 				return false;
-			} catch(FileNotFoundException ^ex) {
-				debugFile(this->id, filename, "File not found");
-				showMessage("File not found: '" + filename + "'");
-				conductor->removeImageFromList(filename);
-				return false;
 			} catch(Exception ^ex) {
 				debugFile(this->id, filename, "Other error: " + ex->Message);
 				showMessage("Other error: " + ex->Message + " '" + filename + "'");
 				conductor->removeImageFromList(filename);
 				return false;
 			}
+			return true;
+		}
+
+		bool LoadMonitorImage(String^ filename, TConductor^ %conductor) {
+			if (!this->LoadImage(filename, conductor)) return false;
+			if (!this->SizeImage(conductor)) return false;
 
 			if (config->cbMetadata) {
 				TMetaTemplate^ metaTemplate = gcnew TMetaTemplate(config->tbSimpleMetadata->Text);
 				//TMetaTemplate^ metaTemplate = gcnew TMetaTemplate("D:\\abScreensavers.com\\Random Photo Screensaver\\metadata\\default.html", true);
 				//this->metadata = gcnew TMetadata(filename);
-				this->simpleMetadata = metaTemplate->processMetadata(metadata);
+				this->simpleMetadata = metaTemplate->processMetadata(this->metadata);
 			}
 			return true;
+		}
+
+		bool RotateImage(RotateFlipType angle, TConductor^ %conductor) {
+			if (image != nullptr) {
+				image->RotateFlip(angle);
+				return this->SizeImage(conductor);
+			}
+			return true;
+			//DrawToBuffer( grafx->Graphics );
 		}
 
 		void RedrawBuffer() {
@@ -471,11 +506,11 @@ namespace nsRandomPhotoScreensaver {
 			this->dirCount = dirCount;
 		}
 		
-		void WriteText(Graphics^ g, String^ text, Drawing::Rectangle rect, TTextPosition position, Font^ font, Color color, bool shadow) {
+		void WriteText(Graphics^ g, String^ text, Drawing::Rectangle rect, TTextPosition^ position, Font^ font, Color color, bool shadow) {
 			WriteText(g, text, rect, position, font, color, shadow, Point(0, 0));
 		}
 
-		void WriteText(Graphics^ g, String^ text, Drawing::Rectangle rect, TTextPosition position, Font^ font, Color color, bool shadow, Point^ base) {
+		void WriteText(Graphics^ g, String^ text, Drawing::Rectangle rect, TTextPosition^ position, Font^ font, Color color, bool shadow, Point^ base) {
 			int x = 0, y = 0;
 			if (config->action == saPreview) {
 				setFontSize(font, font->Size * previewScale);
@@ -484,26 +519,35 @@ namespace nsRandomPhotoScreensaver {
 			TextFormatFlags tfFlags = TextFormatFlags::Default;
 			SolidBrush^ sb = gcnew SolidBrush(color);
 			Size size = TextRenderer::MeasureText(g, text, font);
-			switch(position) { // Horizontal
-				case tpTopMiddle: case tpMiddleMiddle: case tpBottomMiddle: {
+
+			Random^ rnd = gcnew Random();
+
+			switch(position->getPositionX()) { // Horizontal
+				case TTextPosition::THorizontal::tpXMiddle: {
 					tfFlags = tfFlags | TextFormatFlags::HorizontalCenter;
 					x = rect.Width;
 				} break;
-				case tpTopRight: case tpMiddleRight: case tpBottomRight: {
+				case TTextPosition::THorizontal::tpXRight: {
 					// For some reason right align makes text disappear.
 					//tfFlags = tfFlags | TextFormatFlags::Right;
 					x = rect.Width - size.Width - shadowOffset;
 				} break;
+				case TTextPosition::THorizontal::tpXRandom:
+					x = rnd->Next(rect.Width - size.Width - shadowOffset);
+				break;
 			}
-			switch(position) { // Vertical
-				case tpTopLeft: case tpTopMiddle: case tpTopRight: {
+			switch(position->getPositionY()) { // Vertical
+				case TTextPosition::TVertical::tpYTop: {
 				} break;
-				case tpMiddleLeft: case tpMiddleMiddle: case tpMiddleRight: {
+				case TTextPosition::TVertical::tpYMiddle: {
 					y = (rect.Height - size.Height) / 2;				
 				} break;
-				case tpBottomLeft: case tpBottomMiddle: case tpBottomRight: {
+				case TTextPosition::TVertical::tpYBottom: {
 					y = rect.Height - size.Height - shadowOffset;
 				} break;
+				case TTextPosition::TVertical::tpYRandom:
+					y = rnd->Next(rect.Height - size.Height - shadowOffset);
+				break;
 			}
 			if (shadow) TextRenderer::DrawText(g, text, font, Point(base->X+x+shadowOffset, base->Y+y+shadowOffset), config->adjustToBrightness(color), tfFlags);
 			TextRenderer::DrawText(g, text, font, Point(base->X+x, base->Y+y), color, tfFlags);
@@ -541,18 +585,18 @@ namespace nsRandomPhotoScreensaver {
 			g->DrawLine( rp, Point(this->r.Width, 0), Point(0, this->r.Height) );
 */
 			if (this->filename == nullptr) {
-				WriteText(g, backgroundText, this->r, tpMiddleMiddle, gcnew System::Drawing::Font( "Arial", 32 ), Color::White, true);
+				WriteText(g, backgroundText, this->r, gcnew TTextPosition(TTextPosition::THorizontal::tpXMiddle, TTextPosition::TVertical::tpYMiddle), gcnew System::Drawing::Font( "Arial", 32 ), Color::White, true);
 			} 
 			DateTime dt = DateTime::Now;
 
-			if (DateTime::Compare(dt, identifyTimeout) < 0) WriteText(g, (this->id+1).ToString(), this->r, tpMiddleMiddle, gcnew System::Drawing::Font( "Arial", float(int(this->r.Height) / 1.75) ), Color::White, true);
+			if (DateTime::Compare(dt, identifyTimeout) < 0) WriteText(g, (this->id+1).ToString(), this->r, gcnew TTextPosition(TTextPosition::THorizontal::tpXMiddle, TTextPosition::TVertical::tpYMiddle), gcnew System::Drawing::Font( "Arial", float(int(this->r.Height) / 1.75) ), Color::White, true);
 
 			if (config->cbDisplayFilenames->Checked) {
-				WriteText(g, this->showFilename, this->r, tpTopLeft, config->filenameFont, config->btnFilenamefont->ForeColor, true);
+				WriteText(g, this->showFilename, this->r, gcnew TTextPosition(TTextPosition::THorizontal::tpXLeft, TTextPosition::TVertical::tpYTop), config->filenameFont, config->btnFilenamefont->ForeColor, true);
 			}
 
 			if (config->cbMetadata->Checked && (this->simpleMetadata != "")) {
-				WriteText(g, this->simpleMetadata, this->r, getTextPosition(config->cbLocation->Text), config->btnMetadataFont->Font, config->btnMetadataFont->ForeColor, true);
+				WriteText(g, this->simpleMetadata, this->r, gcnew TTextPosition(config->cbMetaDataHorz->Text, config->cbMetaDataVert->Text), config->btnMetadataFont->Font, config->btnMetadataFont->ForeColor, true);
 			}
 
 			if (config->clockType[id] != ctNone) {
@@ -565,7 +609,7 @@ namespace nsRandomPhotoScreensaver {
 					int p = t->LastIndexOf(".");
 					if (p > 0) t = t->Substring(0, p); // Bug fix if time is 0.
 				}
-				WriteText(g, t, this->r, tpTopRight, config->clockFont[id], config->clockColor[id], true);
+				WriteText(g, t, this->r, gcnew TTextPosition((int)config->clockPosHorz[this->id], (int)config->clockPosVert[this->id]), config->clockFont[id], config->clockColor[id], true);
 			}
 
 			if (DateTime::Compare(dt, messageTimeout) < 0) WriteText(g, this->messageText, this->r, this->messagePosition, gcnew System::Drawing::Font( "Arial", 18 ), Color::White, true);
@@ -574,7 +618,7 @@ namespace nsRandomPhotoScreensaver {
 				String^ sFileCount = "",^ sDirCount = "";
 				if (this->fileCount != 1) sFileCount = "s";
 				if (this->dirCount != 1) sDirCount = "s";
-				WriteText(g, "Found " + this->fileCount.ToString("N0") + " image" + sFileCount + " in " + this->dirCount.ToString("N0") + " folder" + sDirCount + ".", this->r, tpBottomLeft, gcnew System::Drawing::Font( "Arial", 8 ), Color::White, true);
+				WriteText(g, "Found " + this->fileCount.ToString("N0") + " image" + sFileCount + " in " + this->dirCount.ToString("N0") + " folder" + sDirCount + ".", this->r, gcnew TTextPosition(TTextPosition::THorizontal::tpXLeft, TTextPosition::TVertical::tpYBottom), gcnew System::Drawing::Font( "Arial", 8 ), Color::White, true);
 			}
 			if (config->action == saPreview) {
 				try {

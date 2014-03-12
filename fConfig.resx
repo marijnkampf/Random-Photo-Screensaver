@@ -117,6 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="label59.Text" xml:space="preserve">
+    <value>Use following keys to rotate image(s): 
+[ rotate image 270° CW
+] rotate image 90° CW
++ rotate image 180°
+Please note: if filename.bak exists it isn't overwritten.
+For multi monitors: select monitor with 1 ... 9 or 0 for all.</value>
+  </data>
   <data name="rtbShortcutKeys.Text" xml:space="preserve">
     <value>{\rtf1\ansi\ansicpg1252\deff0\deflang2057\deflangfe2057{\fonttbl{\f0\fswiss\fprq2\fcharset0 Tahoma;}{\f1\fswiss\fprq2\fcharset0 Arial;}}
 {\colortbl ;\red128\green128\blue128;}
@@ -171,14 +179,6 @@ Other settings\par
 \par
 For more information visit http://www.abScreensavers.com\f1\fs20\par
 }</value>
-  </data>
-  <data name="label59.Text" xml:space="preserve">
-    <value>Use following keys to rotate image(s): 
-[ rotate image 270° CW
-] rotate image 90° CW
-+ rotate image 180°
-Please note: if filename.bak exists it isn't overwritten.
-For multi monitors: select monitor with 1 ... 9 or 0 for all.</value>
   </data>
   <data name="rtbDonate.Text" xml:space="preserve">
     <value>{\rtf1\ansi\ansicpg1252\deff0\deflang2057\deflangfe2057{\fonttbl{\f0\fswiss\fprq2\fcharset0 Arial;}{\f1\fswiss\fprq2\fcharset0 Tahoma;}}

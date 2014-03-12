@@ -901,7 +901,19 @@ namespace nsRandomPhotoScreensaver {
 	}
 
 	public: System::Void Engine_KeyDown(System::Object^  sender, System::Windows::Forms::KeyEventArgs^  e) {
-	  switch (e->KeyCode) {
+		Keys KeyCode = e->KeyCode;
+		// fix German keyboard codes for [ ]
+		if (e->Alt && e->Control) {
+			switch (e->KeyCode) {
+				case Keys::D8: 
+					KeyCode = Keys::OemOpenBrackets;
+				break;
+				case Keys::D9:
+					KeyCode = Keys::OemCloseBrackets;
+				break;
+			}
+		}
+		switch (KeyCode) {
 			case Keys::M: {
 				if (checkInitMetadata()) for(int i= 0; i < config->nupMetadata->Value; i++) {
 					if (e->Control) {
@@ -985,7 +997,7 @@ namespace nsRandomPhotoScreensaver {
 				config->Show();
 			} break;
 			case Keys::D1: case Keys::D2: case Keys::D3: case Keys::D4: case Keys::D5: case Keys::D6: case Keys::D7: case Keys::D8: case Keys::D9: {
-				int m = (int)e->KeyCode - (int)Keys::D1;
+				int m = (int)KeyCode - (int)Keys::D1;
 				if (m < saverMonitors->Length) {
 					for(int i=0; i < saverMonitors->Length; i++) {
 						saverMonitors[i]->unidentify();
@@ -1156,7 +1168,7 @@ namespace nsRandomPhotoScreensaver {
 					int cm; if (currentMonitor == CM_ALL) cm = i; else cm = currentMonitor;
 					if ((cm == i) && ((!conductor->panorama) || (conductor->panorama && (i == 0)))) {
 						RotateFlipType angle;
-					  switch (e->KeyCode) {
+						switch (KeyCode) {
 							case Keys::OemOpenBrackets: 
 								angle = RotateFlipType::Rotate270FlipNone; 
 								saverMonitors[i]->showMessage("Rotating 270° clock wise" + target);

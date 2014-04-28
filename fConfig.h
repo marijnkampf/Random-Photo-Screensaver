@@ -988,24 +988,24 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tpGeneral->SuspendLayout();
 			this->groupBox1->SuspendLayout();
 			this->flowLayoutPanel1->SuspendLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->nupTimeout))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->nupTimeout))->BeginInit();
 			this->tpAdvanced->SuspendLayout();
 			this->flowLayoutPanel4->SuspendLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->nupFolderInfoTimeout))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->nupFolderInfoTimeout))->BeginInit();
 			this->tpMore->SuspendLayout();
 			this->tpClock->SuspendLayout();
 			this->flowLayoutPanel2->SuspendLayout();
 			this->groupBox2->SuspendLayout();
 			this->tpCalendar->SuspendLayout();
 			this->flowLayoutPanel5->SuspendLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->splitContainer1))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->splitContainer1))->BeginInit();
 			this->splitContainer1->Panel1->SuspendLayout();
 			this->splitContainer1->Panel2->SuspendLayout();
 			this->splitContainer1->SuspendLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->nupNrFolCalendars))->BeginInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->nupNrPrevCalendars))->BeginInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->tbHigh))->BeginInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->tbLow))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->nupNrFolCalendars))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->nupNrPrevCalendars))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->tbHigh))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->tbLow))->BeginInit();
 			this->tpWallpaper->SuspendLayout();
 			this->groupBox5->SuspendLayout();
 			this->flowLayoutPanel3->SuspendLayout();
@@ -1019,13 +1019,13 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->groupBox8->SuspendLayout();
 			this->tpShortcuts->SuspendLayout();
 			this->tpMetadata->SuspendLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->nupMetadata))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->nupMetadata))->BeginInit();
 			this->panel4->SuspendLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->tbMDHigh))->BeginInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->tbMDLow))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->tbMDHigh))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->tbMDLow))->BeginInit();
 			this->panel2->SuspendLayout();
 			this->tpSupport->SuspendLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox1))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			this->SuspendLayout();
 			// 
 			// tcTabs
@@ -1105,7 +1105,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// 
 			// btnFilenamefont
 			// 
-			this->btnFilenamefont->Font = (gcnew System::Drawing::Font(L"Arial", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
+			this->btnFilenamefont->Font = (gcnew System::Drawing::Font(L"Arial", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0), true));
 			this->btnFilenamefont->ForeColor = System::Drawing::Color::White;
 			this->btnFilenamefont->Location = System::Drawing::Point(83, 33);
@@ -1195,7 +1195,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// 
 			this->label16->AutoSize = true;
 			this->flowLayoutPanel1->SetFlowBreak(this->label16, true);
-			this->label16->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Italic, System::Drawing::GraphicsUnit::Point, 
+			this->label16->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Italic, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->label16->Location = System::Drawing::Point(3, 29);
 			this->label16->Name = L"label16";
@@ -1219,7 +1219,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->nupTimeout->Name = L"nupTimeout";
 			this->nupTimeout->Size = System::Drawing::Size(120, 20);
 			this->nupTimeout->TabIndex = 7;
-			this->nupTimeout->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {10, 0, 0, 0});
+			this->nupTimeout->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) { 10, 0, 0, 0 });
 			// 
 			// label5
 			// 
@@ -1272,7 +1272,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// label17
 			// 
 			this->label17->AutoSize = true;
-			this->label17->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+			this->label17->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->label17->Location = System::Drawing::Point(3, 123);
 			this->label17->Margin = System::Windows::Forms::Padding(3, 3, 0, 0);
@@ -1384,7 +1384,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// label3
 			// 
 			this->label3->AutoSize = true;
-			this->label3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Italic, System::Drawing::GraphicsUnit::Point, 
+			this->label3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Italic, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->label3->Location = System::Drawing::Point(0, 26);
 			this->label3->Margin = System::Windows::Forms::Padding(0);
@@ -1397,7 +1397,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// 
 			this->label15->AutoSize = true;
 			this->flowLayoutPanel4->SetFlowBreak(this->label15, true);
-			this->label15->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
+			this->label15->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->label15->Location = System::Drawing::Point(235, 26);
 			this->label15->Margin = System::Windows::Forms::Padding(0);
@@ -1427,7 +1427,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// label47
 			// 
 			this->label47->AutoSize = true;
-			this->label47->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Italic, System::Drawing::GraphicsUnit::Point, 
+			this->label47->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Italic, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->label47->Location = System::Drawing::Point(0, 65);
 			this->label47->Margin = System::Windows::Forms::Padding(0);
@@ -1440,7 +1440,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// 
 			this->label48->AutoSize = true;
 			this->flowLayoutPanel4->SetFlowBreak(this->label48, true);
-			this->label48->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
+			this->label48->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->label48->Location = System::Drawing::Point(236, 65);
 			this->label48->Margin = System::Windows::Forms::Padding(0);
@@ -1467,7 +1467,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->nupFolderInfoTimeout->Name = L"nupFolderInfoTimeout";
 			this->nupFolderInfoTimeout->Size = System::Drawing::Size(39, 20);
 			this->nupFolderInfoTimeout->TabIndex = 24;
-			this->nupFolderInfoTimeout->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) {10, 0, 0, 0});
+			this->nupFolderInfoTimeout->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) { 10, 0, 0, 0 });
 			// 
 			// label18
 			// 
@@ -1520,8 +1520,10 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->cbMouseSensitivity->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->flowLayoutPanel4->SetFlowBreak(this->cbMouseSensitivity, true);
 			this->cbMouseSensitivity->FormattingEnabled = true;
-			this->cbMouseSensitivity->Items->AddRange(gcnew cli::array< System::Object^  >(4) {L"Sensitive", L"Normal", L"Insensitive", 
-				L"Ignore movement"});
+			this->cbMouseSensitivity->Items->AddRange(gcnew cli::array< System::Object^  >(4) {
+				L"Sensitive", L"Normal", L"Insensitive",
+					L"Ignore movement"
+			});
 			this->cbMouseSensitivity->Location = System::Drawing::Point(99, 150);
 			this->cbMouseSensitivity->Margin = System::Windows::Forms::Padding(3, 0, 3, 3);
 			this->cbMouseSensitivity->Name = L"cbMouseSensitivity";
@@ -1653,7 +1655,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// 
 			this->label60->AutoSize = true;
 			this->label60->Dock = System::Windows::Forms::DockStyle::Top;
-			this->label60->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
+			this->label60->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->label60->Location = System::Drawing::Point(0, 0);
 			this->label60->Margin = System::Windows::Forms::Padding(0, 0, 3, 0);
@@ -1785,7 +1787,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// 
 			// btnClockFont
 			// 
-			this->btnClockFont->Font = (gcnew System::Drawing::Font(L"Arial", 63.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+			this->btnClockFont->Font = (gcnew System::Drawing::Font(L"Arial", 63.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->btnClockFont->ForeColor = System::Drawing::Color::White;
 			this->btnClockFont->Location = System::Drawing::Point(67, 122);
@@ -1828,7 +1830,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// 
 			this->cbClockPosHorz->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->cbClockPosHorz->FormattingEnabled = true;
-			this->cbClockPosHorz->Items->AddRange(gcnew cli::array< System::Object^  >(4) {L"Left", L"Middle", L"Right", L"Random"});
+			this->cbClockPosHorz->Items->AddRange(gcnew cli::array< System::Object^  >(4) { L"Left", L"Middle", L"Right", L"Random" });
 			this->cbClockPosHorz->Location = System::Drawing::Point(112, 261);
 			this->cbClockPosHorz->Margin = System::Windows::Forms::Padding(3, 0, 3, 3);
 			this->cbClockPosHorz->Name = L"cbClockPosHorz";
@@ -1850,7 +1852,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// 
 			this->cbClockPosVert->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->cbClockPosVert->FormattingEnabled = true;
-			this->cbClockPosVert->Items->AddRange(gcnew cli::array< System::Object^  >(4) {L"Top", L"Middle", L"Bottom", L"Random"});
+			this->cbClockPosVert->Items->AddRange(gcnew cli::array< System::Object^  >(4) { L"Top", L"Middle", L"Bottom", L"Random" });
 			this->cbClockPosVert->Location = System::Drawing::Point(234, 261);
 			this->cbClockPosVert->Margin = System::Windows::Forms::Padding(3, 0, 3, 3);
 			this->cbClockPosVert->Name = L"cbClockPosVert";
@@ -1877,7 +1879,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->lCalendarInfo->Padding = System::Windows::Forms::Padding(0, 3, 0, 0);
 			this->lCalendarInfo->Size = System::Drawing::Size(342, 46);
 			this->lCalendarInfo->TabIndex = 1;
-			this->lCalendarInfo->Text = L"When screensaver is running: press \'C\' to select calendar opacity and press \'Ctrl" 
+			this->lCalendarInfo->Text = L"When screensaver is running: press \'C\' to select calendar opacity and press \'Ctrl"
 				L"+C\'  to reposition and resize.";
 			// 
 			// flowLayoutPanel5
@@ -1982,7 +1984,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// nupNrFolCalendars
 			// 
 			this->nupNrFolCalendars->Location = System::Drawing::Point(43, 58);
-			this->nupNrFolCalendars->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {12, 0, 0, 0});
+			this->nupNrFolCalendars->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 12, 0, 0, 0 });
 			this->nupNrFolCalendars->Name = L"nupNrFolCalendars";
 			this->nupNrFolCalendars->Size = System::Drawing::Size(49, 20);
 			this->nupNrFolCalendars->TabIndex = 4;
@@ -1990,7 +1992,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// nupNrPrevCalendars
 			// 
 			this->nupNrPrevCalendars->Location = System::Drawing::Point(43, 32);
-			this->nupNrPrevCalendars->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {12, 0, 0, 0});
+			this->nupNrPrevCalendars->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 12, 0, 0, 0 });
 			this->nupNrPrevCalendars->Name = L"nupNrPrevCalendars";
 			this->nupNrPrevCalendars->Size = System::Drawing::Size(49, 20);
 			this->nupNrPrevCalendars->TabIndex = 0;
@@ -2060,7 +2062,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// 
 			// btnCalendarFont
 			// 
-			this->btnCalendarFont->Font = (gcnew System::Drawing::Font(L"Trebuchet MS", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
+			this->btnCalendarFont->Font = (gcnew System::Drawing::Font(L"Trebuchet MS", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->btnCalendarFont->ForeColor = System::Drawing::Color::White;
 			this->btnCalendarFont->Location = System::Drawing::Point(3, 103);
@@ -2432,7 +2434,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// 
 			// btnWallpaperFilenameFont
 			// 
-			this->btnWallpaperFilenameFont->Font = (gcnew System::Drawing::Font(L"Arial", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point, 
+			this->btnWallpaperFilenameFont->Font = (gcnew System::Drawing::Font(L"Arial", 8.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->btnWallpaperFilenameFont->ForeColor = System::Drawing::Color::White;
 			this->btnWallpaperFilenameFont->Location = System::Drawing::Point(85, 66);
@@ -2596,7 +2598,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// 
 			// btnCopyMonInfo
 			// 
-			this->btnCopyMonInfo->AccessibleDescription = L"The information copied can be requested by the developer if you have issues with " 
+			this->btnCopyMonInfo->AccessibleDescription = L"The information copied can be requested by the developer if you have issues with "
 				L"your multi monitor setup.";
 			this->btnCopyMonInfo->AccessibleRole = System::Windows::Forms::AccessibleRole::HelpBalloon;
 			this->btnCopyMonInfo->Location = System::Drawing::Point(22, 118);
@@ -2616,7 +2618,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label11->Padding = System::Windows::Forms::Padding(17, 0, 0, 0);
 			this->label11->Size = System::Drawing::Size(336, 29);
 			this->label11->TabIndex = 5;
-			this->label11->Text = L"If a panorama photo is to be displayed on the main monitor it will be automatical" 
+			this->label11->Text = L"If a panorama photo is to be displayed on the main monitor it will be automatical"
 				L"ly stretched over all available monitors.";
 			// 
 			// cbPanoramaStretch
@@ -2654,7 +2656,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->label51->Padding = System::Windows::Forms::Padding(8, 0, 0, 0);
 			this->label51->Size = System::Drawing::Size(342, 29);
 			this->label51->TabIndex = 9;
-			this->label51->Text = L"To display RAW files JPG versions are created and stored.\r\nPlease note screensave" 
+			this->label51->Text = L"To display RAW files JPG versions are created and stored.\r\nPlease note screensave"
 				L"r will run slow whilst an image is converted.";
 			// 
 			// cbEnableRaw
@@ -2873,7 +2875,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// nupMetadata
 			// 
 			this->nupMetadata->Location = System::Drawing::Point(46, 152);
-			this->nupMetadata->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) {25, 0, 0, 0});
+			this->nupMetadata->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 25, 0, 0, 0 });
 			this->nupMetadata->Name = L"nupMetadata";
 			this->nupMetadata->Size = System::Drawing::Size(40, 20);
 			this->nupMetadata->TabIndex = 14;
@@ -3016,7 +3018,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// cbMetaDataVert
 			// 
 			this->cbMetaDataVert->FormattingEnabled = true;
-			this->cbMetaDataVert->Items->AddRange(gcnew cli::array< System::Object^  >(4) {L"Top", L"Middle", L"Bottom", L"Random"});
+			this->cbMetaDataVert->Items->AddRange(gcnew cli::array< System::Object^  >(4) { L"Top", L"Middle", L"Bottom", L"Random" });
 			this->cbMetaDataVert->Location = System::Drawing::Point(53, 78);
 			this->cbMetaDataVert->Name = L"cbMetaDataVert";
 			this->cbMetaDataVert->Size = System::Drawing::Size(44, 21);
@@ -3025,7 +3027,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// cbMetaDataHorz
 			// 
 			this->cbMetaDataHorz->FormattingEnabled = true;
-			this->cbMetaDataHorz->Items->AddRange(gcnew cli::array< System::Object^  >(4) {L"Left", L"Middle", L"Right", L"Random"});
+			this->cbMetaDataHorz->Items->AddRange(gcnew cli::array< System::Object^  >(4) { L"Left", L"Middle", L"Right", L"Random" });
 			this->cbMetaDataHorz->Location = System::Drawing::Point(4, 77);
 			this->cbMetaDataHorz->Name = L"cbMetaDataHorz";
 			this->cbMetaDataHorz->Size = System::Drawing::Size(44, 21);
@@ -3047,7 +3049,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// 
 			this->cbQuickSimpleMetadata->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
 			this->cbQuickSimpleMetadata->FormattingEnabled = true;
-			this->cbQuickSimpleMetadata->Items->AddRange(gcnew cli::array< System::Object^  >(1) {L"Quick select metadata"});
+			this->cbQuickSimpleMetadata->Items->AddRange(gcnew cli::array< System::Object^  >(1) { L"Quick select metadata" });
 			this->cbQuickSimpleMetadata->Location = System::Drawing::Point(104, 78);
 			this->cbQuickSimpleMetadata->Name = L"cbQuickSimpleMetadata";
 			this->cbQuickSimpleMetadata->Size = System::Drawing::Size(140, 21);
@@ -3122,14 +3124,13 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// 
 			// lVersionInfo
 			// 
-			this->lVersionInfo->AutoSize = true;
 			this->lVersionInfo->Font = (gcnew System::Drawing::Font(L"Arial", 16, System::Drawing::FontStyle::Bold));
 			this->lVersionInfo->ForeColor = System::Drawing::SystemColors::HotTrack;
 			this->lVersionInfo->Location = System::Drawing::Point(3, 61);
 			this->lVersionInfo->Name = L"lVersionInfo";
 			this->lVersionInfo->Size = System::Drawing::Size(366, 26);
 			this->lVersionInfo->TabIndex = 3;
-			this->lVersionInfo->Text = L"Random Photo Screensaver 3.4.12";
+			this->lVersionInfo->Text = L"Random Photo Screensaver 3.5";
 			this->lVersionInfo->TextAlign = System::Drawing::ContentAlignment::TopCenter;
 			// 
 			// rtbDonation
@@ -3149,7 +3150,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// 
 			this->btnDonate->BackColor = System::Drawing::Color::Gold;
 			this->btnDonate->Cursor = System::Windows::Forms::Cursors::Hand;
-			this->btnDonate->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
+			this->btnDonate->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
 			this->btnDonate->Location = System::Drawing::Point(190, 512);
 			this->btnDonate->Name = L"btnDonate";
@@ -3162,8 +3163,8 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// pictureBox1
 			// 
 			this->pictureBox1->Cursor = System::Windows::Forms::Cursors::Hand;
-			this->pictureBox1->Image = (cli::safe_cast<System::Drawing::Image^  >(resources->GetObject(L"pictureBox1.Image")));
-			this->pictureBox1->InitialImage = (cli::safe_cast<System::Drawing::Image^  >(resources->GetObject(L"pictureBox1.InitialImage")));
+			this->pictureBox1->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"pictureBox1.Image")));
+			this->pictureBox1->InitialImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"pictureBox1.InitialImage")));
 			this->pictureBox1->Location = System::Drawing::Point(0, -7);
 			this->pictureBox1->Name = L"pictureBox1";
 			this->pictureBox1->Size = System::Drawing::Size(370, 65);
@@ -3174,11 +3175,11 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// label14
 			// 
 			this->label14->AutoSize = true;
-			this->label14->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(255)), static_cast<System::Int32>(static_cast<System::Byte>(204)), 
+			this->label14->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(255)), static_cast<System::Int32>(static_cast<System::Byte>(204)),
 				static_cast<System::Int32>(static_cast<System::Byte>(0)));
-			this->label14->Font = (gcnew System::Drawing::Font(L"Arial", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, 
+			this->label14->Font = (gcnew System::Drawing::Font(L"Arial", 12, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->label14->ForeColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(0)), static_cast<System::Int32>(static_cast<System::Byte>(102)), 
+			this->label14->ForeColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(0)), static_cast<System::Int32>(static_cast<System::Byte>(102)),
 				static_cast<System::Int32>(static_cast<System::Byte>(255)));
 			this->label14->Location = System::Drawing::Point(312, 47);
 			this->label14->Name = L"label14";
@@ -3200,7 +3201,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->Controls->Add(this->btnOk);
 			this->Controls->Add(this->tcTabs);
 			this->Controls->Add(this->rtbDonation);
-			this->Icon = (cli::safe_cast<System::Drawing::Icon^  >(resources->GetObject(L"$this.Icon")));
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->Name = L"fConfig";
 			this->Text = L"Configuration Random Photo Screensaver";
 			this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &fConfig::fConfig_FormClosing);
@@ -3211,12 +3212,12 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->groupBox1->PerformLayout();
 			this->flowLayoutPanel1->ResumeLayout(false);
 			this->flowLayoutPanel1->PerformLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->nupTimeout))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->nupTimeout))->EndInit();
 			this->tpAdvanced->ResumeLayout(false);
 			this->tpAdvanced->PerformLayout();
 			this->flowLayoutPanel4->ResumeLayout(false);
 			this->flowLayoutPanel4->PerformLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->nupFolderInfoTimeout))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->nupFolderInfoTimeout))->EndInit();
 			this->tpMore->ResumeLayout(false);
 			this->tpMore->PerformLayout();
 			this->tpClock->ResumeLayout(false);
@@ -3231,12 +3232,12 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->splitContainer1->Panel1->PerformLayout();
 			this->splitContainer1->Panel2->ResumeLayout(false);
 			this->splitContainer1->Panel2->PerformLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->splitContainer1))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->splitContainer1))->EndInit();
 			this->splitContainer1->ResumeLayout(false);
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->nupNrFolCalendars))->EndInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->nupNrPrevCalendars))->EndInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->tbHigh))->EndInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->tbLow))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->nupNrFolCalendars))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->nupNrPrevCalendars))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->tbHigh))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->tbLow))->EndInit();
 			this->tpWallpaper->ResumeLayout(false);
 			this->groupBox5->ResumeLayout(false);
 			this->flowLayoutPanel3->ResumeLayout(false);
@@ -3259,15 +3260,15 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->tpShortcuts->ResumeLayout(false);
 			this->tpMetadata->ResumeLayout(false);
 			this->tpMetadata->PerformLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->nupMetadata))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->nupMetadata))->EndInit();
 			this->panel4->ResumeLayout(false);
 			this->panel4->PerformLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->tbMDHigh))->EndInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->tbMDLow))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->tbMDHigh))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->tbMDLow))->EndInit();
 			this->panel2->ResumeLayout(false);
 			this->panel2->PerformLayout();
 			this->tpSupport->ResumeLayout(false);
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox1))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->EndInit();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 

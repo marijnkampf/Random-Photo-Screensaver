@@ -761,7 +761,7 @@ namespace nsRandomPhotoScreensaver {
 			this->Name = L"Engine";
 			this->ShowInTaskbar = false;
 			this->StartPosition = System::Windows::Forms::FormStartPosition::Manual;
-			this->Text = L"Random Photo Screensaver 3.0";
+			this->Text = L"Random Photo Screensaver 3.4.13";
 			this->Load += gcnew System::EventHandler(this, &Engine::Engine_Load);
 			this->TextChanged += gcnew System::EventHandler(this, &Engine::Engine_TextChanged);
 			this->Click += gcnew System::EventHandler(this, &Engine::Engine_Click);

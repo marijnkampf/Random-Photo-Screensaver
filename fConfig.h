@@ -3130,7 +3130,7 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			this->lVersionInfo->Name = L"lVersionInfo";
 			this->lVersionInfo->Size = System::Drawing::Size(366, 26);
 			this->lVersionInfo->TabIndex = 3;
-			this->lVersionInfo->Text = L"Random Photo Screensaver 3.5";
+			this->lVersionInfo->Text = L"Random Photo Screensaver 3.4.13";
 			this->lVersionInfo->TextAlign = System::Drawing::ContentAlignment::TopCenter;
 			// 
 			// rtbDonation

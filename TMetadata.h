@@ -75,6 +75,7 @@ namespace nsRandomPhotoScreensaver {
 
 	public:
 		TMetadata(String^ _filename) : filename(_filename) {
+
 			config = gConfig;
 			this->success = false;
 			if (filename->Length > 0) {
@@ -114,11 +115,12 @@ namespace nsRandomPhotoScreensaver {
 				try {
 					this->reKeyFilter = gcnew Regex(keyFilter, RegexOptions::IgnoreCase|RegexOptions::Compiled);
 				} catch (Exception^ ex) {
-					if (config->cbDebug->Checked) {
+					// Use gConfig as config is not initialised if first picture is panorama
+					if (gConfig->cbDebug->Checked) {
 						MessageBox::Show(ex->Message + Environment::NewLine +
-							keyFilter, 
+							keyFilter,
 							"Debug info: Invallid Regular Expression", MessageBoxButtons::OK,
-							 MessageBoxIcon::Warning);
+							MessageBoxIcon::Warning);
 					}
 					regexp = false;	
 				}

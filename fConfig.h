@@ -3124,13 +3124,21 @@ public: System::Windows::Forms::CheckBox^  cbMouseNav;
 			// 
 			// lVersionInfo
 			// 
+<<<<<<< HEAD
 			this->lVersionInfo->Font = (gcnew System::Drawing::Font(L"Arial", 16, System::Drawing::FontStyle::Bold));
+=======
+			this->lVersionInfo->Font = (gcnew System::Drawing::Font(L"Arial", 15, System::Drawing::FontStyle::Bold));
+>>>>>>> 8f938c9f0321f06180e4019dcd1a3f106ec57876
 			this->lVersionInfo->ForeColor = System::Drawing::SystemColors::HotTrack;
-			this->lVersionInfo->Location = System::Drawing::Point(3, 61);
+			this->lVersionInfo->Location = System::Drawing::Point(0, 61);
 			this->lVersionInfo->Name = L"lVersionInfo";
-			this->lVersionInfo->Size = System::Drawing::Size(366, 26);
+			this->lVersionInfo->Size = System::Drawing::Size(369, 26);
 			this->lVersionInfo->TabIndex = 3;
+<<<<<<< HEAD
 			this->lVersionInfo->Text = L"Random Photo Screensaver 3.4.13";
+=======
+			this->lVersionInfo->Text = L"Random Photo Screensaver 3.4.12b";
+>>>>>>> 8f938c9f0321f06180e4019dcd1a3f106ec57876
 			this->lVersionInfo->TextAlign = System::Drawing::ContentAlignment::TopCenter;
 			// 
 			// rtbDonation

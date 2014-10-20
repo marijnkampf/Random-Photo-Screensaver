@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<head>
+	<script src="vendor/jquery-1.11.1.min.js" type="text/javascript"></script>
+	<script src="vendor/jquery-ui.min.js" type="text/javascript"></script>
+  <link rel="stylesheet" href="vendor/jquery-ui.min.css">
+	<link href="vendor/fancytree/dist/skin-win7/ui.fancytree.css" rel="stylesheet" type="text/css">
+	<script src="vendor/fancytree/dist/jquery.fancytree.js" type="text/javascript"></script>
+  <script src="vendor/fancytree/dist/src/jquery.fancytree.menu.js" type="text/javascript"></script>
+  <script src="vendor/fancytree/dist/src/jquery.fancytree.filter.js" type="text/javascript"></script>
+  <script src="js/jquery.fancytree.rps.js" type="text/javascript"></script>
+  <script src="vendor/jquery.highlight-4.js" type="text/javascript"></script>
+
+	<link rel="stylesheet" href="vendor/Numeric-Stepper/stepper/jquery.stepper.css"/>
+	<script src="vendor/Numeric-Stepper/stepper/jquery.stepper.js"></script>
+
+	<script src="js/polyfill.js"></script>
+	<script src="js/config.js"></script>
+	<link rel="stylesheet" href="css/config.css"/>
+
+	<style>
+	</style>
+	<script language="Javascript">
+	</script>
+</head>
+<body>
+	<div id="donation"><a class="hideMessage" href="#">[X]</a>
+		<a id="donate" class="linkButton" href="http://www.abscreensavers.com/random-photo-screensaver/donation?source=RPS4">Donate</a>
+		Random Photo Screensaver is <strong>donationware</strong>, you are <strong>required</strong> to make a <a href="http://www.abscreensavers.com/random-photo-screensaver/donation?source=RPS4">donation to the author</a> is you continue using this software after your 30 days trail ends.
+		<div><strong>Thank you for your support!</strong></div>
+	</div>
+	<div id="navigation">
+		<h1>RPS 4 Beta 1</h1>
+		<ul>
+			<li><a href="#settings">Settings</a></li>
+		</ul>
+	</div>
+	<div id="content">
+		<input id="search" type="text" placeholder="Search settings" aria-label="Search settings"/>
+		<a id="settings"></a><h1 class="underline">Settings</h1>
+		<form>
+			<div class="set">
+				<h2>Folders</h2>
+				<div class="foldersTree">
+					<div id="tree">
+						<label>Select folders (right click to exclude/include subfolders)</label>
+						<div id="foldersFancyTree"></div>
+					</div>
+					<!--div>Selected keys: <span id="echoSelection3">-</span></div>
+					<div>Selected root keys: <span id="echoSelectionRootKeys3">-</span></div>
+					<div>Selected folders: <span id="echoSelectionFolders">-</span></div>
+					<div>Selected root nodes: <span id="echoSelectionRoots3">-</span></div-->
+
+
+					<!-- Definition of context menu -->
+					<ul id="myMenu" class="contextMenu ui-helper-hidden">
+						<li class="exclude"><a href="#exclude" title="Exclude all subfolders with the name '#subfolder#'"><span class="ui-icon ui-icon-closethick"></span>Exclude all '#subfolder#' subfolders</a></li>
+						<li class="include"><a href="#include" title="Remove exclusion of '#subfolder#' subfolders"><span class="ui-icon ui-icon-check"></span>Remove '#subfolder#' exclusion</a></li>
+					</ul>
+				</div>
+				<div id="textareas">
+					<div class="row">
+						<div class="wide">
+							<label for="folders">Folders (separate by new line)</label>
+							<textarea id="folders"></textarea>
+						</div><div class="narrow">
+							<label for="excludedSubfolders" title="(separate by new line)">Exclude subfolders</label>
+							<textarea id="excludedSubfolders">thumbs</textarea>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<a class="toggleTreeTextareas button" href="#" data-toggle="Back to treeview">Show folder list (for copy and paste)</a>
+					<a class="todo button" href="#" onclick="alert('ToDoditido')">Purge database of images outside folders</a>
+					<a class="todo button" href="#" onclick="alert('ToDoditido')">Purge database of deleted files</a>
+				</div>
+				<div class="keywords">directory directories location</div>
+				<div class="clear"></div>
+			</div>
+
+			<div class="set">
+				<h2>Slideshow</h2>
+				<label>Display each photo for (seconds)</label>
+				<div class="column">
+					<label for="timeout">Minimum duration</label><input type="number" id="timeout" value="10"/>
+				</div>
+				<div class="column">
+					<label for="timeoutMax">Maximum duration</label><input type="number" id="timeoutMax" value="20"/>
+				</div>
+				<div class="">
+					<label class="left" for="variableTimeout" title="Enable to vary the how long each image is shown for"><input type="checkbox" id="variableTimeout" checked /> Use variable durations (?)</label>
+				</div>
+				<label>Synchronise multi-monitors</label>
+				<div id="syncScreens" class="radioGroupHorizontal">
+					<label for="syncScreensTrue"><input type="radio" id="syncScreensTrue" name="syncScreens" value="true" checked/> Yes</label>
+					<label for="syncScreensFalse"><input type="radio" id="syncScreensFalse" name="syncScreens" value="false"/> No</label>
+				</div>
+				<div class="keywords">two three four dual screens triple displays multiple</div>
+				<div class="keywords">timer seconds change time-out</div>
+				<div class="clear"></div>
+			</div>
+			<div class="set">
+				<h3>Order of slideshow</h3>
+				<div id="order" class="radioGroupHorizontal">
+					<input type="radio" id="orderRandom" name="order" value="random" checked /> <label for="orderRandom">Random</label>
+					<input type="radio" id="orderSequential" name="order" value="sequential"/> <label for="orderSequential">Sequential</label>
+				</div>
+				<div class="keywords">sort ordering sorting sort by</div>
+				<div class="clear"></div>
+			</div>
+
+			<div class="set">
+				<h3>Sequential ordering</h3>
+				<h4>Sort order</h4>
+				<div id="sortBy" class="radioGroup">
+					<label for="sortByPath"><input type="radio" id="sortByPath" name="sortBy" value="path" checked/> Path and filename</label>
+					<label for="sortByCreation"><input type="radio" id="sortByCreation" name="sortBy" value="created" checked /> File creation date and time</label>
+					<label for="sortByChanged"><input type="radio" id="sortByChanged" name="sortBy" value="modified"/> File change date and time</label>
+					<label for="sortBySize" title="For testing purposes only"><input type="radio" id="sortBySize" name="sortBy" value="size"/> Sort by filesize</label>
+				</div>
+				<h4>Direction</h4>
+				<div id="sortDirection" class="radioGroupHorizontal">
+					<label for="sortOrderPath" title="Lowest to highest"><input type="radio" id="sortDirectionAsc" name="sortDirection" value="asc" checked/> A-Z</label>
+					<label for="sortOrderCreation" title="Highest to lowest"><input type="radio" id="sortDirectionDesc" name="sortDirection" value="desc"/> Z-A</label>
+				</div>
+				<div class="keywords">ascending descending reverse sort ordering sorting sort by</div>
+				<div class="clear"></div>
+			</div>
+
+			<div class="set">
+				<h3>Background colour</h3>
+				<input type="text" id="backgroundColour" value="#000000" />
+				<div class="keywords">color</div>
+				<div class="clear"></div>
+			</div>
+
+			<div class="set">
+				<h2>Metadata</h2>
+				<div class="set checkboxGroup">
+					<input type="checkbox" id="indexMetadata"/> <label for="indexMetadata">Index metadata</label>
+					<input type="text" id="quickMetadata" value="<#{Exposure Time} | #><#{F Number} | #><#{ISO} | #><#{Focal Length}#>"/> <label for="quickMetadata">Quick metadata</label>
+					<div class="keywords">metadata iptc xmp exif</div>
+				</div>
+
+				<h3>ExifTool</h3>
+				<label for="exifTool">Location of ExifTool</label>
+				<input type="text" id="exifTool" value=".\vendor\exiftool(-k).exe" />
+				<div class="keywords">metadata iptc xmp exif</div>
+			</div>
+
+			<div class="set checkboxGroup">
+				<h2>Filters</h2>
+				<input type="checkbox" id="useFilter"/> <label for="useFilter">Use filters</label>
+				<div class="clear"></div>
+				<label for="filter">Select filter</label>
+				<input type="text" id="filter" value="`all` LIKE '%Exposure Time	1/100\' || x'0d' || x'0a' || '%'"/>
+				<a id="applyFilter" class="button" href="#">Apply filter</a> <a id="clearFilter" class="button" href="#">Clear filter</a>
+				<div class="clear"></div>
+			</div>
+
+			<div class="set wallpaper">
+				<h2>Wallpaper</h2>
+				<h3>Change wallpaper</h3>
+				<div id="wallpaperChange" class="radioGroup">
+					<label for="wallpaperChangeRun"><input type="radio" id="wallpaperChangeRun" name="wallpaperChange" value="run" checked/>After each screensaver run</label>
+					<label for="wallpaperChangeDaily"><input type="radio" id="wallpaperChangeDaily" name="wallpaperChange" value="daily" />Daily</label>
+					<label for="wallpaperChangeNever"><input type="radio" id="wallpaperChangeNever" name="wallpaperChange" value="never" checked/>Never (Do not change wallaper)</label>
+				</div>
+				<h3>Background colour</h3>
+				<input type="text" id="wallpaperBackgroundColour" value="#000000" />
+				<div class="set checkboxGroup">
+					<h3>Filenames</h3>
+					<input type="checkbox" id="wallpaperFilenames" checked /> <label for="wallpaperFilenames">Include filename(s) on wallpaper</label>
+					<input type="checkbox" id="wallpaperStretchSmall"/> <label for="wallpaperStretchSmall">Stretch small images</label>
+				</div>
+				<div class="set radioGroup">
+					<h3>Wallpaper source</h3>
+					<div id="wallpaperSource" class="radioGroup">
+						<input type="radio" name="wallpaperSource" id="wallpaperSourceDB" checked /> <label for="wallpaperSourceDB">Pick from files</label>
+						<input type="radio" name="wallpaperSource" id="wallpaperSourceFolder" /> <label for="wallpaperSourceFolder">Use separate wallpaper folder</label>
+						<input type="file" id="wallpaperFolder" value="Not implemented yet"/>
+						<input type="radio" name="wallpaperSource" id="wallpaperSourceFilter" /> <label for="wallpaperSourceFolder">Use filter</label>
+						<input type="text" id="wallpaperFilter" value="SELECT * FROM `FileNodes` NATURAL JOIN Metadata WHERE `all` LIKE '%Exposure Time	1/100\' || x'0d' || x'0a' || '%'"/>
+					</div>
+					<input type="hidden" id="wallpaperLastChange"/>
+				</div>
+				<div class="set">
+					<a id="clearWallpaper" class="button" href="#" title="Clear current wallpaper and reset to Windows default">Clear Wallpaper</a>
+					<div class="keywords">remove reset</div>
+				</div>
+				<div class="keywords">desktop wallpaper backgrounds</div>
+				<div class="clear"></div>
+			</div>
+
+			<div class="set multimonitor">
+				<h2>Montor settings</h2>
+				<div class="monitors">
+					<div id="M1" class="monitor">
+						<h3>Monitor 1</h3>
+						<div class="set">
+							<div class="set checkboxGroup">
+								<h4>Information</h4>
+								<input type="checkbox" id="showQuickMetadataM1" checked /> <label for="showQuickMetadataM1"  title="Toggle with N key whilst screensaver is running">Show quick metadata</label>
+								<input type="checkbox" id="showFilenameM1" checked /> <label for="showFilenameM1"  title="Toggle with F key whilst screensaver is running">Show filename</label>
+							</div>
+							<div class="set radioGroup">
+								<h4>Clock</h4>
+								<div id="clockM1Group">
+									<input id="noClockM1" type="radio" name="clockM1" value="none"/><label for="noClockM1">No clock</label>
+									<input id="currentClockM1" type="radio" name="clockM1" value="current"/><label for="currentClockM1">Current time</label>
+									<input id="elapsedClockM1" type="radio" name="clockM1" value="elapsed"/><label for="elapsedClockM1">Screensaver running time</label>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="clear"></div>
+			</div>
+
+			<div class="set">
+				<h2 class="underline">Advanced settings</h2>
+				<div class="set advanced">
+					<label for="imageExtensions">Image extensions <span class="reference">(also see <a href="#RAW">RAW extensions</a>)</span></label>
+					<input type="text" id="imageExtensions" value=".gif .png .jpeg .jpg .bmp .wmp .svg" />
+					<div class="keywords">photographs photos filenames extensions types</div>
+				</div>
+				<div class="set advanced">
+					<label for="videoExtensions">Video extensions</label>
+					<input type="text" id="videoExtensions" value=".avi .wmv .mp4 .mpeg .mpg" />
+					<div class="keywords">videos filenames extensions types</div>
+				</div>
+				<div class="set advanced checkboxGroup">
+					<h3>Hidden files and folders</h3>
+					<input type="checkbox" id="ignoreHiddenFiles" checked /> <label for="ignoreHiddenFiles"  title="Files with system attribute hidden set are not shown.">Ignore hidden files (?)</label>
+					<input type="checkbox" id="ignoreHiddenFolders"/> <label for="ignoreHiddenFolders"  title="Folders with system attribute hidden set are not shown.">Ignore hidden folders (?)</label>
+				</div>
+				<div class="set advanced checkboxGroup">
+					<h3>Misc</h3>
+					<input type="checkbox" id="closeAfterImageLocate"/> <label for="closeAfterImageLocate"  title="Close screensaver after locating images (E key).">Close screensaver after image locate (E-key)</label>
+					<input type="checkbox" id="deleteKey" checked/> <label for="deleteKey"  title="Place selected monitors photos into recycling bin on Delete key">Enable delete key</label>
+					<input type="checkbox" id="deleteKeyConfirmation"  checked/> <label for="deleteKeyConfirmation"  title="Ask for confirmation on delete">Show confirm delete dialog</label>
+				</div>
+
+
+			</div>
+
+			<!--h2 class="underline">Plug-ins</h2>
+			<div class="set radioGroup">
+				<h3>Clock</h3>
+				<div class="monitor">
+					<h4>Monitor 1</h4>
+					<input id="noClock1" type="radio" name="clock1" value="none"/><label for="noClock1">No clock</label>
+					<input id="currentClock1" type="radio" name="clock1" value="current"/><label for="currentClock1">Current time</label>
+					<input id="elapsedClock1" type="radio" name="clock1" value="elapsed"/><label for="elapsedClock1">Screensaver running time</label>
+				</div>
+
+				<div class="monitor">
+					<h4>Monitor 2</h4>
+					<input id="noClock2" type="radio" name="clock2" value="none"/><label for="noClock2">No clock</label>
+					<input id="currentClock2" type="radio" name="clock2" value="current"/><label for="currentClock2">Current time</label>
+					<input id="elapsedClock2" type="radio" name="clock2" value="elapsed"/><label for="elapsedClock2">Screensaver running time</label>
+					<div class="keywords">elapsed data</div>
+				</div>
+			</div-->
+
+			<input id="sequentialStartImageId" type="hidden"/>
+			<input id="randomStartImages" type="hidden"/>
+
+			<div class="set">
+				<h2 class="underline">To Do</h2>
+				<ul>
+					<li>Delete/refresh/update file database/index (store.sqlite)</li>
+					<li>Updates</li>
+					<li></li>
+					<li></li>
+					<li></li>
+					<li>Minimum system requirements IE 8</li>
+				</ul>
+			</div>
+		</form>
+	</div>
+	<div id="debug"></div>
+</body>
+</html>

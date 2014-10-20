@@ -1,0 +1,221 @@
+html {
+	font-family: 'Segoe UI', Tahoma, sans-serif;
+	font-size: 75%;
+	color: rgb(48, 57, 66);
+}
+
+h1, h2, h3, h4 {
+	margin-top: 2em;
+	font-size: 1.75em;
+	font-weight: normal;
+}
+
+h3 {
+	font-size: 1.4em;
+}
+
+h4 {
+	font-size: 1.2em;
+}
+
+/** jQuery ui overwrite **/
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+    color: rgb(48, 57, 66);
+}
+
+.todo {
+	background-color: #eeeeee;
+	font-style: italic;
+	color: #bbbbbb;
+	padding: 0px 1em;
+}
+
+#donate {
+	float: right;
+	padding-left: 3em;
+	padding-right: 3em;
+	margin: 1em;
+}
+
+#donation {
+	width: 98%;
+	top: 0px;
+	left: 0px;
+	background-color: white;
+	position: block;
+	z-index: 10000;
+	padding: 1em 1% 2em 1%;
+	border-bottom: 1px solid #eee;
+}
+
+.hideMessage {
+	float: right;
+	margin-right: -1em;
+	margin-top: -1em;
+}
+
+.highlight {
+	background-color: rgba(255, 240, 120, 0.9);
+}
+
+label, textarea {
+	clear: left;
+	display:block;
+}
+
+#navigation {
+	width: 180px;
+	z-index: 3;
+	float: left;
+	padding: 0px;
+}
+
+#textareas {
+	display: none;
+}
+
+#navigation h1 {
+	margin-top: 0px;
+}
+
+#search {
+	float: right;
+	width: 150px;
+}
+
+.set {
+	width: 100%;
+}
+
+#content {
+	margin-left: 200px;
+	box-sizing: border-box;
+}
+
+.underline {
+	border-bottom: 1px solid #eee;
+}
+
+textarea, input {
+	width: 100%;
+}
+
+.horizontal label {
+	clear: none !important;
+}
+
+.checkboxGroup label, .radioGroup label {
+	clear: right;
+}
+
+input[type='checkbox'], input[type='radio'] {
+	clear: left;
+	width: auto;
+	float: left;
+	margin: 0.6em 1em 0.6em 1em;
+}
+
+input[type='radio'] {
+	clear:both;
+}
+
+.radioGroupHorizontal input[type='radio'], .radioGroupHorizontal label {
+	clear: none;
+	float: left;
+}
+
+.radioGroupHorizontal input {
+
+}
+
+.inline {
+	display: inline;
+	clear: none;
+}
+
+.monitor {
+	float: left;
+}
+
+#folders {
+	height: 5em;
+}
+
+.keywords {
+	display: none;
+}
+
+label {
+	font-size: 1.2em;
+	line-height: 2em;
+}
+
+.stepper-wrap input {
+	margin-right: 1em;
+}
+
+.column {
+	float: left;
+}
+
+.clear {
+	clear:both;
+}
+
+.wide {
+	width: 79%;
+	float: left;
+	clear: none;
+}
+
+.narrow {
+	width: 20%;
+	float: right;
+	clear: none;
+}
+
+.row {
+	clear: both;
+}
+
+/** FancyTree Folder Selection **/
+.not-root-node .fancytree-checkbox, .dim .fancytree-checkbox, .dim .fancytree-icon {
+	background-image: url("../vendor/fancytree/dist/skin-win7/icons-bw.gif") !important;
+}
+
+.hidden {
+	display: none !important;
+}
+
+.fancytree-treefocus span.fancytree-active .fancytree-title, span.fancytree-selected .fancytree-title {
+	width: 80%;
+	font-style: normal;
+}
+
+.dim .fancytree-title {
+    color: silver !important;
+    font-weight: lighter  !important;
+}
+
+.ui-menu {
+  font-size: 63%;
+  z-index: 3;
+}
+
+.excluded .fancytree-title {
+	text-decoration: line-through;
+}
+
+.excluded .exclude {
+	display: none;
+}
+
+.include {
+	display: none;
+}
+
+.excluded .include {
+	display: block;
+}
+
+/** Other **/

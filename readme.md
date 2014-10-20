@@ -5,44 +5,6 @@ Random Photo Screensaver 4 (RPS4) is a photo slideshow screensaver written in Vi
 
 More information including executable download for Windows XP, Vista, 7 & 8/8.1 can be found at [abScreensavers.com](http://www.abscreensavers.com/random-photo-screensaver).
 
-Features & Benefits
---------
-- Media
-    - [x] Photo formats
-    - [ ] RAW files
-    - [x] Animated gifs
-    - [x] Videos
-- Image database (instant access to all file once indexed)
-    - [ ] Filters on filename / metadata
-    - [x] Hide system attribute hidden files
-    - [ ] Better/easier selection of folders to include / exclude
-- Multi monitor support
-    - [x] Synchorised / non-synchronised changing of images
-- Show
-    - [x] Clock (none, current time, running time)
-    - [x] Filenames
-    - [x] Fit images to screen
-    - [ ] Don't scale up small images
-- Slideshow
-    - Ordering
-        - [x] Sequential
-        - [.] Random
-            - [ ] View sequential previous photo in folder (up/down keys)
-    - [x] Navigate through previous photos (left/right keys)
-- Keyboard shortcuts
-    - [x] Select monitor (1...9 / 0: all)
-    - [x] Delete current file(s) (to recycling bin)
-    - [x] Open current file(s) in explorer
-    - [ ] Open current file(s) in custom editor
-    - [ ] Rotate (Exif save)
-- Wallpapers
-    - [x] Set wallpaper (never, daily, every run)
-    - [ ] Set wallpaper from shortcut (W key)
-- Miscellaneous
-    - [ ] Load website
-    - [ ] Kiosk mode (require password/pin for all options but browsing)
-    - [ ] Record last x photos shown
-
 Structure
 ---------
 RPS consists of two programs. A [launcher]("ToDo: Make github project and insert link") that resides in the users' Windows folder and the actual program that resides in the installation folder including all required libraries. 

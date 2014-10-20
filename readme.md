@@ -1,4 +1,4 @@
-Random Photo Screensaver 4
+Random Photo Screensaver 4 (Beta)
 ==========================
 
 Random Photo Screensaver 4 (RPS4) is a photo slideshow screensaver written in Visual Studio C#.

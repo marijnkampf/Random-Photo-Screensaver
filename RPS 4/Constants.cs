@@ -8,11 +8,9 @@ using System.Windows.Forms;
 namespace RPS {
     static class Constants {
         public const string DataFolder = "data";
+        public const string devDataFolder = "../../data";
         public const string ConfigHtmlFile = "config.html";
         public const string MonitorHtmlFile = "monitor.html";
-
-        public const string devDataLocation = @"D:\programming\vc#\RPS4\RPS 4\";
-        //public const string ConfigHtml = @"file://D:\programming\vc#\RPS4\RPS 4\data\" + Constants.ConfigHtmlFile;
 
         public const int reloadFilters = 500;
         public const string AppFolderName = "Random Photo Screensaver";
@@ -112,8 +110,8 @@ CREATE UNIQUE INDEX `keys` ON `Setting` (`key` ASC);
                     notFound += fullPath + "\r\n";
                     //MessageBox.Show(fullPath + " not found");
                     fullPath = Path.Combine(
-                        Constants.devDataLocation,
-                        Constants.DataFolder,
+                        Application.StartupPath,
+                        Constants.devDataFolder,
                         filename
                     );
                     requireFile(fullPath);

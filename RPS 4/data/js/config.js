@@ -268,6 +268,13 @@ $(function(){
 		clearFilter();
 	});
 
+	$(".expandSelected").click(function() {
+			$.each($("#foldersFancyTree").fancytree("getTree").getSelectedNodes(true), function(node){
+				this.makeVisible(true);
+			});
+	});
+
+
 	$(".toggleTreeTextareas").click(function() {
 		$("#textareas textarea").height($("#foldersFancyTree").height());
 		if ($("#tree").is(":visible")) {

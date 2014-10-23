@@ -44,8 +44,10 @@ namespace RPS {
             if (this.action != Actions.Config) {
                 // Complete initialisation when config.html is loaded.
                 if (!this.configInitialised && this.config.browser.Url.Segments.Last().Equals(Constants.ConfigHtmlFile)) {
-                    //MessageBox.Show("ConfigDocumentCompleted");
-                    this.config.loadPersistantConfig();
+                    // Avoid double loading config from DB
+                    if (config.getValue("folders") == null) {
+                        this.config.loadPersistantConfig();
+                    }
                     //MessageBox.Show("loadPersistantConfig() loaded");
                     this.configInitialised = true;
 

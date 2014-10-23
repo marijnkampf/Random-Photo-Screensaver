@@ -273,6 +273,7 @@ namespace RPS {
         }
 
         public DataRow nextImage() {
+            if (this.screensaver.fileNodes == null) return null;  
             if (this.screensaver.config.getOrder() == Config.Order.Random) {
                 if (this.historyPointer + 1 < this.history.Count()) {
                     this.historyPointer++;

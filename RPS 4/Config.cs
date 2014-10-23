@@ -265,6 +265,10 @@ namespace RPS {
                 computer.children.Add(f);
             }
 
+            if (this.getValue("folders") == null) {
+                this.loadPersistantConfig();
+            }
+
             foreach (string folder in this.getValue("folders").Split(new string[] { Environment.NewLine, "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries)) {
                 if (folder.Substring(0, 2) == "\\\\") {
                     string[] parts = folder.Split(new string[] { "\\" }, StringSplitOptions.RemoveEmptyEntries);

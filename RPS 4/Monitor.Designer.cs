@@ -59,6 +59,7 @@ namespace RPS {
             this.Text = "Monitor #";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Load += new System.EventHandler(this.Monitor_Load);
+
             this.ResumeLayout(false);
 
         }

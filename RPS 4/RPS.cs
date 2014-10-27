@@ -34,6 +34,8 @@ namespace RPS {
             this.config = new Config(this);
             this.config.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.PreviewKeyDown);
             this.config.browser.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.PreviewKeyDown);
+//            this.config.browser.OnMouseMove += new System.Windows.Forms.MouseEventHandler(this.MouseMove);
+
             this.config.browser.Navigate(new Uri(Constants.getDataFolder(Constants.ConfigHtmlFile)));
             this.config.browser.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.ConfigDocumentCompleted);
             if (this.action == Actions.Config) this.config.Show();
@@ -154,6 +156,11 @@ namespace RPS {
                             }
                         }
                         */
+
+        public void MouseMove(object sender, MouseEventArgs e) {
+            Console.Beep();
+        }
+
         public void PreviewKeyDown(object sender, PreviewKeyDownEventArgs e) {
             // Ignore shortcut keys when Config screen is visible
             // Ignore repeated keys

@@ -207,7 +207,7 @@
 							</div>
 							<div class="set radioGroup">
 								<h4>Clock</h4>
-								<div id="clockM1Group">
+								<div id="clockM1">
 									<input id="noClockM1" type="radio" name="clockM1" value="none"/><label for="noClockM1">No clock</label>
 									<input id="currentClockM1" type="radio" name="clockM1" value="current"/><label for="currentClockM1">Current time</label>
 									<input id="elapsedClockM1" type="radio" name="clockM1" value="elapsed"/><label for="elapsedClockM1">Screensaver running time</label>
@@ -238,6 +238,18 @@
 				</div>
 				<div class="set advanced checkboxGroup">
 					<h3>Misc</h3>
+					<label for="mouseSensitivity">Exit on mouse movement</label>
+					<div class="radioGroupHorizontal">
+						<div id="mouseSensitivity">
+							<input id="msHigh" type="radio" name="mouseSensitivity" value="high"/><label for="msHigh">Sensitive</label>
+							<input id="msMedium" type="radio" name="mouseSensitivity" value="medium" checked/><label for="msMedium">Normal</label>
+							<input id="msLow" type="radio" name="mouseSensitivity" value="low"/><label for="msLow">Insensitive</label>
+							<input id="msNone" type="radio" name="mouseSensitivity" value="none"/><label for="msNone">Ignore</label>
+						</div>
+					</div>
+					<div class="clear"></div>
+					<h4>Keyboard settings</h4>
+					<input type="checkbox" id="onlyEscapeExits"/> <label for="onlyEscapeExits" title="Only escape key closes screensaver (separate from mouse movement).">Only escape key exits screensaver</label>
 					<input type="checkbox" id="closeAfterImageLocate"/> <label for="closeAfterImageLocate"  title="Close screensaver after locating images (E key).">Close screensaver after image locate (E-key)</label>
 					<input type="checkbox" id="deleteKey" checked/> <label for="deleteKey"  title="Place selected monitors photos into recycling bin on Delete key">Enable delete key</label>
 					<input type="checkbox" id="deleteKeyConfirmation"  checked/> <label for="deleteKeyConfirmation"  title="Ask for confirmation on delete">Show confirm delete dialog</label>

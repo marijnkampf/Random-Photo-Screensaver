@@ -115,6 +115,7 @@
 /******
 		var i = 0;
 		var a = new Array(
+			"F:\\photos\\20060805 Brad and Laura's wedding\\8. Evening\\18725.jpg",
 			"F:\\photos\\2008\\20080705-07 Doolin and Dunguaire Castle\\800x600\\26930 Dunguaire Castle from Kinvara.jpg",
 			"F:\\photos\\2008\\20080705-07 Doolin and Dunguaire Castle\\800x600\\19216 Inside Dunguaire Castle.jpg",
 			"F:\\photos\\2014\\20140816-0905 South France and the lowlands\\20140828-29 Argelès-sur-mer to Breda\\FZ007852 Sunset from the van.jpg",
@@ -222,17 +223,17 @@
 		}
 
 		function showImage(source, animated, metadata, type) {
-			var html = "";
+			var html = '';
 			if (type == undefined) type = "image";
 			switch(type) {
 				case "image":
-					html = "<img class='card image' src='" + source + "'/>";
+					html = '<img class="card image" src="' + source + '"/>';
 				break;
 				case "video":
-					html = "<video class='card video' src='" + source + "' autoplay loop></video>";
+					html = '<video class="card video" src="' + source + '" autoplay loop></video>';
 				break;
 				case "object":
-					html = "<embed class='card object' src='" + source + "' type='application/x-mplayer2' pluginspage='http://www.microsoft.com/Windows/MediaPlayer/' autostart=1 showcontrols=1 width=100% height=100%></embed>";
+					html = '<embed class="card object" src="' + source + '" type="application/x-mplayer2" pluginspage="http://www.microsoft.com/Windows/MediaPlayer/" autostart=1 showcontrols=1 width=100% height=100%></embed>';
 				break;
 			}
 
@@ -252,41 +253,6 @@
 					if (first.hasClass("object")) first.remove();
 				}
 			}
-
-//		<img id="imageTop" class="image" src="images/1x1.gif"/><video id="videoTop" class="video" autoplay loop></video><embed id="objectTop" class="object" type="application/x-mplayer2" pluginspage="http://www.microsoft.com/Windows/MediaPlayer/" autostart=1 showcontrols=1>
-/*
-			if (type == undefined) type = "image";
-			switch(type) {
-				case "image":
-					$("#objectTop").hide();
-					$("#videoTop").hide();
-					if (animated == "true") {
-						$("#imageBottom").attr("src", $("#imageTop").attr("src"));
-						$("#top").hide();
-						$("#objectTop").hide();
-						$("#videoTop").hide();
-						$("#imageTop").attr("src", "file://" + source);
-						//$("#top").slideDown(1000);
-						$("#top").fadeIn(1000);
-					} else {
-						$("#imageTop").show();
-						$("#imageTop").attr("src", "file://" + source);
-					}
-				break;
-				case "video":
-					$("#imageTop").hide();
-					$("#objectTop").hide();
-					$("#videoTop").show();
-					$("#videoTop").attr("src", "file://" + source);
-				break;
-				case "object":
-					$("#imageTop").hide();
-					$("#objectTop").show();
-					$("#videoTop").hide();
-					$("#objectTop").attr("src", "file://" + source);
-				break;
-			}
-			*/
 
 			document.getElementById("filename").innerText = source;
 			document.getElementById("quickMetadata").innerText = metadata;

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<head>
+	<script src="vendor/jquery-1.11.1.min.js"></script>
+	<script src="vendor/moment.js"></script>
+	<style>
+		html, .box {
+			background-color: black; /* set through javascript from C# setting */
+		}
+
+		body {
+			margin: auto;
+			padding: 0;
+		}
+
+		.box {
+			position: absolute;
+			height: 100%;
+			width: 100%;
+		}
+
+		.image, .video, .object {
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			max-width:100%;
+			max-height:100%;
+			margin:auto auto;
+/*			display:block;*/
+/*			transform: rotate(-90deg) scale(0.75);*/
+		}
+
+		html, body {
+			height: 100%;
+			width: 100%;
+		}
+
+		.info {
+			position: absolute;
+			font-family: 'Segoe UI', Tahoma, sans-serif;
+			color: #FFFFFF;
+			text-shadow: 1px 1px #000000;
+		}
+
+		#identify {
+			z-index: 1000;
+			text-align:center;
+			font-size: 600px;
+			width: 100%;
+			max-width:100%;
+			max-height:100%;
+			margin:auto auto;
+			opacity: 0.5;
+			text-shadow: 10px 10px #000000;
+			display: none;
+			overflow:hidden;
+		}
+
+		#filename {
+			z-index: 100;
+			left: 5px;
+			top: 5px;
+		}
+
+		#dbinfo {
+			z-index: 90;
+			left: 5px;
+			bottom: 5px;
+		}
+
+		#quickMetadata {
+			z-index: 100;
+			right: 5px;
+			bottom: 5px;
+		}
+
+		#showinfo {
+			z-index: 80;
+			text-align: center;
+			bottom: 5px;
+			width: 100%;
+		}
+
+		#showpriorityinfo {
+			z-index: 90;
+		  margin: auto;
+  		position: absolute;
+		  top: 40%;
+		  width: 100%;
+		  text-align: center;
+  		font-size: 200%;
+		}
+
+		#clock {
+			font-size: 5em;
+			z-index: 90;
+			right: 5px;
+			top: -5px;
+		}
+
+		.monitor2 #clock {
+			display: none;
+		}
+
+		.animStart {
+			display: none;
+		}
+
+
+	</style>
+	<script language="Javascript">
+/******
+		var i = 0;
+		var a = new Array(
+			"F:\\photos\\2008\\20080705-07 Doolin and Dunguaire Castle\\800x600\\26930 Dunguaire Castle from Kinvara.jpg",
+			"F:\\photos\\2008\\20080705-07 Doolin and Dunguaire Castle\\800x600\\19216 Inside Dunguaire Castle.jpg",
+			"F:\\photos\\2014\\20140816-0905 South France and the lowlands\\20140828-29 Argelès-sur-mer to Breda\\FZ007852 Sunset from the van.jpg",
+			"F:\\photos\\2008\\20080705-07 Doolin and Dunguaire Castle\\800x600\\19234-6 Dunguaire Castle.jpg",
+			"F:\\photos\\2014\\20140816-0905 South France and the lowlands\\20140830-31 Frogs in pond\\FZ008523 Marsh frog (Pelophylax ridibundus) on rock.jpg",
+			"F:\\photos\\2008\\20080705-07 Doolin and Dunguaire Castle\\800x600\\27017 Dunguaire Castle by night.jpg",
+			"F:\\photos\\2014\\20140816-0905 South France and the lowlands\\20140830-31 Frogs in pond\\FZ008175 Marsh frog (Pelophylax ridibundus) on ledge.jpg"
+		);
+
+		window.onclick = function() {
+			i++;
+			if (i >= a.length) i = 0;
+			//alert(a[i]);
+			//nextImage(a[i]);
+			identify();
+		}
+*******/
+		function getStyleSheet(stylesheet) {
+		 	for(i = 0; i < document.styleSheets.length; i++){
+		 		if (stylesheet == document.styleSheets[i].href) return document.styleSheets[i];
+		 	}
+			return undefined;
+		}
+
+		function getStyleSheetRule(stylesheet, selector) {
+			sheet = getStyleSheet(null); // styles defined on page
+			if (sheet != undefined) {
+				for(i = 0; i < sheet.cssRules.length; i++){
+					if (selector == sheet.cssRules[i].selectorText) return sheet.cssRules[i];
+				}
+			}
+			return undefined;
+		}
+
+		// Returns a random integer between min (included) and max (excluded)
+		// Using Math.round() will give you a non-uniform distribution!
+		function getRandomInt(min, max) {
+			return Math.floor(Math.random() * (max - min)) + min;
+		}
+
+		function setVisibility(id, visibility) {
+			if (visibility) {
+			} else {
+			}
+		}
+
+		function toggle(id, visibility) {
+			if (visibility == undefined) {
+					$(id).toggle();
+			} else switch(visibility.toLowerCase()) {
+				case "true":
+					$(id).show();
+				break;
+				case "false":
+					$(id).hide();
+				break;
+			}
+			//alert(id + " " + visibility);
+			if ($(id).is(":visible")) return "true";
+			else return "false";
+		}
+
+		function show(id) {
+			$(id).show();
+		}
+
+		function hide(id) {
+			$(id).hide();
+		}
+
+		function setBackgroundColour(colour) {
+			cssRule = getStyleSheetRule(null, "html, .box");
+			cssRule.style.backgroundColor = colour;
+		}
+
+		// identify monitor nr
+		function identify() {
+			$("#identify").stop(true, true);
+			$("#identify").show();
+			$("#identify").fadeOut(5000);
+		}
+
+		// identify monitor nr
+		function showInfo(info) {
+			document.getElementById("showinfo").innerText = info;
+			$("#showinfo").stop(true, true);
+			$("#showinfo").show();
+			$("#showinfo").stop().fadeOut(5000);
+		}
+
+		// identify monitor nr
+		function showPriorityInfo(info) {
+			document.getElementById("showpriorityinfo").innerText = info;
+			//$("#showpriorityinfo").stop(true, true);
+			$("#showpriorityinfo").show();
+			//$("#showpriorityinfo").stop().fadeOut(10000);
+		}
+
+		function showMetadata(metadata) {
+			document.getElementById("quickMetadata").innerText = metadata;
+		}
+
+		function dbInfo(info) {
+			document.getElementById("dbinfo").innerText = info;
+		}
+
+		function showImage(source, animated, metadata, type) {
+			var html = "";
+			if (type == undefined) type = "image";
+			switch(type) {
+				case "image":
+					html = "<img class='card image' src='" + source + "'/>";
+				break;
+				case "video":
+					html = "<video class='card video' src='" + source + "' autoplay loop></video>";
+				break;
+				case "object":
+					html = "<embed class='card object' src='" + source + "' type='application/x-mplayer2' pluginspage='http://www.microsoft.com/Windows/MediaPlayer/' autostart=1 showcontrols=1 width=100% height=100%></embed>";
+				break;
+			}
+
+			card = $("<div class='box'>" + html + "</div>").hide();
+			$("#rolodex").append(card);
+			if (animated) card.fadeIn(1000);
+			else card.show();
+			while($("#rolodex .card").length > 2) {
+				first = $("#rolodex .card").first();
+				first.hide();
+				first.remove();
+			}
+			if ($("#rolodex .card").length > 1) {
+				first = $("#rolodex .card").first();
+				if (first.hasClass("video") || first.hasClass("object")) {
+					first.get(0).pause();
+					if (first.hasClass("object")) first.remove();
+				}
+			}
+
+//		<img id="imageTop" class="image" src="images/1x1.gif"/><video id="videoTop" class="video" autoplay loop></video><embed id="objectTop" class="object" type="application/x-mplayer2" pluginspage="http://www.microsoft.com/Windows/MediaPlayer/" autostart=1 showcontrols=1>
+/*
+			if (type == undefined) type = "image";
+			switch(type) {
+				case "image":
+					$("#objectTop").hide();
+					$("#videoTop").hide();
+					if (animated == "true") {
+						$("#imageBottom").attr("src", $("#imageTop").attr("src"));
+						$("#top").hide();
+						$("#objectTop").hide();
+						$("#videoTop").hide();
+						$("#imageTop").attr("src", "file://" + source);
+						//$("#top").slideDown(1000);
+						$("#top").fadeIn(1000);
+					} else {
+						$("#imageTop").show();
+						$("#imageTop").attr("src", "file://" + source);
+					}
+				break;
+				case "video":
+					$("#imageTop").hide();
+					$("#objectTop").hide();
+					$("#videoTop").show();
+					$("#videoTop").attr("src", "file://" + source);
+				break;
+				case "object":
+					$("#imageTop").hide();
+					$("#objectTop").show();
+					$("#videoTop").hide();
+					$("#objectTop").attr("src", "file://" + source);
+				break;
+			}
+			*/
+
+			document.getElementById("filename").innerText = source;
+			document.getElementById("quickMetadata").innerText = metadata;
+		}
+
+		function resize() {
+			height = window.innerHeight;
+			document.getElementById("identify").setAttribute("style", "font-size:" + (height*0.9) + "px; line-height:" + (height*0.9) + "px");
+		}
+
+		function setClockType(type) {
+			clockType = type;
+		}
+
+		var startTime = new moment();
+		var clockType = "current";
+		function clockTick() {
+			var m = new moment();
+			if (clockType == "elapsed") {
+				document.getElementById('clock').innerText = m.subtract(startTime).format("HH:mm:ss");
+			} else { // current
+				document.getElementById('clock').innerText = m.format("HH:mm:ss");
+			}
+			var t = setTimeout(function(){clockTick()},100);
+		}
+
+		window.onresize = function() {
+			resize();
+		}
+
+		window.onload = function() {
+			resize();
+			clockTick();
+			if (typeof(window.external.RunningFromRPS)=== "undefined") {
+				setBackgroundColour("#123456");
+				setBackgroundColour("#00ff00");
+				//showImage("F:\\tests\\video\\14084 Elephant eating.avi", true, "", "object");
+			} else {
+				$(".info").each(function() {
+					if ($(this).text().substr(0,1) == "#" && $(this).text().substr(-1, 1) == "#") $(this).text("");
+				});
+			}
+		}
+	</script>
+</head>
+<body>
+	<div id="filename" class="info">#filename#</div>
+	<div id="identify" class="info">1</div>
+	<div id="showinfo" class="info">#showinfo#</div>
+	<div id="showpriorityinfo" class="info">#Loading#</div>
+	<div id="dbinfo" class="info">#dbinfo#</div>
+	<div id="quickMetadata" class="info">#metadata#</div>
+	<div id="clock" class="info">hh:mm:ss</div>
+	<!--div id="bottom" class="imageBox"><img id="imageBottom" class="image" src="images/1x1.gif"/><video id="videoBottom" class="video" autoplay loop></video><embed id="objectBottom" class="object" type="application/x-mplayer2" pluginspage="http://www.microsoft.com/Windows/MediaPlayer/" autostart=1 showcontrols=1></div-->
+
+	<div id="rolodex"></div>
+</body>
+</html>

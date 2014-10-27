@@ -1,3 +1,6 @@
+**RPS3**
+This is the old RPS 3 branch. The new master branch contains the latest RPS4 version. It is recommend to use the branch for future development.
+
 **Random Photo Screensaver**
 Random Photo Screensaver (RPS) is a photo slide show screensaver written in Visual Studio C++. 
 

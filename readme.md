@@ -5,6 +5,10 @@ Random Photo Screensaver 4 (RPS4) is a photo slideshow screensaver written in Vi
 
 More information including executable download for Windows XP, Vista, 7 & 8/8.1 can be found at [abScreensavers.com](http://www.abscreensavers.com/random-photo-screensaver).
 
+Random Photo Screensaver 3
+--------------------------
+The source for the previous version RPS3 written in Visual Studio C++, can be found at https://github.com/marijnkampf/Random-Photo-Screensaver/tree/RPS3. It will only be updated with bug fixes no new features are added.
+
 Structure
 ---------
 RPS consists of two programs. A [launcher]("ToDo: Make github project and insert link") that resides in the users' Windows folder and the actual program that resides in the installation folder including all required libraries. 

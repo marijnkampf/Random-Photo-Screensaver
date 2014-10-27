@@ -471,6 +471,7 @@ namespace RPS {
 
         public void Config_FormClosing(object sender, FormClosingEventArgs e) {            
             if (screensaver.action == Screensaver.Actions.Config) {
+                this.safePersistantConfig();
                 Application.Exit();
             } else if (!this.screensaver.applicationClosing) {
                 if (!this.syncMonitors()) {

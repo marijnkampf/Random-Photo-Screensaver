@@ -129,15 +129,20 @@
 				<div class="clear"></div>
 			</div>
 
+
 			<div class="set">
+				<h2>Show</h2>
 				<h3>Background colour</h3>
 				<input type="text" id="backgroundColour" value="#000000" />
-				<div class="keywords">color</div>
 				<div class="clear"></div>
+				<div class="keywords">background color</div>
 			</div>
 
 			<div class="set">
 				<h2>Images</h2>
+				<div class="set checkboxGroup">
+					<input type="checkbox" id="stretchSmallImages"/> <label for="stretchSmallImages">Stretch small images</label>
+				</div>
 				<div class="keywords">photos photographs pictures</div>
 				<div class="clear"></div>
 			</div>
@@ -145,6 +150,7 @@
 			<div class="set">
 				<h2>Videos</h2>
 				<div class="set checkboxGroup">
+					<input type="checkbox" id="stretchSmallVideos"/> <label for="stretchSmallVideos">Stretch small videos</label>
 					<input type="checkbox" id="showControls" checked /> <label for="showControls">Show controls</label>
 					<input type="checkbox" id="videosLoop" checked /> <label for="videosLoop">Loop videos</label>
 					<input type="checkbox" id="videosMute" checked /> <label for="videosMute">Mute videos</label>
@@ -190,7 +196,7 @@
 				<div class="set checkboxGroup">
 					<h3>Filenames</h3>
 					<input type="checkbox" id="wallpaperFilenames" checked /> <label for="wallpaperFilenames">Include filename(s) on wallpaper</label>
-					<input type="checkbox" id="wallpaperStretchSmall"/> <label for="wallpaperStretchSmall">Stretch small images</label>
+					<input type="checkbox" id="wallpaperStretchSmall"/> <label for="wallpaperStretchSmall">Stretch small wallpaper images</label>
 				</div>
 				<div class="set radioGroup">
 					<h3>Wallpaper source</h3>

@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en" class="">
-<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 <head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 	<script src="vendor/jquery-1.11.1.min.js"></script>
 	<script src="vendor/moment.js"></script>
+	<script src="vendor/jquery.object-fit.min.js"></script>
+
 	<style>
 		html, .card {
 			background-color: black; /* set through javascript from C# setting */
@@ -18,6 +20,7 @@
 			position: absolute;
 			height: 100%;
 			width: 100%;
+			overflow:hidden;
 		}
 
 		#rolodex {
@@ -28,15 +31,20 @@
 			z-index : 1;
 		}
 
+		.object.stretch {
+			width: 100%;
+			height: 100%;
+		}
+
 		.image, .video, .object {
+			max-width:100%;
+			max-height:100%;
 			position: absolute;
 			top: 0;
 			bottom: 0;
 			left: 0;
 			right: 0;
-			max-width:100%;
-			max-height:100%;
-			margin:auto auto;
+			margin: auto;
 			overflow:hidden;
 /*			display:block;*/
 /*			transform: rotate(-90deg) scale(0.75);*/
@@ -130,7 +138,12 @@
 				  "settings":{"animated": "true", "mediatype": "image"}
 				},
 				{
-					"source": "file://F:\\photos\\Wales 2003\\Angel\\thumbs\\2788 Angel.jpg",
+					"source": "file://F:\\photos\\Wales 2003\\Brecon Beacons\\thumbs\\1942.jpg",
+				  "metadata": "no meta",
+				  "settings":'{"animated": "true", "mediatype": "image"}'
+				},
+				{
+					"source": "file://F:\\photos\\Wales 2003\\Angel\\2788 Angel.jpg",
 				  "metadata": "no meta",
 				  "settings":'{"animated": "true", "mediatype": "image"}'
 				},
@@ -147,7 +160,7 @@
 				{
 					"source": "file://F:\\photos\\Wales 2003\\Bath\\movies\\MVI_2312.AVI",
 				  "metadata": "no meta",
-				  "settings":'{"animated": "true", "mediatype": "object"}'
+				  "settings":'{"animated": "true", "mediatype": "object","stretchSmallVideos":"true"}'
 				},
 				{
 					"source": "file://F:\\photos\\Wales 2003\\Angel\\thumbs\\2788 Angel.jpg",
@@ -257,22 +270,27 @@
 		function showImage(source, metadata, settings) {
 			if (typeof settings == "string") settings = JSON.parse(settings);
 			var html = '';
+			var stretch = false;
 			if (settings.mediatype == undefined) settings.mediatype = "image";
 			switch(settings.mediatype) {
 				case "image":
-					html = '<img class="image" src="' + source + '"/>';
+					html = '<img class="image media" src="' + source + '"/>';
+					if (settings.stretchSmallImages) stretch = true;
 				break;
 				case "video":
-					html = '<video class="video" src="' + source + '" autoplay';
+					html = '<video class="video media" src="' + source + '" autoplay';
 					if (settings.loop) html += ' loop';
 					if (settings.mute) html += ' muted';
 					if (settings.showcontrols) html += ' controls';
 					html += '></video>';
+					if (settings.stretchSmallVideos) stretch = true;
 				break;
 				case "object":
 					var playCount = 1;
+					var stretch = "";
+					if (settings.stretchSmallVideos) stretch = " stretch";
 					if (settings.loop) playCount = 9999;
-					html = '<object id="mediaPlayer" width="100%" height="100%" classid="CLSID:22D6F312-B0F6-11D0-94AB-0080C74C7E95"'
+					html = '<object class="object media' + stretch + '" id="mediaPlayer" classid="CLSID:22D6F312-B0F6-11D0-94AB-0080C74C7E95"'
 							+ 'codebase="http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=5,1,52,701"'
 							+ 'standby="Loading Microsoft® Windows® Media Player components..." type="application/x-oleobject">'
 							+ '<param name="FileName" value="' + source + '" />'
@@ -291,12 +309,15 @@
 				break;
 			}
 
-			card = $("<div class='card " + settings.mediatype + "'>" + html + "</div>").hide();
+			card = $("<div class='card stretch'>" + html + "</div>").hide();
 			//card = $(html).hide();
 			//card = $(html).show();
 			$("#rolodex").append(card);
 			if (settings.animated) card.fadeIn(1000);
 			else card.show();
+			if (stretch) {
+				$(".media").objectFit('contain');
+			}
 			while($("#rolodex .card").length > 2) {
 				first = $("#rolodex .card").first();
 				first.hide();
@@ -304,13 +325,13 @@
 			}
 			if ($("#rolodex .card").length > 1) {
 				first = $("#rolodex .card").first();
-				if (first.hasClass("video")) {
+				if ($(first.get(0).childNodes[0]).hasClass("video")) {
 					if(typeof first.get(0).childNodes[0].pause === 'function') {
 						first.get(0).childNodes[0].pause();
 					}
-					if (first.hasClass("object")) first.remove();
+					if ($(first.get(0).childNodes[0]).hasClass("object")) first.remove();
 				}
-				if (first.hasClass("object")) {
+				if ($(first.get(0).childNodes[0]).hasClass("object")) {
  					var player = document.getElementById("mediaPlayer");
  					try {
 	 					player.PlayState = 0;

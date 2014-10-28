@@ -206,7 +206,6 @@ namespace RPS {
                 string rawMetadata = null;
                 Hashtable settings = new Hashtable();
 
-
                 if (this.currentImage.Table.Columns.Contains("all")) {
                     rawMetadata = Convert.ToString(this.currentImage["all"]);
                 } else {
@@ -226,7 +225,6 @@ namespace RPS {
                 settings["mediatype"] = "image";
                 if (this.screensaver.config.getValue("videoExtensions").IndexOf(Path.GetExtension(Convert.ToString(this.currentImage["path"]))) > -1) {
                     settings["mediatype"] = "video";
-
                 }
                 switch(Path.GetExtension(Convert.ToString(this.currentImage["path"]).ToLower())) {
                     case ".wmv": case ".avi":
@@ -234,9 +232,12 @@ namespace RPS {
                     break;
                 }
                 settings["animated"] = Convert.ToString(animated).ToLower();
+                settings["stretchSmallImages"] = this.screensaver.config.getCheckboxValue("stretchSmallImages");
+                settings["stretchSmallVideos"] = this.screensaver.config.getCheckboxValue("stretchSmallVideos");
                 settings["showcontrols"] = this.screensaver.config.getCheckboxValue("showControls");
                 settings["loop"] = this.screensaver.config.getCheckboxValue("videosLoop");
                 settings["mute"] = this.screensaver.config.getCheckboxValue("videosMute");
+
                 this.browser.Document.InvokeScript("showImage", new Object[] { Convert.ToString(this.currentImage["path"]), metadata, JsonConvert.SerializeObject(settings) });
             }
         }

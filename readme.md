@@ -67,6 +67,7 @@ The following (free) libraries and programs have been used in/ship with RPS4:
     - [jQuery UI](http://jqueryui.com/)
     - [Fancytree](https://github.com/mar10/fancytree)
     - [Highlight text](http://johannburkard.de/blog/programming/javascript/highlight-javascript-text-higlighting-jquery-plugin.html)
+    - [Object fit by Steve Workman/Simon Schmid](https://github.com/steveworkman/jquery-object-fit)
 
 License
 -------

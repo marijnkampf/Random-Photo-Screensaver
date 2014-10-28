@@ -5,7 +5,7 @@
 	<script src="vendor/jquery-1.11.1.min.js"></script>
 	<script src="vendor/moment.js"></script>
 	<style>
-		html, .box {
+		html, .card {
 			background-color: black; /* set through javascript from C# setting */
 		}
 
@@ -14,10 +14,18 @@
 			padding: 0;
 		}
 
-		.box {
+		.card {
 			position: absolute;
 			height: 100%;
 			width: 100%;
+		}
+
+		#rolodex {
+			z-index : 0;
+		}
+
+		embed {
+			z-index : 1;
 		}
 
 		.image, .video, .object {
@@ -112,27 +120,56 @@
 
 	</style>
 	<script language="Javascript">
-/******
-		var i = 0;
-		var a = new Array(
-			"F:\\photos\\20060805 Brad and Laura's wedding\\8. Evening\\18725.jpg",
-			"F:\\photos\\2008\\20080705-07 Doolin and Dunguaire Castle\\800x600\\26930 Dunguaire Castle from Kinvara.jpg",
-			"F:\\photos\\2008\\20080705-07 Doolin and Dunguaire Castle\\800x600\\19216 Inside Dunguaire Castle.jpg",
-			"F:\\photos\\2014\\20140816-0905 South France and the lowlands\\20140828-29 Argelès-sur-mer to Breda\\FZ007852 Sunset from the van.jpg",
-			"F:\\photos\\2008\\20080705-07 Doolin and Dunguaire Castle\\800x600\\19234-6 Dunguaire Castle.jpg",
-			"F:\\photos\\2014\\20140816-0905 South France and the lowlands\\20140830-31 Frogs in pond\\FZ008523 Marsh frog (Pelophylax ridibundus) on rock.jpg",
-			"F:\\photos\\2008\\20080705-07 Doolin and Dunguaire Castle\\800x600\\27017 Dunguaire Castle by night.jpg",
-			"F:\\photos\\2014\\20140816-0905 South France and the lowlands\\20140830-31 Frogs in pond\\FZ008175 Marsh frog (Pelophylax ridibundus) on ledge.jpg"
-		);
+		if (typeof(window.external.RunningFromRPS)=== "undefined") {
+			var i = 0;
+			var a = new Array(
+				{
+					"source": "file://F:\\photos\\Wales 2003\\Angel\\thumbs\\2787 Angel In The Making.jpg",
+				  "animated": true,
+				  "metadata": "no meta",
+				  "type": "image"
+				},
+				{
+					"source": "file://F:\\photos\\Wales 2003\\Angel\\thumbs\\2788 Angel.jpg",
+				  "animated": true,
+				  "metadata": "no meta",
+				  "type": "image"
+				},
+				{
+					"source": "file://F:\\photos\\2014\\20140201 Reel Big Fish and Less Than Jake\\20140201_212242 Reel Big Fish - Nirvana.mp4",
+				  "animated": true,
+				  "metadata": "no meta",
+				  "type": "video"
+				},
+				{
+					"source": "file://F:\\photos\\Wales 2003\\Angel\\thumbs\\2789 Angel Halo.jpg",
+				  "animated": true,
+				  "metadata": "no meta",
+				  "type": "image"
+				},
+				{
+					"source": "file://F:\\photos\\Wales 2003\\Bath\\movies\\MVI_2312.AVI",
+				  "animated": true,
+				  "metadata": "no meta",
+				  "type": "object"
+				},
+				{
+					"source": "file://F:\\photos\\Wales 2003\\Angel\\thumbs\\2788 Angel.jpg",
+				  "animated": true,
+				  "metadata": "no meta",
+				  "type": "image"
+				}
+			);
 
-		window.onclick = function() {
-			i++;
-			if (i >= a.length) i = 0;
-			//alert(a[i]);
-			//nextImage(a[i]);
-			identify();
+			window.onclick = function() {
+				i++;
+				if (i >= a.length) i = 0;
+				console.log(a[i]["source"]);
+				showImage(a[i]["source"], a[i]["animated"], a[i]["metadata"], a[i]["type"]);
+				//identify();
+			}
 		}
-*******/
+
 		function getStyleSheet(stylesheet) {
 		 	for(i = 0; i < document.styleSheets.length; i++){
 		 		if (stylesheet == document.styleSheets[i].href) return document.styleSheets[i];
@@ -187,7 +224,7 @@
 		}
 
 		function setBackgroundColour(colour) {
-			cssRule = getStyleSheetRule(null, "html, .box");
+			cssRule = getStyleSheetRule(null, "html, .card");
 			cssRule.style.backgroundColor = colour;
 		}
 
@@ -227,17 +264,32 @@
 			if (type == undefined) type = "image";
 			switch(type) {
 				case "image":
-					html = '<img class="card image" src="' + source + '"/>';
+					html = '<img class="image" src="' + source + '"/>';
 				break;
 				case "video":
-					html = '<video class="card video" src="' + source + '" autoplay loop></video>';
+					html = '<video class="video" src="' + source + '" autoplay loop></video>';
 				break;
 				case "object":
-					html = '<embed class="card object" src="' + source + '" type="application/x-mplayer2" pluginspage="http://www.microsoft.com/Windows/MediaPlayer/" autostart=1 showcontrols=1 width=100% height=100%></embed>';
+					html = '<object id="mediaPlayer" width="100%" height="100%" classid="CLSID:22D6F312-B0F6-11D0-94AB-0080C74C7E95"'
+							+ 'codebase="http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=5,1,52,701"'
+							+ 'standby="Loading Microsoft® Windows® Media Player components..." type="application/x-oleobject">'
+							+ '<param name="FileName" value="' + source + '" />'
+							+ '<param name="AutoStart" value="True" />'
+							+ '<param name="DefaultFrame" value="mainFrame" />'
+							+ '<param name="ShowStatusBar" value="0" />'
+							+ '<param name="windowlessVideo" value="true" />'
+							+ '<param name="ShowPositionControls" value="1" />'
+							+ '<param name="showcontrols" value="1" />'
+							+ '<param name="ShowAudioControls" value="1" />'
+							+ '<param name="ShowTracker" value="0" />'
+							+ '<param name="EnablePositionControls" value="0" />'
+						html += '</object>';
 				break;
 			}
 
-			card = $("<div class='box'>" + html + "</div>").hide();
+			card = $("<div class='card " + type + "'>" + html + "</div>").hide();
+			//card = $(html).hide();
+			//card = $(html).show();
 			$("#rolodex").append(card);
 			if (animated) card.fadeIn(1000);
 			else card.show();
@@ -248,9 +300,22 @@
 			}
 			if ($("#rolodex .card").length > 1) {
 				first = $("#rolodex .card").first();
-				if (first.hasClass("video") || first.hasClass("object")) {
-					first.get(0).pause();
+				if (first.hasClass("video")) {
+					if(typeof first.get(0).childNodes[0].pause === 'function') {
+						first.get(0).childNodes[0].pause();
+					}
 					if (first.hasClass("object")) first.remove();
+				}
+				if (first.hasClass("object")) {
+ 					var player = document.getElementById("mediaPlayer");
+ 					try {
+	 					player.PlayState = 0;
+	 					player.controls.stop();
+	 				} catch(e) {
+
+	 				}
+					first.get(0).childNodes[0].pause();
+					$(first.get(0)).hide()
 				}
 			}
 
@@ -270,6 +335,7 @@
 		var startTime = new moment();
 		var clockType = "current";
 		function clockTick() {
+			//window.onclick();
 			var m = new moment();
 			if (clockType == "elapsed") {
 				document.getElementById('clock').innerText = m.subtract(startTime).format("HH:mm:ss");
@@ -287,9 +353,9 @@
 			resize();
 			clockTick();
 			if (typeof(window.external.RunningFromRPS)=== "undefined") {
-				setBackgroundColour("#123456");
-				setBackgroundColour("#00ff00");
-				//showImage("F:\\tests\\video\\14084 Elephant eating.avi", true, "", "object");
+				setBackgroundColour("#000000");
+				clockTick();
+//				window.onclick();
 			} else {
 				$(".info").each(function() {
 					if ($(this).text().substr(0,1) == "#" && $(this).text().substr(-1, 1) == "#") $(this).text("");
@@ -308,6 +374,6 @@
 	<div id="clock" class="info">hh:mm:ss</div>
 	<!--div id="bottom" class="imageBox"><img id="imageBottom" class="image" src="images/1x1.gif"/><video id="videoBottom" class="video" autoplay loop></video><embed id="objectBottom" class="object" type="application/x-mplayer2" pluginspage="http://www.microsoft.com/Windows/MediaPlayer/" autostart=1 showcontrols=1></div-->
 
-	<div id="rolodex"></div>
+	<div id="rolodex" class=""></div>
 </body>
 </html>

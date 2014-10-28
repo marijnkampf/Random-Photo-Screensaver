@@ -12,6 +12,8 @@ using System.Security.Permissions;
 using System.Linq;
 using System.Diagnostics;
 using System.IO;
+using System.Collections;
+using Newtonsoft.Json;
 
 namespace RPS {
     [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
@@ -202,6 +204,8 @@ namespace RPS {
             if (this.currentImage != null) {
                 string metadata = "";
                 string rawMetadata = null;
+                Hashtable settings = new Hashtable();
+
 
                 if (this.currentImage.Table.Columns.Contains("all")) {
                     rawMetadata = Convert.ToString(this.currentImage["all"]);
@@ -219,16 +223,21 @@ namespace RPS {
                     this.quickMetadata = new MetadataTemplate(rawMetadata, this.screensaver.config.getValue("quickMetadata"));
                     metadata = this.quickMetadata.fillTemplate();
                 }
-                string mediaType = "image";
+                settings["mediatype"] = "image";
                 if (this.screensaver.config.getValue("videoExtensions").IndexOf(Path.GetExtension(Convert.ToString(this.currentImage["path"]))) > -1) {
-                    mediaType = "video";
+                    settings["mediatype"] = "video";
+
                 }
                 switch(Path.GetExtension(Convert.ToString(this.currentImage["path"]).ToLower())) {
                     case ".wmv": case ".avi":
-                        mediaType = "object";
+                        settings["mediatype"] = "object";
                     break;
                 }
-                this.browser.Document.InvokeScript("showImage", new String[] { Convert.ToString(this.currentImage["path"]), Convert.ToString(animated).ToLower(), metadata, mediaType });
+                settings["animated"] = Convert.ToString(animated).ToLower();
+                settings["showcontrols"] = this.screensaver.config.getCheckboxValue("showControls");
+                settings["loop"] = this.screensaver.config.getCheckboxValue("videosLoop");
+                settings["mute"] = this.screensaver.config.getCheckboxValue("videosMute");
+                this.browser.Document.InvokeScript("showImage", new Object[] { Convert.ToString(this.currentImage["path"]), metadata, JsonConvert.SerializeObject(settings) });
             }
         }
 

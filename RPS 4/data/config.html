@@ -31,7 +31,7 @@
 		<div><strong>Thank you for your support!</strong></div>
 	</div>
 	<div id="navigation">
-		<h1>RPS 4 Beta 2</h1>
+		<h1>RPS 4 Beta 3</h1>
 		<ul>
 			<li><a href="#settings">Settings</a></li>
 		</ul>
@@ -137,6 +137,23 @@
 			</div>
 
 			<div class="set">
+				<h2>Images</h2>
+				<div class="keywords">photos photographs pictures</div>
+				<div class="clear"></div>
+			</div>
+
+			<div class="set">
+				<h2>Videos</h2>
+				<div class="set checkboxGroup">
+					<input type="checkbox" id="showControls" checked /> <label for="showControls">Show controls</label>
+					<input type="checkbox" id="videosLoop" checked /> <label for="videosLoop">Loop videos</label>
+					<input type="checkbox" id="videosMute" checked /> <label for="videosMute">Mute videos</label>
+				</div>
+				<div class="keywords">movies films</div>
+				<div class="clear"></div>
+			</div>
+
+			<div class="set">
 				<h2>Metadata</h2>
 				<div class="set checkboxGroup">
 					<input type="checkbox" id="indexMetadata"/> <label for="indexMetadata">Index metadata</label>
@@ -179,10 +196,10 @@
 					<h3>Wallpaper source</h3>
 					<div id="wallpaperSource" class="radioGroup">
 						<input type="radio" name="wallpaperSource" id="wallpaperSourceDB" checked /> <label for="wallpaperSourceDB">Pick from files</label>
-						<input type="radio" name="wallpaperSource" id="wallpaperSourceFolder" /> <label for="wallpaperSourceFolder">Use separate wallpaper folder</label>
-						<input type="file" id="wallpaperFolder" value="Not implemented yet"/>
-						<input type="radio" name="wallpaperSource" id="wallpaperSourceFilter" /> <label for="wallpaperSourceFolder">Use filter</label>
-						<input type="text" id="wallpaperFilter" value="SELECT * FROM `FileNodes` NATURAL JOIN Metadata WHERE `all` LIKE '%Exposure Time	1/100\' || x'0d' || x'0a' || '%'"/>
+						<input type="radio" name="wallpaperSource" id="wallpaperSourceFolder" titel="Not implemented yet" disabled/> <label for="wallpaperSourceFolder" titel="Not implemented yet" >Use separate wallpaper folder</label>
+						<input type="file" id="wallpaperFolder" value="Not implemented yet"  titel="Not implemented yet" disabled/>
+						<input type="radio" name="wallpaperSource" id="wallpaperSourceFilter"  titel="Not implemented yet" disabled/> <label for="wallpaperSourceFolder" titel="Not implemented yet" >Use filter</label>
+						<input type="text" id="wallpaperFilter" value="SELECT * FROM `FileNodes` NATURAL JOIN Metadata WHERE `all` LIKE '%Exposure Time	1/100\' || x'0d' || x'0a' || '%'"  titel="Not implemented yet" disabled/>
 					</div>
 					<input type="hidden" id="wallpaperLastChange"/>
 				</div>
@@ -195,7 +212,7 @@
 			</div>
 
 			<div class="set multimonitor">
-				<h2>Montor settings</h2>
+				<h2>Monitor settings</h2>
 				<div class="monitors">
 					<div id="M1" class="monitor">
 						<h3>Monitor 1</h3>

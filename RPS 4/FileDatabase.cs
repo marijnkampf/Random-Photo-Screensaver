@@ -12,29 +12,6 @@ using System.Collections.Concurrent;
 //using System.Configuration;
 
 namespace RPS {
-/*
-    public delegate void MetadataReadEventHandler(ImageMetadataStatus eventArgs);
-
-    public class ImageMetadataStatus {
-        public enum Processing { Queued, Processing, Completed };
-        public long monitorId;
-        public DataRow image;
-        public string metadata;
-        public Processing processing;
-        public ImageMetadataStatus(long monitorId, DataRow image) {
-            this.processing = Processing.Queued;
-            this.monitorId = monitorId;
-            this.image = image;
-        }
-    }
-
-    public class MetadataReadEventArgs : EventArgs {
-        public MetadataReadEventArgs(ImageMetadataStatus status) {
-            this.status = status;
-        }
-        public ImageMetadataStatus status { get; set; }
-    }*/
-
     class FileDatabase {
         DBConnector dbConnector;
         DBConnector metaDataDbConnector;
@@ -42,18 +19,8 @@ namespace RPS {
         int filterOutOfDate = 0;
         bool useFilter = false;
         string filterSQL = null;
-        //private Screensaver screensaver;
 
-        //public FileDatabase(): this(null) {}
-
-        /*
-        List<ImageMetadataStatus> monitorMetadataQueueue;
-        public event MetadataReadEventHandler MetadataReadEvent;
-         */
-
-        public FileDatabase(/*Screensaver screensaver*/) {
-            //this.monitorMetadataQueueue = new List<ImageMetadataStatus>();
-            //this.screensaver = screensaver;
+        public FileDatabase() {
             this.dbConnector = new DBConnector(
                 Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), 
@@ -76,33 +43,10 @@ namespace RPS {
             );
 
             this.dbConnector.ExecuteNonQuery(@"ATTACH DATABASE '" + mdbPath + "' AS mdb;");
-            
-            /*
-            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-            sw.Start();
-            SQLiteCommand command = new SQLiteCommand("CREATE TEMP TABLE Filter AS SELECT * FROM `FileNodes` NATURAL JOIN mdb.Metadata WHERE `all` LIKE \"%Exposure Time	1/100\" || x'0d' || x'0a' || \"%\"", this.dbConnector.connection);
-            command.ExecuteNonQuery();
-            command = new SQLiteCommand("SELECT * FROM `Filter` ORDER BY RANDOM() LIMIT 1", this.dbConnector.connection);
-            SQLiteDataReader reader = command.ExecuteReader();
-            DataTable dt = new DataTable();
-            dt.Load(reader);
-            sw.Stop();
-            Debug.WriteLine(sw.ElapsedMilliseconds + "ms");
-            */
-            /*
-             System.Environment.SpecialFolder.LocalApplicationData
-             CommonPictures
-             CommonVideos
-             ProgramFiles
-             MyPictures
-             MyVideos
-             System
-                */
         }
 
         public void setFilterSQL(string sql) {
             this.filterSQL = sql;
-            //this.filterOutOfDate = Constants.reloadFilters;
             this.useFilter = true;
             this.filterReady(true);
         }
@@ -182,36 +126,24 @@ namespace RPS {
             }
         }
 
-        public DataRow getFirstImage(long id, string orderBy, SortOrder direction) {
-            return getFirstImage(id, orderBy, direction, 0);
+        public DataRow getFirstImage(string orderBy, SortOrder direction) {
+            return getFirstImage(orderBy, direction, 0);
         }
 
-        public DataRow getFirstImage(long id, string orderBy, SortOrder direction, long offset) {
+        public DataRow getFirstImage(string orderBy, SortOrder direction, long offset) {
             string tableName = this.filterReady();
             SQLiteCommand command;
-            if (id > 0) {
-                command = new SQLiteCommand("SELECT * FROM `" + tableName + "` WHERE `FileNodes`.id = @id LIMIT 1;", this.dbConnector.connection);
-                command.Parameters.AddWithValue("@id", id);
-            } else {
-                if (orderBy == null) orderBy = "created";
-                command = new SQLiteCommand("SELECT * FROM `" + tableName + "` ORDER BY " + orderBy + " " + direction.ToString() + " LIMIT 1 OFFSET " + offset + ";", this.dbConnector.connection);
-                command.Parameters.AddWithValue("@orderBy", orderBy);
-             //   command.Parameters.AddWithValue("@direction", direction);
-            }
+            if (orderBy == null) orderBy = "created";
+            command = new SQLiteCommand("SELECT * FROM `" + tableName + "` ORDER BY " + orderBy + " " + direction.ToString() + ", id " + direction.ToString() + " LIMIT 1 OFFSET " + Math.Abs(offset) + ";", this.dbConnector.connection);
+            command.Parameters.AddWithValue("@orderBy", orderBy);
             return DBConnector.executeReaderFirstDataRow(command);
         }
 
-        public DataRow getLastImage(string orderBy, SortOrder direction) {
-            // Reverse sort direction and get first image
-            direction.toggle();
-            return getFirstImage(-1, orderBy, direction);
-        }
-
         public DataRow getImageById(long id, long offset) {
-            return this.getImageById(id, offset, new SortOrder(SortOrder.Direction.ASC), null, null);
+            return this.getImageById(id, offset, null, null);
         }
 
-        public DataRow getImageById(long id, long offset, SortOrder direction, string sortBy, SortOrder orderingTerm) {
+        public DataRow getImageById(long id, long offset, string sortByColumn, SortOrder sortByDirection) {
             string tableName = this.filterReady();
             SQLiteCommand command;
             DataRow dr;
@@ -220,67 +152,61 @@ namespace RPS {
                 command.Parameters.AddWithValue("@id", id);
                 dr = DBConnector.executeReaderFirstDataRow(command);
                 if (dr == null) {
-                    //throw new Exception("id '"+id+'" not found. ");
-                    return this.getFirstImage(-1, sortBy, direction);
+                    return this.getFirstImage(sortByColumn, sortByDirection);
                 }
             } else {
-                if (sortBy == null) sortBy = "path";
-                //if (orderingTerm == null) orderingTerm = "ASC";
-                string than = "";
-                if (orderingTerm.isDESC()) {
+                if (sortByColumn == null) sortByColumn = "path";
+                if (sortByDirection == null) sortByDirection = new SortOrder(SortOrder.Direction.ASC);
+                string than = "<";
+
+                if (sortByDirection.isDESC()) offset *= -1;
+                if (offset < 0) {
                     than = "<";
-                    if (direction.isDESC()) {
-                        than = ">";
-                        orderingTerm.toggle();
-                    }
+                    sortByDirection.setDESC();
                 } else {
                     than = ">";
-                    if (direction.isDESC()) {
-                        than = "<";
-                        orderingTerm.toggle();
-                    }
+                    sortByDirection.setASC();
                 }
-
-                string sql = "FROM `" + tableName + "` WHERE " + sortBy + " " + than + " (SELECT " + sortBy + " FROM `" + tableName + "` WHERE `FileNodes`.id = @id) ORDER BY " + sortBy + " " + orderingTerm.ToString();
                 
-                command = new SQLiteCommand(@"SELECT * " + sql + " LIMIT 1 OFFSET " + (offset - 1) + ";", this.dbConnector.connection);
-              //command = new SQLiteCommand(@"SELECT * FROM `FileNodes` WHERE " + than + " (SELECT path FROM `FileNodes` WHERE id = @id) ORDER BY @sortBy DESC LIMIT 1 OFFSET @offset;", this.dbConnector.connection);
+                string sqlValue = "(SELECT " + sortByColumn + " FROM `" + tableName + "` WHERE `FileNodes`.id = @id)";
+
+                string sql = "FROM `" + tableName + "` WHERE (" + sortByColumn + " " + than + " " + sqlValue + ") " +
+                             " OR ((" + sortByColumn + " = " + sqlValue + " AND id " + than + " @id)) " +
+                             "ORDER BY " + sortByColumn + " " + sortByDirection.ToString() + ", id " + sortByDirection.ToString();
+
+                command = new SQLiteCommand(@"SELECT * " + sql + " LIMIT 1 OFFSET " + (Math.Abs(offset)-1) + ";", this.dbConnector.connection);
                 command.Parameters.AddWithValue("@id", id);
-                command.Parameters.AddWithValue("@sortBy", sortBy);
-                command.Parameters.AddWithValue("@offset", Math.Abs(offset)-1);
-                //command = new SQLiteCommand(@"SELECT * FROM `FileNodes` WHERE path > (SELECT path FROM `FileNodes` WHERE id = 4) ORDER BY path ASC LIMIT 1 OFFSET 0;", this.dbConnector.connection);
                 dr = DBConnector.executeReaderFirstDataRow(command);
                 if (dr == null) {
                     command = new SQLiteCommand(@"SELECT COUNT(`FileNodes`.id) " + sql, this.dbConnector.connection);
                     command.Parameters.AddWithValue("@id", id);
                     dr = DBConnector.executeReaderFirstDataRow(command);
-                    if (dr != null) offset -= Convert.ToInt32(dr[0]);
-                    dr = getFirstImage(-1, sortBy, orderingTerm, offset - 1);
+                    if (dr != null) {
+                        if (offset < 0) offset += Convert.ToInt32(dr[0])+1;
+                        else offset -= Convert.ToInt32(dr[0])+1;
+                        offset = offset % this.nrImagesFilter();                        
+                        dr = getFirstImage(sortByColumn, sortByDirection, offset);
+                    }
+                } else {
+                    Console.WriteLine(dr["id"]);
                 }
             }
             return dr;
         }
 
-        public DataRow getRandomImage() {
+        public DataRow getRandomImage(long offset) {
             /***
              *  Single query "SELECT * FROM `Filter` ORDER BY RANDOM() LIMIT 1;" takes approximately 1000ms 
              *  Two separate queries take approximately 100ms (combined)
              *  
-             * 
+             * TODO optimise?
              * Test Select "SELECT id, path, ..., ... FROM `Filter` ORDER BY RANDOM() LIMIT 1;" ~ 450ms - 500ms
-             * 
-             * 
-             * 
              ***/
             string tableName = this.filterReady();
             SQLiteCommand command = new SQLiteCommand("SELECT id FROM `" + tableName + "` ORDER BY RANDOM() LIMIT 1;", this.dbConnector.connection);
             DataRow dr = DBConnector.executeReaderFirstDataRow(command);
             if (dr == null) return null;
-            return getImageById(Convert.ToInt32(dr["id"]), 0);
-//            SQLiteCommand command = new SQLiteCommand("SELECT * FROM `Filter` ORDER BY RANDOM() LIMIT 1;", this.dbConnector.connection);
-  //          DataRow dr = executeReaderFirstDataRow(command);
-    //        return dr;
-
+            return getImageById(Convert.ToInt32(dr["id"]), offset);
         }
 
         public long getIdFromPath(string path) {
@@ -299,7 +225,6 @@ namespace RPS {
 
         public int deleteFromDB(long id) {
             string tableName = this.filterReady();
-//            MessageBox.Show("deleting:" + id);
             SQLiteCommand command = new SQLiteCommand("DELETE FROM `FileNodes` WHERE id = @id;", this.dbConnector.connection);
             command.Parameters.AddWithValue("@id", id);
             int r = command.ExecuteNonQuery();

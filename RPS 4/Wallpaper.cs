@@ -77,7 +77,7 @@ namespace RPS {
                 int j = 0;
                 DataRow dr;
                 do {
-                    dr = this.screensaver.fileNodes.getRandomImage();
+                    dr = this.screensaver.fileNodes.getRandomImage(0);
                     paths[i] = Convert.ToString(dr["path"]);
                     // no videos
                     if (this.screensaver.config.getValue("videoExtensions").ToLower().IndexOf(new FileInfo(paths[i]).Extension.ToLower()) > -1) {

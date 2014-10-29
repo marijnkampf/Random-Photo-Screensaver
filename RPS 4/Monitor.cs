@@ -26,9 +26,10 @@ namespace RPS {
         // Random photo history
         public List<long> history;
         public int historyPointer = -1;
-        public int historyOffset = 0;
+        //public int historyOffset = 0;
+        long seedImageId;
 
-        public int offset = 1;
+        public int offset = 0;
 
         DataRow currentImage;
         MetadataTemplate quickMetadata;
@@ -128,23 +129,13 @@ namespace RPS {
   /*          } else {
                 this.browser.Document.InvokeScript("test", new String[] { s });
             }*/
-
         }
 
         private void Monitor_Load(object sender, EventArgs e) {
             this.browser.AllowWebBrowserDrop = false;
             this.browser.ObjectForScripting = this;
-//            this.timer.Interval = 1;
             this.nextImage();
             if (this.currentImage != null) this.setTimerInterval();
-/*           
-            if (this.id == 0) {
-                this.setTimerInterval();
-            } else {
-                if (this.screensaver.config.syncMonitors()) {
-                    this.timer.Interval = this.screensaver.monitors[0].timer.Interval;
-                }
-            }*/
             this.startTimer();
         }
 
@@ -182,10 +173,6 @@ namespace RPS {
             this.quickMetadata = new MetadataTemplate(metadata, this.screensaver.config.getValue("quickMetadata"));
             string md = this.quickMetadata.fillTemplate();
             if (md != null || md != "") {
-                //this.browser.Document.InvokeScript("showImage", new String[] { Convert.ToString(this.currentImage["path"]), "false", md });
-
-//                this.browser.Document.InvokeScript("showMetadata", new String[] { "<<" });
-                //this.browser.Document.InvokeScript("showInfo", new String[] { md });
                 if (this.browser.InvokeRequired) {
                     
                     this.browser.Document.InvokeScript("showMetadata", new String[] { Convert.ToString(md) });
@@ -232,11 +219,17 @@ namespace RPS {
                     break;
                 }
                 settings["animated"] = Convert.ToString(animated).ToLower();
-                settings["stretchSmallImages"] = this.screensaver.config.getCheckboxValue("stretchSmallImages");
-                settings["stretchSmallVideos"] = this.screensaver.config.getCheckboxValue("stretchSmallVideos");
-                settings["showcontrols"] = this.screensaver.config.getCheckboxValue("showControls");
-                settings["loop"] = this.screensaver.config.getCheckboxValue("videosLoop");
-                settings["mute"] = this.screensaver.config.getCheckboxValue("videosMute");
+                switch (Convert.ToString(settings["mediatype"])) {
+                    case "image":
+                        settings["stretchSmallImages"] = this.screensaver.config.getCheckboxValue("stretchSmallImages");
+                    break;
+                    case "object": case "video":
+                        settings["stretchSmallVideos"] = this.screensaver.config.getCheckboxValue("stretchSmallVideos");
+                        settings["showcontrols"] = this.screensaver.config.getCheckboxValue("showControls");
+                        settings["loop"] = this.screensaver.config.getCheckboxValue("videosLoop");
+                        settings["mute"] = this.screensaver.config.getCheckboxValue("videosMute");
+                    break;
+                }
 
                 this.browser.Document.InvokeScript("showImage", new Object[] { Convert.ToString(this.currentImage["path"]), metadata, JsonConvert.SerializeObject(settings) });
             }
@@ -257,6 +250,19 @@ namespace RPS {
             return true;
         }
 
+        public DataRow offsetImage(int i) {
+            if (this.screensaver.config.getOrder() == Config.Order.Random) {
+                this.offset += i;
+                //this.seedImage = this.currentImage;
+                this.currentImage = this.screensaver.fileNodes.getImageById(Convert.ToInt32(this.seedImageId), this.offset);
+                return this.currentImage;
+            } else {
+                if (i > 0) return this.nextImage();
+                else return this.previousImage();
+            }
+            
+        }
+
         public DataRow previousImage() {
             if (this.screensaver.config.getOrder() == Config.Order.Random) {
                 this.historyPointer--;
@@ -267,16 +273,15 @@ namespace RPS {
                 long imageId = -1;
                 if (this.history.Count > 0) 
                     imageId = this.history[this.historyPointer];
-                this.currentImage = this.screensaver.fileNodes.getImageById(imageId, this.historyOffset);
+                this.currentImage = this.screensaver.fileNodes.getImageById(imageId, this.offset);
+                this.seedImageId = imageId;
             } else {
                 int offset = 1;
-                SortOrder direction = new SortOrder(SortOrder.Direction.ASC);
                 // For first monitor skip back to photo on first monitor, than select going forward.
                 if (this.id == 0) {
-                    direction.setDESC();
-                    offset = this.screensaver.monitors.Length+1;
+                    offset = (this.screensaver.monitors.Length+1)*-1;
                 }
-                this.currentImage = this.screensaver.fileNodes.getSequentialImage(this.id, direction, offset);
+                this.currentImage = this.screensaver.fileNodes.getSequentialImage(this.id, offset);
             }
             if (!fileExistsOnDisk(this.currentImage)) return this.previousImage();
             return this.currentImage;
@@ -287,29 +292,26 @@ namespace RPS {
             if (this.screensaver.config.getOrder() == Config.Order.Random) {
                 if (this.historyPointer + 1 < this.history.Count()) {
                     this.historyPointer++;
-                    this.currentImage = this.screensaver.fileNodes.getImageById(this.history[this.historyPointer], this.historyOffset);
+                    this.currentImage = this.screensaver.fileNodes.getImageById(this.history[this.historyPointer], this.offset);
+                    this.seedImageId = Convert.ToInt32(this.currentImage["id"]);
                 } else {
                     this.currentImage = this.screensaver.fileNodes.getRandomImage();
                     if (this.currentImage != null) {
-                        //            string filename = Convert.ToString(img["path"]);
                         this.history.Add(Convert.ToInt32(this.currentImage["id"]));
                         this.historyPointer++;
+
+                        this.seedImageId = Convert.ToInt32(this.currentImage["id"]);
+                        if (this.offset != 0) {
+                            this.currentImage = this.screensaver.fileNodes.getImageById(this.seedImageId, this.offset);
+                        }
                     }
                 }
             } else {
                 int offset = 1;
-                //int offset = this.offset;
-                if (this.id == 0) {
-//                    offset = this.screensaver.monitors.Length;
-                }
-                this.currentImage = this.screensaver.fileNodes.getSequentialImage(this.id, new SortOrder(SortOrder.Direction.ASC), offset);
+                this.currentImage = this.screensaver.fileNodes.getSequentialImage(this.id, offset);
             }
             if (!fileExistsOnDisk(this.currentImage)) return this.nextImage();
             return this.currentImage;
-        }
-
-        public DataRow offsetImage(int offset) {
-            return null;
         }
 
         public void setTimerInterval() {
@@ -339,7 +341,6 @@ namespace RPS {
                     if (max < min) max = min;
                     timeout = rnd.Next(min, max);
                 }
-                //if (this.id == 0) timeout = timeout / 3;
                 this.timer.Interval = timeout;
             }
             if (this.screensaver.config.syncMonitors() && this.id == 0) {

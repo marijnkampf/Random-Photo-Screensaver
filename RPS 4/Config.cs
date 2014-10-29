@@ -130,7 +130,6 @@ namespace RPS {
                         if (e.GetAttribute("checked").ToLower() == "true") {
                             this.persistant[e.GetAttribute("name")] = e.GetAttribute("value");
                         }
-                    Debug.WriteLine("Implement Radio box " + e.GetAttribute("id") + ": " + e.GetAttribute("checked").ToLower());
                     break;
                     default:
                         this.persistant[e.GetAttribute("id")] = e.GetAttribute("value");

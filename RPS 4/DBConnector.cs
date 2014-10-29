@@ -41,9 +41,9 @@ namespace RPS {
             this.direction = Direction.DESC;
         }
 
-        public void toggle() {
-            if (this.direction == Direction.ASC) this.direction = Direction.DESC;
-            else this.direction = Direction.ASC;
+        public SortOrder toggle() {
+            if (this.direction == Direction.ASC) return new SortOrder(Direction.DESC);
+            else return new SortOrder(Direction.ASC);
         }
 
         public string ToString() {
@@ -78,17 +78,20 @@ namespace RPS {
         
         public static string ToReadableString(SQLiteCommand command) {
             StringBuilder builder = new StringBuilder();
-            builder.AppendLine("Sql command: " + command.CommandText);
+            string sql = command.CommandText;
+            builder.AppendLine("");
             if (command.Parameters.Count > 0)
                 builder.AppendLine("With the following parameters.");
 
             foreach (SQLiteParameter param in command.Parameters) {
+                sql = sql.Replace(param.ParameterName, param.Value.ToString());
                 builder.AppendFormat(
                     "     Paramater {0}: {1}",
                     param.ParameterName,
                     (param.Value == null ?
                     "NULL" : param.Value.ToString())).AppendLine();
             }
+            builder.Insert(0, "Sql command: " + sql);
             return builder.ToString();
         }
 

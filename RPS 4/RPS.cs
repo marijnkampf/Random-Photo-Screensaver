@@ -313,8 +313,8 @@ namespace RPS {
 
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                                     this.monitors[i].timer.Stop();
-                                    this.monitors[i].showInfoOnMonitor("<<");
                                     this.monitors[i].previousImage();
+                                    this.monitors[i].showInfoOnMonitor("<<");
                                     this.monitors[i].showImage(false);
                                     this.monitors[i].startTimer();
                                 }
@@ -326,8 +326,8 @@ namespace RPS {
                             for (int i = 0; i < this.monitors.Length; i++) {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                                     this.monitors[i].timer.Stop();
-                                    this.monitors[i].showInfoOnMonitor(">>");
                                     this.monitors[i].nextImage();
+                                    this.monitors[i].showInfoOnMonitor(">>");
                                     this.monitors[i].showImage(false);
                                     this.monitors[i].startTimer();
                                 }
@@ -338,12 +338,12 @@ namespace RPS {
                             //this.stopTimers();
                             for (int i = 0; i < this.monitors.Length; i++) {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
-                                    this.monitors[i].offset--;
+                                    //this.monitors[i].offset++;
                                     this.monitors[i].timer.Stop();
-                                    this.monitors[i].showInfoOnMonitor("ToDo: Implement randomised offset ^ offset: " + this.monitors[i].offset);
-                                    //this.monitors[i].offsetImage();
-                                    this.monitors[i].nextImage();
+                                    this.monitors[i].offsetImage(1);
+                                    //this.monitors[i].previousImage();
                                     this.monitors[i].showImage(false);
+                                    this.monitors[i].showInfoOnMonitor("v (" + this.monitors[i].offset + ")");
                                     this.monitors[i].startTimer();
                                 }
                             }
@@ -353,12 +353,12 @@ namespace RPS {
                            // this.stopTimers();
                             for (int i = 0; i < this.monitors.Length; i++) {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
-                                    this.monitors[i].offset++;
+                                    //this.monitors[i].offset--;
                                     this.monitors[i].timer.Stop();
-                                    this.monitors[i].showInfoOnMonitor("ToDo: Implement randomised offset v offset: " + this.monitors[i].offset);
-                                    //this.monitors[i].offsetImage();
-                                    this.monitors[i].previousImage();
+                                    this.monitors[i].offsetImage(-1);
+                                    //this.monitors[i].nextImage();
                                     this.monitors[i].showImage(false);
+                                    this.monitors[i].showInfoOnMonitor("^ (" + this.monitors[i].offset + ")");
                                     this.monitors[i].startTimer();
                                 }
                             }

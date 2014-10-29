@@ -172,37 +172,6 @@ namespace RPS {
                 folders.RemoveAt(0);
             }
         }
-/*
-        public string processMetadata(DataRow dr) {
-            return this.processMetadata(dr, true);
-        }
-
-        public string processMetadata(DataRow dr, bool getSingleValue) {
-            int i = 0;
-            string meta = null;
-            while (dr != null) {
-                if (i % 50 == 0) this.fileDatabase.toggleMetadataTransaction();
-                this.exifToolStarted();
-                meta = this.exifTool.SendCommand(Convert.ToString(dr["path"]));
-                this.fileDatabase.addMetadataToDB(Convert.ToInt32(dr["id"]), meta);
-                this.nrUnprocessedMetadata--;
-
-                if (this.bwCancelled() == true) return null;
-
-                if (getSingleValue) dr = null;
-                else dr = this.fileDatabase.nextMetadataLessImage();
-                i++;
-            }
-            this.fileDatabase.toggleMetadataTransaction();
-            return meta;
-        }
-
-        public void processMetadata() {
-            this.nrUnprocessedMetadata = this.fileDatabase.nrMetadataImagesToProcess();
-            DataRow dr;
-            dr = this.fileDatabase.nextMetadataLessImage();
-            this.processMetadata(dr, false);
-        }*/
 
         public string exifToolCommand(string command, long imageId) {
             this.exifToolMainStarted();
@@ -268,38 +237,45 @@ namespace RPS {
             return null;
         }
 
-        public DataRow getSequentialImage(int monitor, SortOrder direction, int offset) {
+        public DataRow getSequentialImage(int monitor, int offset) {
             DataRow currentImage = null;
 
-            string sortBy = this.screensaver.config.getRadioValue("sortBy");
+            string sortByColumn = this.screensaver.config.getRadioValue("sortBy");
             SortOrder sortDirection = new SortOrder(this.screensaver.config.getRadioValue("sortDirection"));
 
-            // All clear, proceed
             if (this.currentSequentialSeedId == -1) {
-                long imageId;
                 try {
+                    long imageId;
                     imageId = Convert.ToInt32(this.config.getValue("sequentialStartImageId"));
-                } catch(Exception e){
-                    imageId = -1;
+                    currentImage = this.fileDatabase.getImageById(imageId, (Screen.AllScreens.Length - 1) * -1, sortByColumn, sortDirection);
+                } catch (Exception e) {
+                    currentImage = this.fileDatabase.getFirstImage(sortByColumn, sortDirection);
                 }
-                currentImage = this.fileDatabase.getFirstImage(imageId, sortBy, sortDirection);
             } else {
-                //                                               getImageById(long id, long offset, long direction, string sortBy, string orderingTerm) {
-                currentImage = fileDatabase.getImageById(this.currentSequentialSeedId, offset, direction, sortBy, sortDirection);
+                currentImage = fileDatabase.getImageById(this.currentSequentialSeedId, offset, sortByColumn, sortDirection);
             }
             if (currentImage != null) {
                 this.currentSequentialSeedId = Convert.ToInt32(currentImage["id"]);
             }
-            this.debugMonitorInfo(monitor, direction, offset, currentImage, "currentImage");
             return currentImage;
         }
 
-        public DataRow getImageById(long id, long historyOffset) {
-            return fileDatabase.getImageById(id, historyOffset);
+        public DataRow getImageById(long id, long offset) {
+            if (offset == 0) {
+                return fileDatabase.getImageById(id, offset);
+            } else {
+                string sortByColumn = this.screensaver.config.getRadioValue("sortBy");
+                SortOrder sortDirection = new SortOrder(this.screensaver.config.getRadioValue("sortDirection"));
+                return fileDatabase.getImageById(id, offset, sortByColumn, sortDirection);
+            }
         }
 
         public DataRow getRandomImage() {
-            return fileDatabase.getRandomImage();
+            return this.getRandomImage(0);
+        }
+
+        public DataRow getRandomImage(long offset) {
+            return fileDatabase.getRandomImage(offset);
         }
         
         public string getMetadataById(long id) {

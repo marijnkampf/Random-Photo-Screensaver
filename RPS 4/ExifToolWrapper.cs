@@ -9,13 +9,14 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace ExifTool
 {
     public class Wrapper : IDisposable
     {
         private readonly string exe;
-        private const string ExeName = "exiftool(-k).exe";
+        //private const string ExeName = "exiftool(-k).exe";
         private const string Arguments = "-fast -m -q -q -stay_open True -@ - -common_args -d \"%Y.%m.%d %H:%M:%S\" -t";   //-g for groups
 
         public enum Statuses { Stopped, Starting, Ready, Stopping };
@@ -31,7 +32,14 @@ namespace ExifTool
 
         public Wrapper(string path = null)
         {
-            exe = string.IsNullOrEmpty(path) ? Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), ExeName) : path;
+            if (path != null && Path.IsPathRooted(path)) {
+                exe = path;
+            } else {
+                exe = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), path);
+            }
+            //exe = string.IsNullOrEmpty(path) ? Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), ExeName) : path;
+            //MessageBox.Show(exe);// + "\r\n\r\n" + Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), ExeName) + "\r\n" + path + "\r\n\r\n" + Assembly.GetEntryAssembly().Location);
+
             if (!File.Exists(exe)) {
                 exe = "." + exe;
             }

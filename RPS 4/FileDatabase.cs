@@ -68,9 +68,9 @@ namespace RPS {
                 command = new SQLiteCommand("DROP TABLE IF EXISTS Filter;", this.dbConnector.connection);
                 command.ExecuteNonQuery();
                 if (this.filterSQL == null) {
-                    command = new SQLiteCommand("CREATE TEMP TABLE Filter AS SELECT * FROM `FileNodes` NATURAL JOIN mdb.Metadata", this.dbConnector.connection);
+                    command = new SQLiteCommand("CREATE TEMP TABLE Filter AS SELECT * FROM `FileNodes` LEFT JOIN mdb.Metadata USING (id)", this.dbConnector.connection);
                 } else {
-                    command = new SQLiteCommand("CREATE TEMP TABLE Filter AS SELECT * FROM `FileNodes` NATURAL JOIN mdb.Metadata WHERE " + this.filterSQL, this.dbConnector.connection);
+                    command = new SQLiteCommand("CREATE TEMP TABLE Filter AS SELECT * FROM `FileNodes` LEFT JOIN mdb.Metadata USING (id) WHERE " + this.filterSQL, this.dbConnector.connection);
                 }
                 command.ExecuteNonQuery();
                 sw.Stop();
@@ -167,8 +167,8 @@ namespace RPS {
                     than = ">";
                     sortByDirection.setASC();
                 }
-                
-                string sqlValue = "(SELECT " + sortByColumn + " FROM `" + tableName + "` WHERE `FileNodes`.id = @id)";
+
+                string sqlValue = "(SELECT " + sortByColumn + " FROM `" + tableName + "` WHERE `" + tableName + "`.id = @id)";
 
                 string sql = "FROM `" + tableName + "` WHERE (" + sortByColumn + " " + than + " " + sqlValue + ") " +
                              " OR ((" + sortByColumn + " = " + sqlValue + " AND id " + than + " @id)) " +
@@ -178,7 +178,7 @@ namespace RPS {
                 command.Parameters.AddWithValue("@id", id);
                 dr = DBConnector.executeReaderFirstDataRow(command);
                 if (dr == null) {
-                    command = new SQLiteCommand(@"SELECT COUNT(`FileNodes`.id) " + sql, this.dbConnector.connection);
+                    command = new SQLiteCommand(@"SELECT COUNT(`" + tableName + "`.id) " + sql, this.dbConnector.connection);
                     command.Parameters.AddWithValue("@id", id);
                     dr = DBConnector.executeReaderFirstDataRow(command);
                     if (dr != null) {

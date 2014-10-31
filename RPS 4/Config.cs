@@ -18,6 +18,7 @@ using System.Collections;
 //using System.DirectoryServices;
 //using System.Management;
 using Newtonsoft.Json;
+using Microsoft.Win32;
 /***
  * 
  * Consider optimising by storing all values from html in c# array?
@@ -38,8 +39,11 @@ namespace RPS {
         //SQLiteConnection connection;
 
         private Screensaver screensaver;
+        private FolderBrowserDialog folderBrowserDialog1;
 
         private string folderChanged = null;
+
+        public long maxScreenSize = 0;
 
 
         //public WebBrowser browser;
@@ -52,6 +56,9 @@ namespace RPS {
             this.browser.ObjectForScripting = this;
             this.browser.AllowWebBrowserDrop = false;
             this.TopMost = true;
+            foreach (Screen screen in Screen.AllScreens) {
+                this.maxScreenSize = Math.Max(Math.Max(this.maxScreenSize, screen.Bounds.Width), screen.Bounds.Height);
+            }
         }
 
         public SQLiteConnection connectToDB() {
@@ -63,7 +70,48 @@ namespace RPS {
             //return new SQLiteConnection("Data Source=" + path + ";Version=3;");
             return this.dbConnector.connection;
         }
-        
+
+        public string jsFileBrowserDialog(string filename, string filter) {
+            OpenFileDialog dialog = new System.Windows.Forms.OpenFileDialog();
+            if (filename == null) filename = "";
+            else dialog.InitialDirectory = Path.GetFullPath(filename);
+            dialog.FileName = Path.GetFileName(filename);
+            if (filter != null && filter.Length > 0) {
+                dialog.Filter = filter;
+            }
+            if (dialog.ShowDialog() == DialogResult.OK) {
+                return dialog.FileName;
+            } else {
+                return filename;
+            }
+        }
+
+
+        public string jsFolderBrowserDialog(string path) {
+            FolderBrowserDialog dialog = new System.Windows.Forms.FolderBrowserDialog();
+            dialog.SelectedPath = path;
+            if (dialog.ShowDialog() == DialogResult.OK) {
+                return dialog.SelectedPath;
+            } else {
+                return path;
+            }
+        }
+
+        public string jsRawConverterAvailable(string path) {
+            if (File.Exists(path)) return "true";
+            else return "false";
+        }
+
+        public string jsGetUFRawLocation() {
+            string path = (string) Registry.GetValue("HKEY_CURRENT_USER\\Software\\Microsoft\\IntelliPoint\\AppSpecific\\ufraw.exe", "Path", null);
+            path = path.Replace("ufraw.exe", "ufraw-batch.exe");
+            if (path != null && path.Length > 0) {
+                if (File.Exists(path)) {
+                    return path;
+                }
+            }
+            return null;
+        }
 
         public void loadPersistantConfig() {
 
@@ -87,6 +135,20 @@ namespace RPS {
                     this.persistant.Add("folders", path);
                 } else {
                     this.persistant["folders"] = path;
+                }
+            }
+
+            if (!this.persistant.ContainsKey("rawFolder") || this.persistant["rawFolder"] == null || this.persistant["rawFolder"].Trim().Length == 0) {
+                string path = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), 
+                    Constants.AppFolderName,
+                    Constants.RawCacheFolder
+                );
+                    
+                if (!this.persistant.ContainsKey("rawFolder")) {
+                    this.persistant.Add("rawFolder", path);
+                } else {
+                    this.persistant["rawFolder"] = path;
                 }
             }
 
@@ -117,6 +179,9 @@ namespace RPS {
             foreach (HtmlElement e in hec) if (this.persistant.ContainsKey(e.GetAttribute("id"))) {
                 e.SetAttribute("value", this.persistant[e.GetAttribute("id")]);
             }
+
+            this.browser.Document.InvokeScript("persistantConfigLoaded", new string[] { Convert.ToString(Screen.AllScreens.Length) });
+
         }
 
         public void safePersistantConfig() {

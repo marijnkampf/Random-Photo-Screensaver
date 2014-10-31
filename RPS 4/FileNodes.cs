@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Data.SQLite;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 using System.Data;
 using System.Diagnostics;
+
 
 namespace RPS {
     public class FileNodes {
@@ -119,12 +121,18 @@ namespace RPS {
                     string allowedExtensions;
                     bool ignoreHiddenFiles;
                     bool ignoreHiddenFolders;
+                    string rawExtensions = null;
 
                     try {
                         he = this.config.getElementById("imageExtensions");
                         allowedExtensions = this.config.getValue("imageExtensions").ToLower() + " " + this.config.getValue("videoExtensions").ToLower();
                         ignoreHiddenFiles = this.config.getCheckboxValue("ignoreHiddenFiles");
                         ignoreHiddenFolders = this.config.getCheckboxValue("ignoreHiddenFolders");
+
+                        if (this.config.getCheckboxValue("rawUseConverter")) {
+                            rawExtensions = this.config.getValue("rawExtensions").ToLower();
+                            allowedExtensions += " " + rawExtensions;
+                        }
                     } catch (System.Runtime.InteropServices.InvalidComObjectException icoe) {
                         // Occurs when shutting down, cancel thread
                         this.bwCancelled();
@@ -219,6 +227,84 @@ namespace RPS {
         public void debugMonitorInfo(int m, SortOrder d, int o, DataRow dr, string s) {
             if (dr == null) this.screensaver.monitors[m].showInfoOnMonitor("getSequentialImage(monitor " + m + ", direction " + d.ToString() + ", offset "+o+") ["+s+"]: null");
             else this.screensaver.monitors[m].showInfoOnMonitor("getSequentialImage(monitor " + m + ", direction " + d.ToString() + ", offset " + o + ") [" + s + "]: " + dr["id"]);
+        }
+
+        public bool cacheRawImage(string rawSource, string jpgDest, bool hideFolder, bool hideFile) {
+            if (File.Exists(jpgDest)) return true;
+
+            if (!File.Exists(this.config.getValue("rawConverter"))) {
+                throw new FileNotFoundException("Raw converter: '" + this.config.getValue("rawConverter") + "' not found."); 
+            }
+
+            if (!Directory.Exists(Path.GetDirectoryName(jpgDest))) {
+                Directory.CreateDirectory(Path.GetDirectoryName(jpgDest));
+                if (hideFolder) {
+                    DirectoryInfo di = new DirectoryInfo(Path.GetDirectoryName(jpgDest));
+                    di.Attributes |= FileAttributes.Hidden;
+                }
+            }
+
+            // Convert raw
+            // Hide raw file
+            string size = "";
+            if (this.config.getRadioValue("rawCacheSize") == "monitor") {
+                size = "--size=" + this.config.maxScreenSize;// Get screen max dimensions!!!
+
+            }
+            System.Threading.Thread.Sleep(250);
+            Process p = new Process();
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            p.StartInfo.CreateNoWindow = true;
+            p.StartInfo.FileName = this.config.getValue("rawConverter");
+            p.StartInfo.Arguments = size + " " + this.config.getValue("rawConverterParams").Replace("#RAW#", rawSource).Replace("#JPG#", jpgDest);
+            //Console.WriteLine(p.StartInfo.FileName + " " + p.StartInfo.Arguments);
+            p.Start();
+            p.PriorityClass = ProcessPriorityClass.BelowNormal;
+            p.WaitForExit();
+            
+            if (File.Exists(jpgDest)) {
+                if (hideFile) {
+                    FileInfo fi = new FileInfo(jpgDest);
+                    fi.Attributes |= FileAttributes.Hidden;
+                }
+            }
+            return false;
+        }
+
+        public string checkImageCache(string filename, long monitor) {
+            if ((this.config.getValue("rawExtensions").IndexOf(Path.GetExtension(filename).ToLower()) > -1) && this.config.getCheckboxValue("rawUseConverter")) {
+                string cachedFilename = null;
+                bool hideFolder = true;
+                bool hideFile = false;
+
+                switch (this.config.getRadioValue("rawLocation")) {
+                    case "same":
+                        cachedFilename = Path.ChangeExtension(filename, Constants.rawFileConvertedExt);
+                        hideFile = true;
+                    break;
+                    case "subfolder":
+                        cachedFilename = Path.Combine(
+                            Path.GetDirectoryName(filename),
+                            this.config.getValue("rawSubfolder"),
+                            Path.GetFileNameWithoutExtension(filename) + Constants.rawFileConvertedExt
+                        );
+                        hideFile = false;
+                    break;
+                    case "separate":
+                        cachedFilename = Path.Combine(
+                            this.config.getValue("rawFolder"),
+                            Path.ChangeExtension(filename, Constants.rawFileConvertedExt).Replace(":", "")
+                        );
+                        hideFolder = false;
+                        hideFile = false;
+                    break;
+                }
+                if (!File.Exists(cachedFilename)) this.cacheRawImage(filename, cachedFilename, hideFolder, hideFile);
+                //this.screensaver.monitors[monitor].showInfoOnMonitor("");
+                return cachedFilename;
+            }
+            return filename;
         }
 
         public DataRow getFirstImage(int monitor) {

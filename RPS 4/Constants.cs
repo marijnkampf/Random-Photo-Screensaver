@@ -8,6 +8,7 @@ using System.Windows.Forms;
 namespace RPS {
     static class Constants {
         public const string DataFolder = "data";
+        public const string RawCacheFolder = "rawCache.rps";
         public const string devDataFolder = "../../data";
         public const string ConfigHtmlFile = "config.html";
         public const string MonitorHtmlFile = "monitor.html";
@@ -18,6 +19,8 @@ namespace RPS {
         public const string MetadataFileName = "meta.sqlite";
         public const string PersistantConfigFileName = "settings.sqlite";
         public const string WallpaperFileName = "rpsBackground.bmp";
+
+        public const string rawFileConvertedExt = ".jpg";
         //        public readonly string[] imageExtensions = { ".gif", ".png", ".jpeg", ".jpg", ".pcx", ".bmp" };
   //      public readonly string[] movieExtensions = { ".avi", ".wmv", "mp4" };
 

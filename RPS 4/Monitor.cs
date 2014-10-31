@@ -144,14 +144,18 @@ namespace RPS {
         }
 
         public void showInfoOnMonitor(string info) {
-            this.showInfoOnMonitor(info, false);
+            this.showInfoOnMonitor(info, false, true);
         }
 
         public void showInfoOnMonitor(string info, bool highPriority) {
+            this.showInfoOnMonitor(info, highPriority, true);
+        }
+
+        public void showInfoOnMonitor(string info, bool highPriority, bool fade) {
             if (highPriority) {
-                this.browser.Document.InvokeScript("showPriorityInfo", new String[] { info });
+                this.browser.Document.InvokeScript("showPriorityInfo", new String[] { info, Convert.ToString(fade) });
             } else {
-                this.browser.Document.InvokeScript("showInfo", new String[] { info });
+                this.browser.Document.InvokeScript("showInfo", new String[] { info, Convert.ToString(fade) });
             }
         }
 
@@ -210,7 +214,7 @@ namespace RPS {
                     metadata = this.quickMetadata.fillTemplate();
                 }
                 settings["mediatype"] = "image";
-                if (this.screensaver.config.getValue("videoExtensions").IndexOf(Path.GetExtension(Convert.ToString(this.currentImage["path"]))) > -1) {
+                if (this.screensaver.config.getValue("videoExtensions").IndexOf(Path.GetExtension(Convert.ToString(this.currentImage["path"]).ToLower())) > -1) {
                     settings["mediatype"] = "video";
                 }
                 switch(Path.GetExtension(Convert.ToString(this.currentImage["path"]).ToLower())) {
@@ -230,8 +234,25 @@ namespace RPS {
                         settings["mute"] = this.screensaver.config.getCheckboxValue("videosMute");
                     break;
                 }
+                try {
+                    var bgw = new BackgroundWorker();
+                    bgw.DoWork += (object sender, DoWorkEventArgs e) => {
+                        e.Result = this.screensaver.fileNodes.checkImageCache(Convert.ToString(this.currentImage["path"]), this.id);
+                    };
+                    bgw.RunWorkerCompleted += (object sender, RunWorkerCompletedEventArgs e) => {
+                        this.showInfoOnMonitor("");
+                        this.browser.Document.InvokeScript("showImage", new Object[] { e.Result, Convert.ToString(this.currentImage["path"]), metadata, JsonConvert.SerializeObject(settings) });
+                    };
+                    string path = "";
+                    object[] prms = new object[] { path };
+                    this.showInfoOnMonitor("Converting from RAW to JPEG <span class='wait'></span>", false, false);
+                    bgw.RunWorkerAsync(prms);
 
-                this.browser.Document.InvokeScript("showImage", new Object[] { Convert.ToString(this.currentImage["path"]), metadata, JsonConvert.SerializeObject(settings) });
+                    //this.showInfoOnMonitor("Converting RAW");
+                    //this.showInfoOnMonitor("Converted");
+                } catch (Exception e) {
+                    this.showInfoOnMonitor(e.Message, true);
+                }
             }
         }
 

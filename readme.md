@@ -61,6 +61,7 @@ ToDo update all external libraries
 The following (free) libraries and programs have been used in/ship with RPS4:
 - [Microsoft Visual Studio 2013 C# Express Edition](http://www.visualstudio.com/downloads/download-visual-studio-vs)
     - [ExifTool by Phil Harvey](http://www.sno.phy.queensu.ca/~phil/exiftool/)
+    - [UFRaw](http://ufraw.sourceforge.net/)
     - [SQLite](http://www.sqlite.org/)
 - JavaScript 
     - [jQuery](http://jquery.com/)

@@ -226,7 +226,34 @@ function clearFilter() {
 	}
 }
 
+function checkRawConverter() {
+	var found = false;
+	if (typeof(window.external.jsRawConverterAvailable) !== "undefined") {
+		if (window.external.jsRawConverterAvailable($("#rawConverter").val()) == "true") {
+			found = true;
+		}
+	}
+	if (found) {
+		$("#rawUseConverter").attr("disabled", false);
+		$(".noRaw").hide();
+	} else {
+		$("#rawUseConverter").attr("disabled", true);
+		$("#rawUseConverter").attr("checked", false);
+		$(".noRaw").show();
+	}
+}
+
+/**
+ * Called from RPS
+ **/
+function persistantConfigLoaded() {
+		checkRawConverter();
+}
+
 $(function(){
+	// Rerun on refresh
+	persistantConfigLoaded();
+
 	$( "#timeout,#timeoutMax" ).spinner({ min: 1 });
 
 	$( ".linkButton" ).button();
@@ -235,6 +262,52 @@ $(function(){
 		.button()
 		.click(function( event ) {
 			event.preventDefault();
+	});
+
+	/**
+	 * Disable sub options for radio groups
+	 **/
+	$(".subOptions").change(function() {
+		$("input[type=radio]", this).each(function() {
+			var disabled = (this.id != $("input:radio[name=rawLocation]:checked" ).attr("id").toString());
+			$("." + this.id + " input").each(function() { $(this).attr("disabled", disabled); });
+			$("." + this.id).each(function() {
+				$(this).toggleClass("disabled", disabled);
+		});
+		});
+	});
+
+	$(".subOptions").each(function() {
+		$(this).change();
+});
+
+	//$(".external")
+
+	$(".browseFile .button").click(function() {
+		var id = this.id.replace("Browse", "");
+		if (typeof(window.external.jsFileBrowserDialog) === "undefined") {
+			alert("Can't display folder browse dialog in browser preview mode");
+		} else {
+			$("#" + id).val(window.external.jsFileBrowserDialog($("#" + id).val(), $("#" + id).attr("data-filter")));
+		}
+	});
+
+	$("#detectUFRaw").click(function() {
+		if (typeof(window.external.jsGetUFRawLocation) === "undefined") {
+			alert("Can't automatically get UFRaw location in browser preview mode");
+		} else {
+			path = window.external.jsGetUFRawLocation();
+			if (path.length > 0) {
+				$("#rawConverter").val(path);
+			} else {
+				alert("UFRaw location not automatically detected. Set location of 'ufraw-batch.exe' manually?");
+			}
+			checkRawConverter();
+		}
+	});
+
+	$("#rawConverter").on('change keyup' ,function(){
+		checkRawConverter();
 	});
 
 	$(".hideMessage").click(function() {

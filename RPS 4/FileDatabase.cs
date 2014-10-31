@@ -99,8 +99,8 @@ namespace RPS {
             dt.Load(reader);
             bool executeNonQuery = false;
             if (dt.Rows.Count > 0) {
-                if ((DateTime)dt.Rows[0]["created"] != fi.CreationTime ||
-                    (DateTime)dt.Rows[0]["modified"] != fi.LastWriteTime ||
+                if ((DateTime)dt.Rows[0]["created"] < fi.CreationTime ||
+                    (DateTime)dt.Rows[0]["modified"] < fi.LastWriteTime ||
                     (long)dt.Rows[0]["size"] != fi.Length) 
                 {
                     command = new SQLiteCommand("UPDATE `FileNodes` SET `created` = @created, `modified` = @modified, `size` = @size, `metainfoindexed` = 0 WHERE `id` = @id", this.dbConnector.connection);
@@ -134,6 +134,7 @@ namespace RPS {
             string tableName = this.filterReady();
             SQLiteCommand command;
             if (orderBy == null) orderBy = "created";
+            if (direction == null) direction = new SortOrder(SortOrder.Direction.ASC);
             command = new SQLiteCommand("SELECT * FROM `" + tableName + "` ORDER BY " + orderBy + " " + direction.ToString() + ", id " + direction.ToString() + " LIMIT 1 OFFSET " + Math.Abs(offset) + ";", this.dbConnector.connection);
             command.Parameters.AddWithValue("@orderBy", orderBy);
             return DBConnector.executeReaderFirstDataRow(command);

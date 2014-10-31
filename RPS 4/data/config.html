@@ -139,9 +139,68 @@
 			</div>
 
 			<div class="set">
-				<h2>Images</h2>
+				<h2 id="images">Images</h2>
 				<div class="set checkboxGroup">
 					<input type="checkbox" id="stretchSmallImages"/> <label for="stretchSmallImages">Stretch small images</label>
+				</div>
+				<div class="set advanced">
+					<label for="imageExtensions">Image extensions <span class="reference">(also see <a href="#RAW">RAW extensions</a>)</span></label>
+					<input type="text" id="imageExtensions" value=".gif .png .jpeg .jpg .bmp .wmp .svg" />
+					<div class="keywords">filenames extensions types</div>
+				</div>
+				<div class="keywords">photos photographs pictures</div>
+				<div class="clear"></div>
+			</div>
+
+			<div class="set">
+				<h2 id="RAW">RAW files</h2>
+				<div class="note">To display RAW files JPG versions are created and stored on your harddisk. Please note screensaver may run slow whilst images are converted.</div>
+				<div class="set checkboxGroup">
+					<input type="checkbox" id="rawUseConverter"/> <label for="rawUseConverter">Show RAW files (cached as JPG)</label>
+				</div>
+				<div class="rawUseConverter">
+					<div class="noRaw">
+						<p>Raw converter not found. Please <a class="external" target="_blank" href="http://sourceforge.net/projects/ufraw/files/latest/download?source=typ_redirect" >download and install UFRaw</a>, then click: <a id="detectUFRaw" class="button" href="#">Locate UFRaw installation</a><br/>
+						Or install your own favourite RAW file converter.</p>
+					</div>
+					<label for="rawConverter">Raw file converter</label>
+					<div class="browseFile"><input type="text" id="rawConverter" data-filter="Executable files (*.exe)|*.exe" value="" /><a id="rawConverterBrowse" class="button" href="#">Browse</a></div>
+
+					<div class="advanced">
+						<h3 id="RAW">Advanced settings</h3>
+
+						<div class="set radioGroup">
+							<h3>Cache JPEG file location</h3>
+							<div id="rawLocation" class="radioGroup subOptions">
+								<input type="radio" name="rawLocation" id="rawLocationSame" value="same" checked /> <label for="rawLocationSame">Same folder as RAW file</label>
+								<input type="radio" name="rawLocation" id="rawLocationSubfolder" value="subfolder" /> <label for="rawLocationSubfolder">Subfolder in folder RAW file</label>
+								<div class="subOption rawLocationSubfolder">
+									<label for="rawSubfolder">Subfolder</label><input type="text" id="rawSubfolder" value="rawCache.rps" />
+								</div>
+								<input type="radio" name="rawLocation" id="rawLocationSeparate" value="separate" /> <label for="rawLocationSeparate">Seprate RAW files folder</label>
+								<div class="subOption rawLocationSeparate">
+									<div class="browseFolder"><label for="rawFolder">Use folder</label><input type="text" id="rawFolder" value="" /><a id="rawFolderBrowse" class="button" href="#">Browse</a>
+								</div>
+							</div>
+						</div>
+
+						<div id="rawCacheSize" class="radioGroupHorizontal">
+							<h3>Cached image size</h3>
+							<label for="rawCacheSizeMonitor"><input type="radio" id="rawCacheSizeMonitor" name="rawCacheSize" value="monitor" checked/>Biggest monitor (recommended)</label>
+							<label for="rawCacheSizeOriginal"><input type="radio" id="rawCacheSizeOriginal" name="rawCacheSize" value="original"/>Keep original size</label>
+						</div>
+
+						<label for="rawConverterParams">Converter parameters <span class="note">(Use #RAW# #JPG# placeholders)</span></label>
+						<input type="text" id="rawConverterParams" value='--silent --exposure=auto --out-type=jpg --output="#JPG#" "#RAW#"' />
+					</div>
+
+					<div class="hasRaw">
+						<div class="set advanced">
+							<label for="rawExtensions">Raw image extensions <span class="reference">(also see <a href="#images">Image extensions</a>)</span></label>
+							<input type="text" id="rawExtensions" value=".arw .bay .bmq .cr2 .crw .cs1 .dc2 .dcr .dng .fff .k25 .kdc .mos .mrw .nef .nrw .orf .pef .raf .rdc .rw2 .sr2 .srf .srw .x3f" />
+							<div class="keywords">filenames extensions types</div>
+						</div>
+					</div>
 				</div>
 				<div class="keywords">photos photographs pictures</div>
 				<div class="clear"></div>
@@ -155,7 +214,12 @@
 					<input type="checkbox" id="videosLoop" checked /> <label for="videosLoop">Loop videos</label>
 					<input type="checkbox" id="videosMute" checked /> <label for="videosMute">Mute videos</label>
 				</div>
-				<div class="keywords">movies films</div>
+				<div class="set advanced">
+					<label for="videoExtensions">Video extensions</label>
+					<input type="text" id="videoExtensions" value=".avi .wmv .mp4 .mpeg .mpg" />
+					<div class="keywords">filenames extensions types</div>
+				</div>
+				<div class="keywords">videos movies films</div>
 				<div class="clear"></div>
 			</div>
 
@@ -244,16 +308,6 @@
 
 			<div class="set">
 				<h2 class="underline">Advanced settings</h2>
-				<div class="set advanced">
-					<label for="imageExtensions">Image extensions <span class="reference">(also see <a href="#RAW">RAW extensions</a>)</span></label>
-					<input type="text" id="imageExtensions" value=".gif .png .jpeg .jpg .bmp .wmp .svg" />
-					<div class="keywords">photographs photos filenames extensions types</div>
-				</div>
-				<div class="set advanced">
-					<label for="videoExtensions">Video extensions</label>
-					<input type="text" id="videoExtensions" value=".avi .wmv .mp4 .mpeg .mpg" />
-					<div class="keywords">videos filenames extensions types</div>
-				</div>
 				<div class="set advanced checkboxGroup">
 					<h3>Hidden files and folders</h3>
 					<input type="checkbox" id="ignoreHiddenFiles" checked /> <label for="ignoreHiddenFiles"  title="Files with system attribute hidden set are not shown.">Ignore hidden files (?)</label>
@@ -277,8 +331,6 @@
 					<input type="checkbox" id="deleteKey" checked/> <label for="deleteKey"  title="Place selected monitors photos into recycling bin on Delete key">Enable delete key</label>
 					<input type="checkbox" id="deleteKeyConfirmation"  checked/> <label for="deleteKeyConfirmation"  title="Ask for confirmation on delete">Show confirm delete dialog</label>
 				</div>
-
-
 			</div>
 
 			<!--h2 class="underline">Plug-ins</h2>

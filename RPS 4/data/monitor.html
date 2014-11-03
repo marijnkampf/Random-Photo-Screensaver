@@ -260,7 +260,7 @@ function beep() {
 			document.getElementById("showinfo").innerHTML = info;
 			$("#showinfo").stop(true, true);
 			$("#showinfo").show();
-			if (fade == "true") {
+			if (fade.toLowerCase() == "true") {
 				$("#showinfo").stop().fadeOut(5000);
 			}
 			return true;

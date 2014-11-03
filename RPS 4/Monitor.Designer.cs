@@ -33,11 +33,13 @@ namespace RPS {
             // browser
             // 
             this.browser.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.browser.IsWebBrowserContextMenuEnabled = false;
             this.browser.Location = new System.Drawing.Point(0, 0);
             this.browser.MinimumSize = new System.Drawing.Size(20, 20);
             this.browser.Name = "browser";
             this.browser.Size = new System.Drawing.Size(284, 262);
             this.browser.TabIndex = 0;
+            this.browser.WebBrowserShortcutsEnabled = false;
             // 
             // timer
             // 

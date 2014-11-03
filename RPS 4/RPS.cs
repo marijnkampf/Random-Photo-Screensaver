@@ -8,10 +8,12 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading;
 using Microsoft.VisualBasic.FileIO;
+using System.Drawing;
 //using System.Windows.Forms.HtmlElement;
 
 namespace RPS {
     public class Screensaver : ApplicationContext {
+        private int mouseX = -1, mouseY = -1;
         public static int CM_ALL = -1;
 
         private bool configInitialised = false;
@@ -156,9 +158,39 @@ namespace RPS {
                             }
                         }
                         */
-
+/*
         public void MouseMove(object sender, MouseEventArgs e) {
             Console.Beep();
+        }
+        */
+
+        public void actionNext() {
+            //this.stopTimers();
+            for (int i = 0; i < this.monitors.Length; i++) {
+                if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
+                    this.monitors[i].timer.Stop();
+                    this.monitors[i].nextImage();
+                    this.monitors[i].showInfoOnMonitor(">>");
+                    this.monitors[i].showImage(false);
+                    this.monitors[i].startTimer();
+                }
+            }
+            //this.startTimers();
+        }
+
+        public void actionPrevious() {
+            //this.stopTimers();
+            for (int i = 0; i < this.monitors.Length; i++) {
+                //for (int i = (this.monitors.Length - 1); i >= 0 ; i--) {
+                if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
+                    this.monitors[i].timer.Stop();
+                    this.monitors[i].previousImage();
+                    this.monitors[i].showInfoOnMonitor("<<");
+                    this.monitors[i].showImage(false);
+                    this.monitors[i].startTimer();
+                }
+            }
+            //this.startTimers();
         }
 
         public void PreviewKeyDown(object sender, PreviewKeyDownEventArgs e) {
@@ -307,32 +339,10 @@ namespace RPS {
                             }
                         break;
                         case Keys.NumPad4: case Keys.Left:
-                            //this.stopTimers();
-                            for (int i = 0; i < this.monitors.Length; i++) {
-                            //for (int i = (this.monitors.Length - 1); i >= 0 ; i--) {
-
-                                if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
-                                    this.monitors[i].timer.Stop();
-                                    this.monitors[i].previousImage();
-                                    this.monitors[i].showInfoOnMonitor("<<");
-                                    this.monitors[i].showImage(false);
-                                    this.monitors[i].startTimer();
-                                }
-                            }
-                            //this.startTimers();
+                            this.actionPrevious();
                         break;
                         case Keys.NumPad6: case Keys.Right:
-                            //this.stopTimers();
-                            for (int i = 0; i < this.monitors.Length; i++) {
-                                if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
-                                    this.monitors[i].timer.Stop();
-                                    this.monitors[i].nextImage();
-                                    this.monitors[i].showInfoOnMonitor(">>");
-                                    this.monitors[i].showImage(false);
-                                    this.monitors[i].startTimer();
-                                }
-                            }
-                            //this.startTimers();
+                            this.actionNext();
                         break;
                         case Keys.NumPad2: case Keys.Down:
                             //this.stopTimers();
@@ -434,6 +444,88 @@ namespace RPS {
             //ExitThread();
         }
 
+        class MouseMessageFilter : IMessageFilter {
+            public static event MouseEventHandler MouseMove = delegate { };
+            public static event MouseEventHandler MouseClick = delegate { };
+            const int WM_MOUSEMOVE = 0x0200;
+            const int WM_LBUTTONDOWN = 0x0201;
+            const int WM_LBUTTONUP = 0x0202;
+            const int WM_MOUSEWHEEL = 0x020A;
+            const int WM_RBUTTONDOWN = 0x0204;
+            const int WM_RBUTTONUP = 0x0205;
+
+            public bool PreFilterMessage(ref Message m) {
+                switch (m.Msg) { 
+                    case WM_MOUSEMOVE:
+                        MouseMove(null, new MouseEventArgs(MouseButtons.None, 0, Control.MousePosition.X, Control.MousePosition.Y, 0));
+                    break;
+                    case WM_LBUTTONUP: case WM_RBUTTONUP:
+                        MouseButtons mb = MouseButtons.Left;
+                        switch(m.Msg) {
+                            case WM_LBUTTONUP: 
+                                mb = MouseButtons.Left;
+                            break;
+                            case WM_RBUTTONUP:
+                                mb = MouseButtons.Right;
+                            break;
+                        }
+                        MouseClick(null, new MouseEventArgs(mb, 1, Control.MousePosition.X, Control.MousePosition.Y, 0));
+                    break;
+
+
+                }
+                return false;
+            }
+        }
+
+        private void MouseClick(object sender, MouseEventArgs e) {
+            if (this.config.getCheckboxValue("browseMouse")) {
+                switch (e.Button) { 
+                    case MouseButtons.Left:
+                        this.actionNext();
+                    break;
+                    case MouseButtons.Right:
+                        this.actionPrevious();
+                    break;
+                }
+            } else {
+                this.OnExit();
+            }
+        }
+
+        public void MouseMove(object sender, MouseEventArgs e) {
+            if (this.config.Visible) {
+                this.mouseX = -1;
+                this.mouseY = -1;
+            } else {
+                if (this.mouseX == -1) this.mouseX = e.X;
+                if (this.mouseY == -1) this.mouseY = e.Y;
+                int sensitivity = 0;
+                switch (this.config.getRadioValue("mouseSensitivity")) {
+                    case "high":
+                        sensitivity = 0;
+                    break;
+                    case "medium":
+                        sensitivity = 10;
+                    break;
+                    case "low":
+                        sensitivity = 50;
+                    break;
+                    case "none":
+                        this.mouseX = e.X;
+                        this.mouseY = e.Y;
+                    break;
+                }
+                if (e.X > (this.mouseX + sensitivity) || e.X < (this.mouseX - sensitivity) ||
+                    e.Y > (this.mouseY + sensitivity) || e.Y < (this.mouseY - sensitivity)) {
+                        this.OnExit();
+                }
+                this.mouseX = e.X;
+                this.mouseY = e.Y;
+            }
+        }
+
+
    
         /// <summary>
         /// The main entry point for the application.
@@ -477,7 +569,14 @@ namespace RPS {
                     Application.Run(screensaver.monitors[0]);
                 break;
                 default:
+                    Application.AddMessageFilter(new MouseMessageFilter());
+                    MouseMessageFilter.MouseMove += new MouseEventHandler(screensaver.MouseMove);
+                    MouseMessageFilter.MouseClick += new MouseEventHandler(screensaver.MouseClick);
+
                     Application.Run(screensaver);
+                    //            if (this.action == Actions.Screensaver) {
+                    //          }
+
                 break;
 
             }

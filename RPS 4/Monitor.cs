@@ -23,6 +23,9 @@ namespace RPS {
         private int id;
         private Screensaver screensaver;
 
+        private string info = "";
+        private string priorityInfo = "";
+
         // Random photo history
         public List<long> history;
         public int historyPointer = -1;
@@ -144,20 +147,26 @@ namespace RPS {
             if (this.id == 0 || !this.screensaver.config.syncMonitors()) this.timer.Start();
         }
 
-        public void showInfoOnMonitor(string info) {
-            this.showInfoOnMonitor(info, false, true);
+        public string showInfoOnMonitor(string info) {
+            return this.showInfoOnMonitor(info, false, true);
         }
 
-        public void showInfoOnMonitor(string info, bool highPriority) {
-            this.showInfoOnMonitor(info, highPriority, true);
+        public string showInfoOnMonitor(string info, bool highPriority) {
+            return this.showInfoOnMonitor(info, highPriority, true);
         }
 
-        public void showInfoOnMonitor(string info, bool highPriority, bool fade) {
+        public string showInfoOnMonitor(string info, bool highPriority, bool fade) {
+            string previousInfo;
             if (highPriority) {
+                previousInfo = this.priorityInfo;
+                this.priorityInfo = info;
                 this.browser.Document.InvokeScript("showPriorityInfo", new String[] { info, Convert.ToString(fade) });
             } else {
+                previousInfo = this.info;
+                this.info = info;
                 this.browser.Document.InvokeScript("showInfo", new String[] { info, Convert.ToString(fade) });
             }
+            return previousInfo;
         }
 
         public long imageId() {
@@ -241,12 +250,12 @@ namespace RPS {
                         e.Result = this.screensaver.fileNodes.checkImageCache(Convert.ToString(this.currentImage["path"]), this.id);
                     };
                     bgw.RunWorkerCompleted += (object sender, RunWorkerCompletedEventArgs e) => {
-                        this.showInfoOnMonitor("");
+                        this.showInfoOnMonitor(this.info, false, true);
                         this.browser.Document.InvokeScript("showImage", new Object[] { e.Result, Convert.ToString(this.currentImage["path"]), metadata, JsonConvert.SerializeObject(settings) });
                     };
                     string path = "";
                     object[] prms = new object[] { path };
-                    this.showInfoOnMonitor("Converting from RAW to JPEG <span class='wait'></span>", false, false);
+                    this.info = this.showInfoOnMonitor("Converting from RAW to JPEG <span class='wait'></span>", false, false);
                     bgw.RunWorkerAsync(prms);
 
                     //this.showInfoOnMonitor("Converting RAW");

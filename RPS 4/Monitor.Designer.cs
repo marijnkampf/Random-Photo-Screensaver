@@ -38,7 +38,6 @@ namespace RPS {
             this.browser.Name = "browser";
             this.browser.Size = new System.Drawing.Size(284, 262);
             this.browser.TabIndex = 0;
-            this.browser.Url = new Uri(Constants.getDataFolder(Constants.MonitorHtmlFile), System.UriKind.Absolute);
             // 
             // timer
             // 
@@ -57,9 +56,7 @@ namespace RPS {
             this.Name = "Monitor";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Monitor #";
-            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Load += new System.EventHandler(this.Monitor_Load);
-
             this.ResumeLayout(false);
 
         }

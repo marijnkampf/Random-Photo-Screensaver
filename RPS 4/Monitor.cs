@@ -57,6 +57,7 @@ namespace RPS {
         public Monitor(int id, Screensaver screensaver) {
             InitializeComponent();
 //            MessageBox.Show("Monitor: " + id);
+            this.browser.Url = new Uri(Constants.getDataFolder(Constants.MonitorHtmlFile), System.UriKind.Absolute);
             this.screensaver = screensaver;
             this.id = id;
             this.Text = "Monitor " + Convert.ToString(this.id+1) + " Random Photo Screensaver";

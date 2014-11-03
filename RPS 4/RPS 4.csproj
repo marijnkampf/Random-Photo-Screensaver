@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -81,7 +81,12 @@
     <Compile Include="Config.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Config.Designer.cs" />
+    <Compile Include="Config.Designer.cs">
+      <DependentUpon>Config.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Config.resx">
+      <DependentUpon>Config.cs</DependentUpon>
+    </EmbeddedResource>
     <Compile Include="Constants.cs" />
     <Compile Include="DBConnector.cs" />
     <Compile Include="ExifToolWrapper.cs" />
@@ -92,13 +97,18 @@
     <Compile Include="Monitor.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Monitor.Designer.cs" />
+    <Compile Include="Monitor.Designer.cs">
+      <DependentUpon>Monitor.cs</DependentUpon>
+    </Compile>
+
+    <EmbeddedResource Include="Monitor.resx">
+      <DependentUpon>Monitor.cs</DependentUpon>
+    </EmbeddedResource>
+
     <Compile Include="PersistantConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RPS.cs" />
     <Compile Include="Wallpaper.cs" />
-    <EmbeddedResource Include="Config.resx" />
-    <EmbeddedResource Include="Monitor.resx" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

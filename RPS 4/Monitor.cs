@@ -295,8 +295,15 @@ namespace RPS {
         }
 
         public DataRow previousImage() {
+            return this.previousImage(1);
+        }
+
+        /**
+         * Note step parameter for prevoiusImage is always positive unlike offset which indicates direction.
+         **/
+        public DataRow previousImage(int step) {
             if (this.screensaver.config.getOrder() == Config.Order.Random) {
-                this.historyPointer--;
+                this.historyPointer -= step;
                 if (this.historyPointer < 0 || this.history.Count < this.historyPointer) {
                     this.historyPointer = 0;
                     this.showInfoOnMonitor("You've reached the first image");
@@ -310,7 +317,7 @@ namespace RPS {
                 int offset = 1;
                 // For first monitor skip back to photo on first monitor, than select going forward.
                 if (this.id == 0) {
-                    offset = (this.screensaver.monitors.Length+1)*-1;
+                    offset = this.screensaver.monitors.Length*(step+1)*-1+1;
                 }
                 this.currentImage = this.screensaver.fileNodes.getSequentialImage(this.id, offset);
             }
@@ -319,17 +326,22 @@ namespace RPS {
         }
 
         public DataRow nextImage() {
+            return this.nextImage(1);
+        }
+
+        public DataRow nextImage(int step) {
             if (this.screensaver.fileNodes == null) return null;  
             if (this.screensaver.config.getOrder() == Config.Order.Random) {
-                if (this.historyPointer + 1 < this.history.Count()) {
-                    this.historyPointer++;
+                this.historyPointer += step;
+                if (this.historyPointer < this.history.Count()) {
                     this.currentImage = this.screensaver.fileNodes.getImageById(this.history[this.historyPointer], this.offset);
                     this.seedImageId = Convert.ToInt32(this.currentImage["id"]);
                 } else {
+                    this.historyPointer = this.history.Count();
                     this.currentImage = this.screensaver.fileNodes.getRandomImage();
                     if (this.currentImage != null) {
                         this.history.Add(Convert.ToInt32(this.currentImage["id"]));
-                        this.historyPointer++;
+                        //this.historyPointer += step;
 
                         this.seedImageId = Convert.ToInt32(this.currentImage["id"]);
                         if (this.offset != 0) {
@@ -338,8 +350,8 @@ namespace RPS {
                     }
                 }
             } else {
-                int offset = 1;
-                this.currentImage = this.screensaver.fileNodes.getSequentialImage(this.id, offset);
+                //int offset = 1;
+                this.currentImage = this.screensaver.fileNodes.getSequentialImage(this.id, step);
             }
             if (!fileExistsOnDisk(this.currentImage)) return this.nextImage();
             return this.currentImage;

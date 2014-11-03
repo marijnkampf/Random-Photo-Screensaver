@@ -164,13 +164,16 @@ namespace RPS {
         }
         */
 
-        public void actionNext() {
+        public void actionNext(int step) {
             //this.stopTimers();
+            
             for (int i = 0; i < this.monitors.Length; i++) {
                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                     this.monitors[i].timer.Stop();
-                    this.monitors[i].nextImage();
-                    this.monitors[i].showInfoOnMonitor(">>");
+                    this.monitors[i].nextImage(step);
+                    string s = "";
+                    if (step > 1) s = " x " + step;
+                    this.monitors[i].showInfoOnMonitor(">>" + s);
                     this.monitors[i].showImage(false);
                     this.monitors[i].startTimer();
                 }
@@ -178,19 +181,28 @@ namespace RPS {
             //this.startTimers();
         }
 
-        public void actionPrevious() {
+        public void actionPrevious(int step) {
             //this.stopTimers();
             for (int i = 0; i < this.monitors.Length; i++) {
                 //for (int i = (this.monitors.Length - 1); i >= 0 ; i--) {
                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                     this.monitors[i].timer.Stop();
-                    this.monitors[i].previousImage();
-                    this.monitors[i].showInfoOnMonitor("<<");
+                    this.monitors[i].previousImage(step);
+                    string s = "";
+                    if (step > 1) s = " x " + step;
+                    this.monitors[i].showInfoOnMonitor("<<" + s);
                     this.monitors[i].showImage(false);
                     this.monitors[i].startTimer();
                 }
             }
             //this.startTimers();
+        }
+
+        public int getStep(PreviewKeyDownEventArgs e) {
+            if (e.Shift) return 5;
+            if (e.Control) return 25;
+            if (e.Alt) return 100;
+            return 1;
         }
 
         public void PreviewKeyDown(object sender, PreviewKeyDownEventArgs e) {
@@ -339,10 +351,10 @@ namespace RPS {
                             }
                         break;
                         case Keys.NumPad4: case Keys.Left:
-                            this.actionPrevious();
+                            this.actionPrevious(this.getStep(e));
                         break;
                         case Keys.NumPad6: case Keys.Right:
-                            this.actionNext();
+                            this.actionNext(this.getStep(e));
                         break;
                         case Keys.NumPad2: case Keys.Down:
                             //this.stopTimers();
@@ -482,10 +494,10 @@ namespace RPS {
             if (this.config.getCheckboxValue("browseMouse")) {
                 switch (e.Button) { 
                     case MouseButtons.Left:
-                        this.actionNext();
+                        this.actionNext(1);
                     break;
                     case MouseButtons.Right:
-                        this.actionPrevious();
+                        this.actionPrevious(1);
                     break;
                 }
             } else {

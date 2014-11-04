@@ -375,32 +375,52 @@ namespace RPS {
         public int deleteFromDB(long id) {
             return this.fileDatabase.deleteFromDB(id);
         }
+
+        public List<string> stringToListFolders(string f) {
+            string[] ff = new string[] { };
+            if (f != null && f.Length > 0) {
+                ff = f.Split(new string[] { ";", System.Environment.NewLine, "\n" }, StringSplitOptions.None);
+            }
+            return new List<string>(ff);
+        }
+
+        public int purgeNotMatchingParentFolders(string folders) {
+            return this.purgeNotMatchingParentFolders(stringToListFolders(folders));
+        }
+
+        public int purgeNotMatchingParentFolders(List<string> folders) {
+            return this.fileDatabase.purgeNotMatchingParentFolders(folders);
+        }
 /*
         public void addIdToMetadataQueue(long monitorId, DataRow image) {
             this.fileDatabase.addIdToMetadataQueue(monitorId, image);
         }
         */
         private void DoWorkImageFolder(object sender, DoWorkEventArgs e) {
+            this.nrFiles = 0;
+            this.nrFolders = 0;
+            this.nrUnprocessedMetadata = -1;
+
 //            Debug.WriteLine(this.config.getValue("folders"));
             BackgroundWorker worker = sender as BackgroundWorker;
             // Lower priority to ensure smooth working of main screensaver
             System.Diagnostics.Process.GetCurrentProcess().PriorityClass = System.Diagnostics.ProcessPriorityClass.BelowNormal;
             this.bwSender = sender;
             this.bwEvents = e;
-            string f = this.config.getValue("folders");
-            string[] ff = new string[] {};
-            if (f != null && f.Length > 0) {
-                ff = f.Split(new string[] { ";", System.Environment.NewLine, "\n" }, StringSplitOptions.None);
-            }
-            var folders = new List<string>(ff);
+            var folders = stringToListFolders(this.config.getValue("folders"));
             this.swFileScan = new System.Diagnostics.Stopwatch();
             this.swMetadata = new System.Diagnostics.Stopwatch();
+            if (this.purgeNotMatchingParentFolders(folders) > 0) {
+                this.clearFilter();
+            }
             this.swFileScan.Start();
             this.processFolders(folders);
             this.swFileScan.Stop();
             this.swMetadata.Start();
             this.processMetadata();
             this.swMetadata.Stop();
+
+            this.fileDatabase.purgeMetadata();
             //if (Convert.ToDateTime(this.config.setValue("wallpaperLastChange")).Equals(DateTime.Today));
             Wallpaper wallpaper = new Wallpaper(this.screensaver);
             if (wallpaper.changeWallpaper()) wallpaper.setWallpaper();
@@ -460,6 +480,7 @@ namespace RPS {
 
         public void OnExitCleanUp() {
             this.fileDatabase.storePersistant();
+            this.fileDatabase.CloseConnections();
         }
     }
 }

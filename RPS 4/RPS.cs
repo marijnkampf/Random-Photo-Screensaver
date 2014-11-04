@@ -598,9 +598,6 @@ namespace RPS {
                     MouseMessageFilter.MouseClick += new MouseEventHandler(screensaver.MouseClick);
 
                     Application.Run(screensaver);
-                    //            if (this.action == Actions.Screensaver) {
-                    //          }
-
                 break;
 
             }

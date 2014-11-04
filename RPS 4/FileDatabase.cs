@@ -45,6 +45,12 @@ namespace RPS {
             this.dbConnector.ExecuteNonQuery(@"ATTACH DATABASE '" + mdbPath + "' AS mdb;");
         }
 
+        public void CloseConnections() {
+            this.dbConnector.Close();
+            this.toggleMetadataTransaction();
+            this.metaDataDbConnector.Close();
+        }
+
         public void setFilterSQL(string sql) {
             this.filterSQL = sql;
             this.useFilter = true;
@@ -110,7 +116,8 @@ namespace RPS {
             } else {
                 command = new SQLiteCommand("INSERT INTO FileNodes (`path`, `parentpath`, `created`, `modified`, `size`) VALUES (@path, @parentpath, @created, @modified, @size) ", this.dbConnector.connection);
                 command.Parameters.AddWithValue("@path", fi.FullName);
-                command.Parameters.AddWithValue("@parentpath", fi.DirectoryName);
+                // Add trailing slash so we can filter on complete paths ('c:\test\' won't match 'c:\testing\')
+                command.Parameters.AddWithValue("@parentpath", fi.DirectoryName.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar);
                 executeNonQuery = true;
             }
             if (executeNonQuery) { 
@@ -234,6 +241,41 @@ namespace RPS {
             r += command.ExecuteNonQuery();
             return r;
 
+        }
+
+        public int purgeMetadata() {
+            //string where = "WHERE NOT parentpath LIKE \"" + String.Join("%\" AND NOT parentpath LIKE \"", folders) + "%\"";
+            SQLiteCommand command;
+            int r = 0;
+            try {
+                command = new SQLiteCommand("SELECT id FROM mdb.Metadata WHERE mdb.Metadata.id in (SELECT mdb.Metadata.id FROM mdb.Metadata LEFT JOIN `FileNodes` ON mdb.Metadata.id = `FileNodes`.`id` WHERE `FileNodes`.`id` IS NULL);", this.dbConnector.connection);
+                //command = new SQLiteCommand("DELETE FROM mdb.Metadata WHERE mdb.Metadata.id in (SELECT `FileNodes`.`id` FROM `FileNodes` LEFT JOIN mdb.Metadata ON mdb.Metadata.id = FileNodes.id WHERE mdb.Metadata.id IS NULL);", this.dbConnector.connection);
+                //r = command.ExecuteNonQuery();
+                SQLiteDataReader reader = command.ExecuteReader();
+                DataTable dt = new DataTable();
+                dt.Load(reader);
+                foreach (DataRow row in dt.Rows) {
+
+                    command = new SQLiteCommand("DELETE FROM `Metadata` WHERE id = @id;", this.metaDataDbConnector.connection);
+                    command.Parameters.AddWithValue("@id", row["id"]);
+                    r += command.ExecuteNonQuery();
+                    if (r % 200 == 0) this.toggleMetadataTransaction();
+                }
+                this.toggleMetadataTransaction();
+            } catch (Exception e) {
+
+            }
+            return r;
+        }
+
+        public int purgeNotMatchingParentFolders(List<string> folders) {
+            string where = "WHERE NOT parentpath LIKE \"" + String.Join("%\" AND NOT parentpath LIKE \"", folders) + "%\"";
+            SQLiteCommand command;
+            int r = 0;
+
+            command = new SQLiteCommand("DELETE FROM `FileNodes` " + where + ";", this.dbConnector.connection);
+            r += command.ExecuteNonQuery();
+            return r;
         }
 
         public void storePersistant() {

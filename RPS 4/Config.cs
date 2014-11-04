@@ -576,6 +576,7 @@ namespace RPS {
             } else {
                 // Hiding
                 if (this.folderChanged != this.getValue("folders")) {
+                    //this.screensaver.fileNodes.purgeNotMatchingParentFolders(this.getValue("folders"));
                     this.screensaver.fileNodes.restartBackgroundWorkerImageFolder();
 //                    MessageBox.Show("changed");
                 }

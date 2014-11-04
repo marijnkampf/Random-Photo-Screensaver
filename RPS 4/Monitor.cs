@@ -30,20 +30,22 @@ namespace RPS {
         public List<long> history;
         public int historyPointer = -1;
         //public int historyOffset = 0;
-        long seedImageId;
+
+        // Random image id of which offset is calculated
+        public long seedImageId;
 
         public int offset = 0;
 
-        DataRow currentImage;
+        public DataRow currentImage;
         MetadataTemplate quickMetadata;
 
         #region Win32 API functions
 
         [DllImport("user32.dll")]
-        static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
+        public static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
 
         [DllImport("user32.dll")]
-        static extern int SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+        public static extern int SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
 
         [DllImport("user32.dll", SetLastError = true)]
         static extern int GetWindowLong(IntPtr hWnd, int nIndex);
@@ -73,18 +75,16 @@ namespace RPS {
         }
 
         public Monitor(IntPtr previewHwnd, int id, Screensaver screensaver): this(id, screensaver) {
-            // Set the preview window as the parent of this window
             SetParent(this.Handle, previewHwnd);
-
-            // Make this a child window so it will close when the parent dialog closes
-            SetWindowLong(this.Handle, -16, new IntPtr(GetWindowLong(this.Handle, -16) | 0x40000000));
+            SetWindowLong(this.Handle, -16, new IntPtr(GetWindowLong(this.Handle, 0) | 0x40000000));
+            // TODO adjust size of window
 
             // Place our window inside the parent
             //Rectangle ParentRect;
             //GetClientRect(previewHwnd, out ParentRect);
             //Size = ParentRect.Size;
             //Location = new Point(40, 40);
-            //            this.Bounds = ParentRect;
+              //          this.Bounds = ParentRect;
             //this.browser.Scale(new SizeF((float)5, (float)5));
         }
 
@@ -396,6 +396,10 @@ namespace RPS {
         }
 
         public void timer_Tick(object sender, EventArgs e) {
+            if (this.screensaver.action == Screensaver.Actions.Preview || this.screensaver.action == Screensaver.Actions.Test) {
+
+            }
+
             this.nextImage();
             
             if (this.currentImage == null || Convert.ToString(this.currentImage["path"]) == "") {

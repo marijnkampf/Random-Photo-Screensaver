@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Threading;
 using Microsoft.VisualBasic.FileIO;
 using System.Drawing;
+
 //using System.Windows.Forms.HtmlElement;
 
 namespace RPS {
@@ -18,21 +19,21 @@ namespace RPS {
 
         private bool configInitialised = false;
         public bool applicationClosing = false;
-        private IntPtr previewHwnd;
+        private IntPtr[] hwnds;
         private System.Windows.Forms.Keys previousKey;
         private bool configHidden = false;
 
         public int currentMonitor = CM_ALL;
 
-        public enum Actions { Config, Preview, Screensaver, Slideshow };
+        public enum Actions { Config, Preview, Screensaver, Slideshow, Test };
         public Actions action;
         public Config config;
         public Monitor[] monitors;
         public FileNodes fileNodes;
 
-        private Screensaver(Actions action, IntPtr previewHwnd) {
+        private Screensaver(Actions action, IntPtr[] hwnds) {
             this.action = action;
-            this.previewHwnd = previewHwnd;
+            this.hwnds = hwnds;
             this.config = new Config(this);
             this.config.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.PreviewKeyDown);
             this.config.browser.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.PreviewKeyDown);
@@ -52,7 +53,6 @@ namespace RPS {
                     if (config.getValue("folders") == null) {
                         this.config.loadPersistantConfig();
                     }
-                    //MessageBox.Show("loadPersistantConfig() loaded");
                     this.configInitialised = true;
 
                     fileNodes = new FileNodes(this.config, this);
@@ -63,25 +63,36 @@ namespace RPS {
                         this.fileNodes.setFilterSQL(this.config.getValue("filter"));
                     }
 
-                    if (this.action != Actions.Preview) {
+                    int i = 0;
+                    if (this.action == Actions.Test || this.action == Actions.Preview) {
+                        int start = 0;
+                        // Skip first monitor for preview
+                        if (this.action == Actions.Preview) {
+                            start = 1;
+                        } else {
+                            this.monitors = new Monitor[hwnds.Length];
+                        } 
+
+                        for (i = start; i < hwnds.Length; i++) {
+                            this.monitors[i] = new Monitor(hwnds[i], i, this);
+                            this.monitors[i].FormClosed += new FormClosedEventHandler(this.OnFormClosed);
+                            this.monitors[i].PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.PreviewKeyDown);
+                            this.monitors[i].browser.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.PreviewKeyDown);
+                            this.monitors[i].Show();
+                        }
+                    } else {
                         this.monitors = new Monitor[Screen.AllScreens.Length];
-                        var i = 0;
                         foreach (Screen screen in Screen.AllScreens) {
-//                            MessageBox.Show("Screen " + i);
                             this.monitors[i] = new Monitor(screen.Bounds, i, this);
                             this.monitors[i].browser.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.PreviewKeyDown);
                             this.monitors[i].PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.PreviewKeyDown);
                             // Avoid white flash by hiding browser and setting form background colour. (Focus on browser on DocumentCompleted to process keystrokes)
                             this.monitors[i].browser.Hide();
-                            try { 
+                            try {
                                 this.monitors[i].BackColor = backgroundColour;
                             } catch (System.ArgumentException ae) { }
                             this.monitors[i].Show();
-                            //this.monitors[i].nextImage();
                             i++;
-                        }
-                        for (i = 0; i < this.monitors.Length; i++) {
-                            
                         }
                     }
                 }
@@ -107,10 +118,7 @@ namespace RPS {
                     if (this.monitors[i].imagePath() == filename) this.monitors[i].showInfoOnMonitor("Deleting\n"+Path.GetFileName(filename));
 				    Thread.Sleep(1000);
                 }
-
             }
-
-
         }
 
         public void showInfoOnMonitors(string info) {
@@ -158,11 +166,6 @@ namespace RPS {
                             }
                         }
                         */
-/*
-        public void MouseMove(object sender, MouseEventArgs e) {
-            Console.Beep();
-        }
-        */
 
         public void actionNext(int step) {
             //this.stopTimers();
@@ -289,6 +292,11 @@ namespace RPS {
                             if (this.config.changeOrder() == Config.Order.Random) {
                                 this.showInfoOnMonitors("Randomising");
                             } else {
+                                int monitor = this.currentMonitor;
+                                if (this.currentMonitor == CM_ALL) monitor = 0;
+                                if (this.monitors[monitor].currentImage != null) {
+                                    this.fileNodes.currentSequentialSeedId = Convert.ToInt32(this.monitors[monitor].currentImage["id"]);
+                                }
                                 this.showInfoOnMonitors("Sequential");
                             };
                         break;
@@ -360,10 +368,8 @@ namespace RPS {
                             //this.stopTimers();
                             for (int i = 0; i < this.monitors.Length; i++) {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
-                                    //this.monitors[i].offset++;
                                     this.monitors[i].timer.Stop();
                                     this.monitors[i].offsetImage(1);
-                                    //this.monitors[i].previousImage();
                                     this.monitors[i].showImage(false);
                                     this.monitors[i].showInfoOnMonitor("v (" + this.monitors[i].offset + ")");
                                     this.monitors[i].startTimer();
@@ -375,10 +381,8 @@ namespace RPS {
                            // this.stopTimers();
                             for (int i = 0; i < this.monitors.Length; i++) {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
-                                    //this.monitors[i].offset--;
                                     this.monitors[i].timer.Stop();
                                     this.monitors[i].offsetImage(-1);
-                                    //this.monitors[i].nextImage();
                                     this.monitors[i].showImage(false);
                                     this.monitors[i].showInfoOnMonitor("^ (" + this.monitors[i].offset + ")");
                                     this.monitors[i].startTimer();
@@ -420,10 +424,9 @@ namespace RPS {
                             }
                         break;
                         default:
-                            /*Debug.WriteLine(((Control)sender).Parent.ToString());
-                            Config config = ((Control)sender).Parent as Config;
-                            config.Message("Sender:" + sender.ToString() + " Key:" + e.KeyValue);*/
-                            //this.config.Message("Sender:" + sender.ToString() + " Key:" + e.KeyValue);
+                            if (!this.config.getCheckboxValue("onlyEscapeExits")) {
+                                this.OnExit();
+                            }
                         break;
                     }
                     this.previousKey = e.KeyCode;
@@ -545,9 +548,11 @@ namespace RPS {
         [STAThread]
         static void Main(string[] args) {
             IntPtr previewHwnd = IntPtr.Zero;
+            IntPtr[] hwnds;
             Actions action = Actions.Screensaver;
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            hwnds = null;
             if (args.Length > 0) {
                 string arg1 = args[0].ToLower().Trim();
                 string arg2 = null;
@@ -561,20 +566,27 @@ namespace RPS {
                     case 'c':
                         action = Actions.Config;
                     break;
+                    case 't':
                     case 'p':
-                        action = Actions.Preview;
-                        previewHwnd = new IntPtr(long.Parse(arg2));
+                        if (arg1[1] == 't') action = Actions.Test;
+                        else action = Actions.Preview;
+                        //action = Actions.Test;
+                        hwnds = new IntPtr[args.Length - 1];
+                        for (int i = 1; i < args.Length; i++) {
+                            hwnds[i - 1] = new IntPtr(long.Parse(args[i]));
+                        }
+                        //previewHwnd = new IntPtr(long.Parse(arg2));
                     break;
                 }
             }
-            Screensaver screensaver = new Screensaver(action, previewHwnd);
+            Screensaver screensaver = new Screensaver(action, hwnds);
             switch (action) {
                 case Actions.Config:
                     Application.Run(screensaver);
                 break;
                 case Actions.Preview:
-                    screensaver.monitors = new Monitor[1];
-                    screensaver.monitors[0] = new Monitor(previewHwnd, 0, screensaver);
+                    screensaver.monitors = new Monitor[hwnds.Length];
+                    screensaver.monitors[0] = new Monitor(hwnds[0], 0, screensaver);
                     screensaver.monitors[0].FormClosed += new FormClosedEventHandler(screensaver.OnFormClosed);
                     screensaver.monitors[0].PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(screensaver.PreviewKeyDown);
                     screensaver.monitors[0].browser.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(screensaver.PreviewKeyDown);

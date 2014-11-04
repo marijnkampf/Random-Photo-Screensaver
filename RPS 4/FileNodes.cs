@@ -333,7 +333,7 @@ namespace RPS {
                 try {
                     long imageId;
                     imageId = Convert.ToInt32(this.config.getValue("sequentialStartImageId"));
-                    currentImage = this.fileDatabase.getImageById(imageId, (Screen.AllScreens.Length - 1) * -1, sortByColumn, sortDirection);
+                    currentImage = this.fileDatabase.getImageById(imageId, (this.screensaver.monitors.Length - 1) * -1, sortByColumn, sortDirection);
                 } catch (Exception e) {
                     currentImage = this.fileDatabase.getFirstImage(sortByColumn, sortDirection);
                 }
@@ -453,7 +453,7 @@ namespace RPS {
                 if (this.screensaver.fileNodes.fileDatabase.nrImagesFilter() == 0) {
                     this.screensaver.showInfoOnMonitors("No images found in folder(s)\n\ror filter didn't return any results.\n\rPress 'S' key to enter setup", true);
                 }
-                this.screensaver.monitors[0].browser.Document.InvokeScript("dbInfo", new String[] { String.Format("Found {0:##,#} files in {1:##,#} folders ({3:##,#}ms); Metadata queue {2:##,#} files ({4:##,#}ms)", this.nrFiles, this.nrFolders, this.nrUnprocessedMetadata, this.swFileScan.ElapsedMilliseconds, this.swMetadata.ElapsedMilliseconds) });
+                if (this.screensaver.monitors != null) this.screensaver.monitors[0].browser.Document.InvokeScript("dbInfo", new String[] { String.Format("Found {0:##,#} files in {1:##,#} folders ({3:##,#}ms); Metadata queue {2:##,#} files ({4:##,#}ms)", this.nrFiles, this.nrFolders, this.nrUnprocessedMetadata, this.swFileScan.ElapsedMilliseconds, this.swMetadata.ElapsedMilliseconds) });
                 //Debug.WriteLine("BackgroundWork done!");
             }
         }

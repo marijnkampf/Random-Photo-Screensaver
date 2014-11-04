@@ -231,3 +231,10 @@ label {
 	margin-right: 1em;
 	width: 75%;
 }
+
+.previewTip {
+	display: none;
+}
+.config .previewTip {
+	display: block;
+}

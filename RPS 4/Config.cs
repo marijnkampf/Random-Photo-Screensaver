@@ -180,6 +180,21 @@ namespace RPS {
                 e.SetAttribute("value", this.persistant[e.GetAttribute("id")]);
             }
 
+
+            HtmlElementCollection elems = this.browser.Document.GetElementsByTagName("body");
+            foreach (HtmlElement elem in elems) {
+                string classes = "";
+                switch (this.screensaver.action) {
+                    case Screensaver.Actions.Preview: classes += "preview"; break;
+                    case Screensaver.Actions.Config: classes += "config"; break;
+                    case Screensaver.Actions.Screensaver: classes += "screensaver"; break;
+                    case Screensaver.Actions.Test: classes += "test"; break;
+                    case Screensaver.Actions.Slideshow: classes += "slideshow"; break;
+                }
+                elem.SetAttribute("className", elem.GetAttribute("className") + classes);
+                classes = null;
+            }
+
             this.browser.Document.InvokeScript("persistantConfigLoaded", new string[] { Convert.ToString(Screen.AllScreens.Length) });
 
         }

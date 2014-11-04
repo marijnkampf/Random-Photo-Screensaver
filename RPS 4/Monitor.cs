@@ -80,12 +80,12 @@ namespace RPS {
             // TODO adjust size of window
 
             // Place our window inside the parent
-            //Rectangle ParentRect;
-            //GetClientRect(previewHwnd, out ParentRect);
-            //Size = ParentRect.Size;
+            Rectangle ParentRect;
+            GetClientRect(previewHwnd, out ParentRect);
+            Size = ParentRect.Size;
             //Location = new Point(40, 40);
               //          this.Bounds = ParentRect;
-            //this.browser.Scale(new SizeF((float)5, (float)5));
+            //this.browser.Scale(new SizeF((float)250, (float)250));
         }
 
         private void DocumentCompleted(object sender, System.Windows.Forms.WebBrowserDocumentCompletedEventArgs e) {
@@ -97,6 +97,14 @@ namespace RPS {
                 foreach (HtmlElement elem in elems) {
                     string classes = "monitor" + (this.id+1);
                     if (this.screensaver.monitors.Length > 1) classes += " multimonitor";
+                    classes += " ";
+                    switch (this.screensaver.action) {
+                        case Screensaver.Actions.Preview: classes += "preview"; break;
+                        case Screensaver.Actions.Config: classes += "config"; break;
+                        case Screensaver.Actions.Screensaver: classes += "screensaver"; break;
+                        case Screensaver.Actions.Test: classes += "test"; break;
+                        case Screensaver.Actions.Slideshow: classes += "slideshow"; break;
+                    }
                     elem.SetAttribute("className", elem.GetAttribute("className") + classes);
                     classes = null;                    
                 }

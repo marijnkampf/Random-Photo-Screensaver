@@ -36,8 +36,11 @@ namespace RPS {
 
         public int offset = 0;
 
+        public bool paused = false;
+
         public DataRow currentImage;
         MetadataTemplate quickMetadata;
+        Hashtable imageSettings = new Hashtable();
 
         #region Win32 API functions
 
@@ -153,6 +156,7 @@ namespace RPS {
 
         public void startTimer() {
             if (this.id == 0 || !this.screensaver.config.syncMonitors()) this.timer.Start();
+            this.paused = false;
         }
 
         public string showInfoOnMonitor(string info) {
@@ -209,11 +213,94 @@ namespace RPS {
             return this.browser.Document.InvokeScript(script, parameters);
         }
 
+        public void rotateImage(int deg) {
+            //deg = ;
+            this.imageSettings["exifRotate"] = (deg + Convert.ToInt32(this.imageSettings["exifRotate"])) % 360;
+            this.resizeRatioRotate90(Convert.ToInt32(this.imageSettings["exifRotate"]));
+            this.browser.Document.InvokeScript("setImageRotation", new Object[] { Convert.ToString(this.imageSettings["exifRotate"]), this.imageSettings["resizeRatio"] });
+
+            if (this.screensaver.config.getCheckboxValue("saveExifOnRotation")) {
+                bool backedUp = true; // default to true to enable save without backup option
+                if (this.screensaver.config.getCheckboxValue("backupExifOnRotation")) {
+                    if (!File.Exists(Path.ChangeExtension(Convert.ToString(this.currentImage["path"]), ".bak"))) {
+                        try {
+                            // Copy if file doesn't exists
+                            File.Copy(Convert.ToString(this.currentImage["path"]), Path.ChangeExtension(Convert.ToString(this.currentImage["path"]), ".bak"));
+                        } catch (Exception e) {
+                            this.showInfoOnMonitor(e.Message, true);
+                            backedUp = false;
+                        }
+                    }
+
+                }
+                if (backedUp) {
+                    int[] rotate90 = {1, 8, 3, 6, 1, 0, 2, 7, 4, 5, 2};
+			        int[] rotate180 = {1, 3, 1, 2, 4, 2, 5, 7, 5, 6, 8, 6};
+                    int orientation = 1;
+                    // Try reading orientation from file to ensure it's up to date
+                    try {
+                        orientation = Convert.ToByte(this.screensaver.fileNodes.exifToolCommand(Convert.ToString(this.currentImage["path"]) + "\n-Orientation#").Replace("Orientation\t", ""));
+                    } catch (Exception e) {
+                        orientation = 1;
+                        if (this.quickMetadata.metadata.ContainsKey("orientation#")) {
+                            orientation = Convert.ToByte(this.quickMetadata.metadata["orientation#"]);
+                        }
+                    }
+
+                    int i = 0;
+                    int newOrientation = orientation;
+                    if (deg == 180) {
+                        while (rotate180[i] != orientation) i++;
+                        newOrientation = rotate180[i + 1];
+                    } else {
+                        while (rotate90[i] != orientation) i++;
+                        if (deg == 90) i--; else i++;
+                        if (i < 0) i = 3;
+                        newOrientation = rotate90[i];
+                    }
+                    try { 
+                        // Save orientation to file
+                        this.screensaver.fileNodes.exifToolCommand(Convert.ToString(this.currentImage["path"]) + "\n-P\n-overwrite_original\n-n\n-Orientation=" + newOrientation);
+                        if (this.imageSettings.ContainsKey("rawCached")) {
+                            File.Delete(Convert.ToString(this.imageSettings["rawCached"]));
+                        } else {
+                            // Update metadata in DB
+                            this.screensaver.fileNodes.exifToolGetMetadata(Convert.ToString(this.currentImage["path"]) + Constants.ExifToolMetadataOptions, Convert.ToInt32(this.currentImage["id"]));
+                        }
+                    } catch (Exception e) {
+                        this.showInfoOnMonitor(e.Message, true);
+                        backedUp = false;
+                    }
+                }
+            }
+        }
+
+        public float resizeRatioRotate90(int rotate) {
+            int width = Convert.ToInt32(this.quickMetadata.metadata["image width"]);
+            int height = Convert.ToInt32(this.quickMetadata.metadata["image height"]);
+
+            this.imageSettings["resizeRatio"] = 1;
+            if (rotate == 90 || rotate == 270) {
+                // Internet Explorer fits image into boundaries before rotating
+                // Swap width, height values
+                // Determine size ratio between un-rotated and rotated image
+                if (width > this.Bounds.Width || height > this.Bounds.Height) {
+                    Rectangle newR = Wallpaper.FitIntoBounds(new Rectangle(this.Bounds.Location, new Size(width, height)), this.Bounds, false);
+                    Rectangle oldR = Wallpaper.FitIntoBounds(new Rectangle(this.Bounds.Location, new Size(height, width)), this.Bounds, false);
+                    this.imageSettings["resizeRatio"] = (float)oldR.Height / newR.Width;
+                }
+                this.quickMetadata.metadata["image width"] = Convert.ToString(width);
+                this.quickMetadata.metadata["image height"] = Convert.ToString(height);
+            }
+            return Convert.ToInt32(this.imageSettings["resizeRatio"]);
+        }
+
         public void showImage(bool animated) {
             if (this.currentImage != null) {
                 string metadata = "";
                 string rawMetadata = null;
-                Hashtable settings = new Hashtable();
+
+                this.imageSettings.Clear();
 
                 if (this.currentImage.Table.Columns.Contains("all")) {
                     rawMetadata = Convert.ToString(this.currentImage["all"]);
@@ -221,7 +308,7 @@ namespace RPS {
                     rawMetadata = this.screensaver.fileNodes.getMetadataById(Convert.ToInt32(this.currentImage["id"]));
                     if (rawMetadata == null) {
                         try {
-                            rawMetadata = this.screensaver.fileNodes.exifToolCommand(Convert.ToString(this.currentImage["path"]), Convert.ToInt32(this.currentImage["id"]));
+                            rawMetadata = this.screensaver.fileNodes.exifToolGetMetadata(Convert.ToString(this.currentImage["path"]) + Constants.ExifToolMetadataOptions, Convert.ToInt32(this.currentImage["id"]));
                         } catch (System.IO.FileNotFoundException fnfe) {
                             metadata = "ExifTool not found: '" + this.screensaver.config.getValue("exifTool") + "'";
                         }
@@ -231,39 +318,66 @@ namespace RPS {
                     this.quickMetadata = new MetadataTemplate(rawMetadata, this.screensaver.config.getValue("quickMetadata"));
                     metadata = this.quickMetadata.fillTemplate();
                 }
-                settings["mediatype"] = "image";
+                this.imageSettings["mediatype"] = "image";
                 if (this.screensaver.config.getValue("videoExtensions").IndexOf(Path.GetExtension(Convert.ToString(this.currentImage["path"]).ToLower())) > -1) {
-                    settings["mediatype"] = "video";
+                    this.imageSettings["mediatype"] = "video";
                 }
                 switch(Path.GetExtension(Convert.ToString(this.currentImage["path"]).ToLower())) {
                     case ".wmv": case ".avi":
-                        settings["mediatype"] = "object";
+                        this.imageSettings["mediatype"] = "object";
                     break;
                 }
-                settings["animated"] = Convert.ToString(animated).ToLower();
-                switch (Convert.ToString(settings["mediatype"])) {
+                this.imageSettings["animated"] = Convert.ToString(animated).ToLower();
+                switch (Convert.ToString(this.imageSettings["mediatype"])) {
                     case "image":
-                        settings["stretchSmallImages"] = this.screensaver.config.getCheckboxValue("stretchSmallImages");
+                        this.imageSettings["stretchSmallImages"] = this.screensaver.config.getCheckboxValue("stretchSmallImages");
+                        if (this.screensaver.config.getCheckboxValue("exifRotate")) {
+                            if (this.quickMetadata != null && this.quickMetadata.metadata.ContainsKey("orientation#")) {
+                                int rotate = 0;
+                                switch (Convert.ToByte(this.quickMetadata.metadata["orientation#"])) {
+                                    case (int)Constants.Orientation.Rotate_180: rotate = 180; break;
+                                    case (int)Constants.Orientation.Rotate_90_CW: 
+                                    case (int)Constants.Orientation.Mirror_Horizontal_Rotate_90_CW: 
+                                        rotate = 90; 
+                                    break;
+                                    case (int)Constants.Orientation.Rotate_270_CW:
+                                    case (int)Constants.Orientation.Mirror_Horizontal_Rotate_270_CW: 
+                                        rotate = 270; 
+                                    break;
+                                }
+                                this.resizeRatioRotate90(rotate);
+                                if (rotate != 0) {
+                                    this.imageSettings["exifRotate"] = rotate;
+                                }
+                            }
+                        }
                     break;
                     case "object": case "video":
-                        settings["stretchSmallVideos"] = this.screensaver.config.getCheckboxValue("stretchSmallVideos");
-                        settings["showcontrols"] = this.screensaver.config.getCheckboxValue("showControls");
-                        settings["loop"] = this.screensaver.config.getCheckboxValue("videosLoop");
-                        settings["mute"] = this.screensaver.config.getCheckboxValue("videosMute");
+                        this.imageSettings["stretchSmallVideos"] = this.screensaver.config.getCheckboxValue("stretchSmallVideos");
+                        this.imageSettings["showcontrols"] = this.screensaver.config.getCheckboxValue("showControls");
+                        this.imageSettings["loop"] = this.screensaver.config.getCheckboxValue("videosLoop");
+                        this.imageSettings["mute"] = this.screensaver.config.getCheckboxValue("videosMute");
                     break;
                 }
                 try {
                     var bgw = new BackgroundWorker();
                     bgw.DoWork += (object sender, DoWorkEventArgs e) => {
-                        e.Result = this.screensaver.fileNodes.checkImageCache(Convert.ToString(this.currentImage["path"]), this.id);
+                        e.Result = this.screensaver.fileNodes.checkImageCache(Convert.ToString(this.currentImage["path"]), this.id, ref this.imageSettings);
                     };
                     bgw.RunWorkerCompleted += (object sender, RunWorkerCompletedEventArgs e) => {
+                        if (this.imageSettings.ContainsKey("raw") && Convert.ToBoolean(this.imageSettings["raw"])) {
+                            this.imageSettings["exifRotate"] = 0;
+                            this.imageSettings["resizeRatio"] = 1;
+                            this.imageSettings["rawCached"] = e.Result;
+                        }
+                        metadata += " " + this.imageSettings["exifRotate"] + " " + this.Bounds.ToString();
                         this.showInfoOnMonitor(this.info, false, true);
-                        this.browser.Document.InvokeScript("showImage", new Object[] { e.Result, Convert.ToString(this.currentImage["path"]), metadata, JsonConvert.SerializeObject(settings) });
+                        this.browser.Document.InvokeScript("showImage", new Object[] { e.Result, Convert.ToString(this.currentImage["path"]), metadata, JsonConvert.SerializeObject(this.imageSettings) });
                     };
                     string path = "";
                     object[] prms = new object[] { path };
                     this.info = this.showInfoOnMonitor("Converting from RAW to JPEG <span class='wait'></span>", false, false);
+
                     bgw.RunWorkerAsync(prms);
 
                     //this.showInfoOnMonitor("Converting RAW");
@@ -324,9 +438,13 @@ namespace RPS {
             } else {
                 int offset = 1;
                 // For first monitor skip back to photo on first monitor, than select going forward.
-                if (this.id == 0) {
+                if (this.screensaver.currentMonitor == Screensaver.CM_ALL && this.id == 0) {
                     offset = this.screensaver.monitors.Length*(step+1)*-1+1;
                 }
+                if (this.screensaver.currentMonitor == this.id) {
+                    offset = -1;
+                }
+
                 this.currentImage = this.screensaver.fileNodes.getSequentialImage(this.id, offset);
             }
             if (!fileExistsOnDisk(this.currentImage)) return this.previousImage();
@@ -404,12 +522,7 @@ namespace RPS {
         }
 
         public void timer_Tick(object sender, EventArgs e) {
-            if (this.screensaver.action == Screensaver.Actions.Preview || this.screensaver.action == Screensaver.Actions.Test) {
-
-            }
-
             this.nextImage();
-            
             if (this.currentImage == null || Convert.ToString(this.currentImage["path"]) == "") {
                 this.timer.Interval *= 2;
                 if (this.timer.Interval > Convert.ToInt32(this.screensaver.config.getValue("timeout")) * 1000) {
@@ -420,9 +533,11 @@ namespace RPS {
                 this.setTimerInterval();
                 if (this.id == 0 && this.screensaver.config.syncMonitors()) {
                     for (int i = 1; i < this.screensaver.monitors.Length; i++) {
-                        this.screensaver.monitors[i].timer.Stop();
-                        this.screensaver.monitors[i].nextImage();
-                        this.screensaver.monitors[i].showImage(true);
+                        if (this.screensaver.currentMonitor == Screensaver.CM_ALL || this.screensaver.currentMonitor == i) {
+                            this.screensaver.monitors[i].timer.Stop();
+                            this.screensaver.monitors[i].nextImage();
+                            this.screensaver.monitors[i].showImage(true);
+                        }
                     }
                 }
             }

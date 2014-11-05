@@ -113,7 +113,7 @@ namespace RPS {
             return null;
         }
 
-        public void loadPersistantConfig() {
+        public void loadPersistantConfig(int nrMonitors) {
 
             this.browser.Document.InvokeScript("initMonitors", new string[] { Convert.ToString(Screen.AllScreens.Length) });
             //SQLiteConnection connection = 
@@ -191,6 +191,7 @@ namespace RPS {
                     case Screensaver.Actions.Test: classes += "test"; break;
                     case Screensaver.Actions.Slideshow: classes += "slideshow"; break;
                 }
+                if (nrMonitors > 1) classes += " multi";
                 elem.SetAttribute("className", elem.GetAttribute("className") + classes);
                 classes = null;
             }
@@ -345,7 +346,7 @@ namespace RPS {
             }
 
             if (this.getValue("folders") == null) {
-                this.loadPersistantConfig();
+                this.loadPersistantConfig(this.screensaver.monitors.Length);
             }
 
             foreach (string folder in this.getValue("folders").Split(new string[] { Environment.NewLine, "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries)) {

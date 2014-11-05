@@ -46,8 +46,6 @@
 			right: 0;
 			margin: auto;
 			overflow:hidden;
-/*			display:block;*/
-/*			transform: rotate(-90deg) scale(0.75);*/
 		}
 
 		html, body {
@@ -271,11 +269,11 @@ function beep() {
 		}
 
 		// identify monitor nr
-		function showPriorityInfo(info) {
+		function showPriorityInfo(info, fade) {
 			document.getElementById("showpriorityinfo").innerText = info;
 			//$("#showpriorityinfo").stop(true, true);
 			$("#showpriorityinfo").show();
-			//$("#showpriorityinfo").stop().fadeOut(10000);
+			if (fade.toLowerCase() == "true") $("#showpriorityinfo").stop().fadeOut(5000);
 		}
 
 		function showMetadata(metadata) {
@@ -286,6 +284,10 @@ function beep() {
 			document.getElementById("dbinfo").innerText = info;
 		}
 
+		function setImageRotation(deg, scale) {
+			$(".card .image").last().attr("style", "transform:rotate(" + deg + "deg) scale(" + scale + ");");
+		}
+
 		function showImage(source, displayPath, metadata, settings) {
 			if (typeof settings == "string") settings = JSON.parse(settings);
 			var html = '';
@@ -293,8 +295,22 @@ function beep() {
 			if (settings.mediatype == undefined) settings.mediatype = "image";
 			switch(settings.mediatype) {
 				case "image":
-					html = '<img class="image media" src="' + source + '"/>';
+				// TODO Calculate ratio in RPS
+				// GET width + height from RPS.
+				// Calculate scale
+				// style="scale()"
+					//console.log("Rotate: " + settings.exifRotate);
+					style = '';
+					if ((settings.exifRotate != undefined && settings.exifRotate != 0) || (settings.resizeRatio != undefined && settings.resizeRatio != 1)) {
+						if (settings.exifRotate == undefined) settings.exifRotate = 0;
+						if (settings.resizeRatio == undefined) settings.resizeRatio = 1;
+						style='transform:rotate(' + settings.exifRotate + 'deg) scale(' + settings.resizeRatio + ');';
+					}
+					html = '<img ';
+					if (style != '') html += 'style="' + style + '"';
+					html += 'class="image media" src="' + source + '"/>';
 					if (settings.stretchSmallImages) stretch = true;
+//					alert(html);
 				break;
 				case "video":
 					html = '<video class="video media" src="' + source + '" autoplay';

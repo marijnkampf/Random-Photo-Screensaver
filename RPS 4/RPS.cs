@@ -49,9 +49,15 @@ namespace RPS {
             if (this.action != Actions.Config) {
                 // Complete initialisation when config.html is loaded.
                 if (!this.configInitialised && this.config.browser.Url.Segments.Last().Equals(Constants.ConfigHtmlFile)) {
+                    int nrMonitors = 1;
+                    if (this.action == Actions.Test || this.action == Actions.Preview) {
+                        nrMonitors = hwnds.Length;
+                    } else {
+                        nrMonitors = Screen.AllScreens.Length;
+                    }
                     // Avoid double loading config from DB
                     if (config.getValue("folders") == null) {
-                        this.config.loadPersistantConfig();
+                        this.config.loadPersistantConfig(nrMonitors);
                     }
                     this.configInitialised = true;
 
@@ -148,28 +154,31 @@ namespace RPS {
             }
         }
 
-        /*
-                        public void startTimers() {
-                            //for (int i = (this.monitors.Length - 1); i >= 0 ; i--) {
-                            for (int i = 0; i < this.monitors.Length; i++) {
-                                if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
-                                    this.monitors[i].timer.Start();
-                                }
-                            }
-                        }
+        public void startTimers() {
+            //for (int i = (this.monitors.Length - 1); i >= 0 ; i--) {
+            for (int i = 0; i < this.monitors.Length; i++) {
+                if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
+                    ///this.monitors[i].setTimerInterval();
+                    this.monitors[i].timer.Enabled = !this.monitors[i].paused;
+                    /*if (!this.monitors[i].paused) {
+                        this.monitors[i].timer.Start();
+                    }*/
+                    //
+                }
+            }
+        }
 
-                        public void stopTimers() {
-                            for (int i = 0; i < this.monitors.Length; i++) {
-                                if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
-                                    this.monitors[i].timer.Stop();
-                                }
-                            }
-                        }
-                        */
+        public void stopTimers() {
+            for (int i = 0; i < this.monitors.Length; i++) {
+                if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
+                    //this.monitors[i].timer.Stop();
+                    this.monitors[i].timer.Enabled = false;
+                }
+            }
+        }
 
         public void actionNext(int step) {
-            //this.stopTimers();
-            
+            this.stopTimers();
             for (int i = 0; i < this.monitors.Length; i++) {
                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                     this.monitors[i].timer.Stop();
@@ -178,14 +187,14 @@ namespace RPS {
                     if (step > 1) s = " x " + step;
                     this.monitors[i].showInfoOnMonitor(">>" + s);
                     this.monitors[i].showImage(false);
-                    this.monitors[i].startTimer();
+                    //this.monitors[i].startTimer();
                 }
             }
-            //this.startTimers();
+            this.startTimers();
         }
 
         public void actionPrevious(int step) {
-            //this.stopTimers();
+            this.stopTimers();
             for (int i = 0; i < this.monitors.Length; i++) {
                 //for (int i = (this.monitors.Length - 1); i >= 0 ; i--) {
                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
@@ -195,10 +204,10 @@ namespace RPS {
                     if (step > 1) s = " x " + step;
                     this.monitors[i].showInfoOnMonitor("<<" + s);
                     this.monitors[i].showImage(false);
-                    this.monitors[i].startTimer();
+                    //this.monitors[i].startTimer();
                 }
             }
-            //this.startTimers();
+            this.startTimers();
         }
 
         public int getStep(PreviewKeyDownEventArgs e) {
@@ -281,12 +290,17 @@ namespace RPS {
                         case Keys.P:
                             for (int i = 0; i < this.monitors.Length; i++) {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
-                                    this.monitors[i].timer.Enabled = !this.monitors[i].timer.Enabled;
+                                    if (!this.config.syncMonitors() || i == 0) {
+                                        this.monitors[i].paused = !this.monitors[i].paused;
+                                        this.monitors[i].timer.Enabled = !this.monitors[i].paused;
+                                    } else {
+                                        this.monitors[i].paused = this.monitors[0].paused;
+                                        this.monitors[i].timer.Enabled = !this.monitors[0].paused;
+                                    }
                                     if (this.monitors[i].timer.Enabled) this.monitors[i].showInfoOnMonitor("|>");
                                     else this.monitors[i].showInfoOnMonitor("||");
                                 }
                             }
-
                         break;
                         case Keys.R: case Keys.NumPad1:
                             if (this.config.changeOrder() == Config.Order.Random) {
@@ -365,7 +379,7 @@ namespace RPS {
                             this.actionNext(this.getStep(e));
                         break;
                         case Keys.NumPad2: case Keys.Down:
-                            //this.stopTimers();
+                            this.stopTimers();
                             for (int i = 0; i < this.monitors.Length; i++) {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                                     this.monitors[i].timer.Stop();
@@ -375,10 +389,10 @@ namespace RPS {
                                     this.monitors[i].startTimer();
                                 }
                             }
-                            //this.startTimers();
+                            this.startTimers();
                         break;
                         case Keys.NumPad8: case Keys.Up:
-                           // this.stopTimers();
+                            this.stopTimers();
                             for (int i = 0; i < this.monitors.Length; i++) {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                                     this.monitors[i].timer.Stop();
@@ -388,13 +402,36 @@ namespace RPS {
                                     this.monitors[i].startTimer();
                                 }
                             }
-                           // this.startTimers();
+                            this.startTimers();
                         break;
                         case Keys.OemOpenBrackets:
                         case Keys.OemCloseBrackets: 
                         case Keys.Oemplus:
-                            this.showInfoOnMonitors("ToDo: Implement image rotation");
-                            // See http://www.useragentman.com/blog/2010/03/09/cross-browser-css-transforms-even-in-ie/#more-896 for rotation based on info.
+                            this.stopTimers();
+                            int deg = 0;
+                            string message = "";
+                            switch (KeyCode) {
+                                case Keys.OemOpenBrackets: 
+                                    deg = 270;
+                                    message = "Rotating 270° clock wise";
+                                break;
+                                case Keys.OemCloseBrackets: 
+                                    deg = 90;
+                                    message = "Rotating 90° clock wise";
+                                break;
+                                case Keys.Oemplus: 
+                                    deg = 180;
+                                    message = "Upside down you're turning me";
+                                break;
+                            }
+
+                            for (int i = 0; i < this.monitors.Length; i++) {
+                                if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
+                                    this.monitors[i].showInfoOnMonitor(message, true, true);
+                                    this.monitors[i].rotateImage(deg);
+                                }
+                            }
+                            this.startTimers();
                         break;
                         case Keys.Delete:
                             if (this.config.getCheckboxValue("deleteKey")) {

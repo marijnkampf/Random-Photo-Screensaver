@@ -49,7 +49,8 @@ namespace RPS {
             return true;
         }
 
-        public Rectangle FitIntoBounds(Rectangle image, Rectangle boundingBox, bool stretchSmall) {
+        // ToDo: Move to separate helper class? Extend Rectangle?
+        public static Rectangle FitIntoBounds(Rectangle image, Rectangle boundingBox, bool stretchSmall) {
             Rectangle r = boundingBox;
             double rw, rh;
             rw = (double)boundingBox.Width / (double)image.Width;
@@ -143,7 +144,7 @@ namespace RPS {
                         g.FillRectangle(fill, Screen.AllScreens[i].Bounds);
                         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                         g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g.DrawImage(image, this.FitIntoBounds(Rectangle.Round(image.GetBounds(ref units)), Screen.AllScreens[i].Bounds, this.screensaver.config.getCheckboxValue("wallpaperStretchSmall")));
+                        g.DrawImage(image, Wallpaper.FitIntoBounds(Rectangle.Round(image.GetBounds(ref units)), Screen.AllScreens[i].Bounds, this.screensaver.config.getCheckboxValue("wallpaperStretchSmall")));
                         if (this.screensaver.config.getCheckboxValue("wallpaperFilenames")) {
                             // ToDo: Get font settings from config.html
                             Font font = new Font("Arial", 10);

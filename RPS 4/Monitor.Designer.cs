@@ -33,13 +33,11 @@ namespace RPS {
             // browser
             // 
             this.browser.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.browser.IsWebBrowserContextMenuEnabled = false;
             this.browser.Location = new System.Drawing.Point(0, 0);
             this.browser.MinimumSize = new System.Drawing.Size(20, 20);
             this.browser.Name = "browser";
-            this.browser.Size = new System.Drawing.Size(152, 112);
+            this.browser.Size = new System.Drawing.Size(617, 401);
             this.browser.TabIndex = 0;
-            this.browser.WebBrowserShortcutsEnabled = false;
             // 
             // timer
             // 
@@ -50,7 +48,7 @@ namespace RPS {
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(152, 112);
+            this.ClientSize = new System.Drawing.Size(617, 401);
             this.ControlBox = false;
             this.Controls.Add(this.browser);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;

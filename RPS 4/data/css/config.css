@@ -238,3 +238,11 @@ label {
 .config .previewTip {
 	display: block;
 }
+
+.multiOnly {
+	display: none;
+}
+
+.multi .multiOnly {
+	display: block;
+}

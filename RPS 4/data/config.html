@@ -31,7 +31,7 @@
 		<div><strong>Thank you for your support!</strong></div>
 	</div>
 	<div id="navigation">
-		<h1>RPS 4 Beta 5</h1>
+		<h1>RPS 4 Beta 6</h1>
 		<ul>
 			<li><a href="#settings">Settings</a></li>
 		</ul>
@@ -91,12 +91,14 @@
 				<div class="">
 					<label class="left" for="variableTimeout" title="Enable to vary the how long each image is shown for"><input type="checkbox" id="variableTimeout" checked /> Use variable durations (?)</label>
 				</div>
-				<label>Synchronise multi-monitors</label>
-				<div id="syncScreens" class="radioGroupHorizontal">
-					<label for="syncScreensTrue"><input type="radio" id="syncScreensTrue" name="syncScreens" value="true" checked/> Yes</label>
-					<label for="syncScreensFalse"><input type="radio" id="syncScreensFalse" name="syncScreens" value="false"/> No</label>
+				<div class="multiOnly">
+					<label>Synchronise multi-monitors</label>
+					<div id="syncScreens" class="radioGroupHorizontal">
+						<label for="syncScreensTrue"><input type="radio" id="syncScreensTrue" name="syncScreens" value="true" checked/> Yes</label>
+						<label for="syncScreensFalse"><input type="radio" id="syncScreensFalse" name="syncScreens" value="false"/> No</label>
+					</div>
+					<div class="keywords">two three four dual screens triple displays multiple</div>
 				</div>
-				<div class="keywords">two three four dual screens triple displays multiple</div>
 				<div class="keywords">timer seconds change time-out</div>
 				<div class="clear"></div>
 			</div>
@@ -141,6 +143,7 @@
 				<h2 id="images">Images</h2>
 				<div class="set checkboxGroup">
 					<input type="checkbox" id="stretchSmallImages"/> <label for="stretchSmallImages">Stretch small images</label>
+					<input type="checkbox" id="exifRotate" checked/> <label for="exifRotate">Rotate image based on EXIF orientation (if available)</label>
 				</div>
 				<div class="set advanced">
 					<label for="imageExtensions">Image extensions <span class="reference">(also see <a href="#RAW">RAW extensions</a>)</span></label>
@@ -148,6 +151,23 @@
 					<div class="keywords">filenames extensions types</div>
 				</div>
 				<div class="keywords">photos photographs pictures</div>
+				<div class="clear"></div>
+			</div>
+
+			<div class="set">
+				<h2>Videos</h2>
+				<div class="set checkboxGroup">
+					<input type="checkbox" id="stretchSmallVideos"/> <label for="stretchSmallVideos">Stretch small videos</label>
+					<input type="checkbox" id="showControls" checked /> <label for="showControls">Show controls</label>
+					<input type="checkbox" id="videosLoop" checked /> <label for="videosLoop">Loop videos</label>
+					<input type="checkbox" id="videosMute" checked /> <label for="videosMute">Mute videos</label>
+				</div>
+				<div class="set advanced">
+					<label for="videoExtensions">Video extensions</label>
+					<input type="text" id="videoExtensions" value=".avi .wmv .mp4 .mpeg .mpg" />
+					<div class="keywords">filenames extensions types</div>
+				</div>
+				<div class="keywords">videos movies films</div>
 				<div class="clear"></div>
 			</div>
 
@@ -206,33 +226,32 @@
 			</div>
 
 			<div class="set">
-				<h2>Videos</h2>
-				<div class="set checkboxGroup">
-					<input type="checkbox" id="stretchSmallVideos"/> <label for="stretchSmallVideos">Stretch small videos</label>
-					<input type="checkbox" id="showControls" checked /> <label for="showControls">Show controls</label>
-					<input type="checkbox" id="videosLoop" checked /> <label for="videosLoop">Loop videos</label>
-					<input type="checkbox" id="videosMute" checked /> <label for="videosMute">Mute videos</label>
-				</div>
-				<div class="set advanced">
-					<label for="videoExtensions">Video extensions</label>
-					<input type="text" id="videoExtensions" value=".avi .wmv .mp4 .mpeg .mpg" />
-					<div class="keywords">filenames extensions types</div>
-				</div>
-				<div class="keywords">videos movies films</div>
-				<div class="clear"></div>
-			</div>
-
-			<div class="set">
 				<h2>Metadata</h2>
 				<div class="set checkboxGroup">
-					<input type="checkbox" id="indexMetadata"/> <label for="indexMetadata">Index metadata</label>
+					<!--input type="checkbox" id="indexMetadata"/> <label for="indexMetadata">Index metadata</label-->
 					<input type="text" id="quickMetadata" value="<#{Exposure Time} | #><#{F Number} | #><#{ISO} | #><#{Focal Length}#>"/> <label for="quickMetadata">Quick metadata</label>
 					<div class="keywords">metadata iptc xmp exif</div>
 				</div>
 
-				<h3>ExifTool</h3>
-				<label for="exifTool">Location of ExifTool</label>
-				<input type="text" id="exifTool" value=".\vendor\exiftool(-k).exe" />
+				<div class="set checkboxGroup">
+					<h3>ExifTool</h3>
+						<label for="exifTool">Location of ExifTool</label>
+					<input type="text" id="exifTool" value=".\vendor\exiftool(-k).exe" />
+				</div>
+
+				<div class="set checkboxGroup">
+					<h3>Image rotation</h3>
+					<input type="checkbox" id="saveExifOnRotation"/> <label for="saveExifOnRotation">Save Orientation to Exif in file</label>
+					<input type="checkbox" id="backupExifOnRotation" checked/> <label for="backupExifOnRotation">Backup before rotation (filename.bak)</label>
+					<div class="note">Use following keys to rotate images(s)<br/>
+						[ rotate image 270&deg; CW<br/>
+						] rotate image 90&deg; CW<br/>
+						+ rotate image 180&deg;<br/>
+						Please note: if filename.bak exists it isn't overwritten.<br/>
+						<span class="multiOnly">For multi monitors: select monitors with 1 ... 9 or 0 for all.<br/></span>
+					</div>
+					<div class="keywords">turning rotate rotating</div>
+				</div>
 				<div class="keywords">metadata iptc xmp exif</div>
 			</div>
 

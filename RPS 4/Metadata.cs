@@ -10,7 +10,7 @@ namespace RPS {
   //      string rxGroups = "<#[^#]*#>";
 //        string rxTags = "{[^}]*}"
         public string template { get; set; }
-        Dictionary<string, string> metadata;
+        public Dictionary<string, string> metadata;
 
         public MetadataTemplate(string metadata):this(metadata, "") { }
 
@@ -24,8 +24,14 @@ namespace RPS {
 
             if (metaString != null) foreach (string s in metaString.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)) {
                 string[] kv = s.Split('\t');
-                if (kv.Length == 2)
-                    this.metadata[kv[0].ToLower()] = kv[1];
+                if (kv.Length == 2) {
+                    string key = kv[0].ToLower();
+                    while (this.metadata.ContainsKey(key)) {
+                        key += "#";
+                    }
+                    this.metadata[key] = kv[1];
+                }
+                    
 
                 //Debug.Assert(kv.Length == 2, "Can not parse line :'" + s + "'");
             }

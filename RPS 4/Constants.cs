@@ -20,6 +20,19 @@ namespace RPS {
         public const string PersistantConfigFileName = "settings.sqlite";
         public const string WallpaperFileName = "rpsBackground.bmp";
 
+        public const string ExifToolMetadataOptions = "\n-All\n-Orientation#";
+
+        public enum Orientation {
+            Horizontal = 1,
+            Mirror_Horizontal = 2,
+            Rotate_180 = 3,
+            Mirror_Vertical = 4,
+            Mirror_Horizontal_Rotate_270_CW = 5,
+            Rotate_90_CW = 6,
+            Mirror_Horizontal_Rotate_90_CW = 7,
+            Rotate_270_CW = 8
+        }
+
         public const string rawFileConvertedExt = ".jpg";
         //        public readonly string[] imageExtensions = { ".gif", ".png", ".jpeg", ".jpg", ".pcx", ".bmp" };
   //      public readonly string[] movieExtensions = { ".avi", ".wmv", "mp4" };
@@ -126,5 +139,16 @@ CREATE UNIQUE INDEX `keys` ON `Setting` (`key` ASC);
             }
             return fullPath;
         }
+
+/*         	
+1 = Horizontal (normal)
+2 = Mirror horizontal
+3 = Rotate 180
+4 = Mirror vertical
+5 = Mirror horizontal and rotate 270 CW
+6 = Rotate 90 CW
+7 = Mirror horizontal and rotate 90 CW
+8 = Rotate 270 CW
+    */
     }
 }

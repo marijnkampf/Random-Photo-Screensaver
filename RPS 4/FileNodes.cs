@@ -9,7 +9,7 @@ using System.IO;
 using System.Windows.Forms;
 using System.Data;
 using System.Diagnostics;
-
+using System.Collections;
 
 namespace RPS {
     public class FileNodes {
@@ -181,10 +181,15 @@ namespace RPS {
             }
         }
 
-        public string exifToolCommand(string command, long imageId) {
+        public string exifToolCommand(string command) {
+            this.exifToolMainStarted();
+            return this.exifToolMain.SendCommand(command);
+        }
+
+        public string exifToolGetMetadata(string command, long imageId) {
             this.exifToolMainStarted();
             string metadata = this.exifToolMain.SendCommand(command);
-            if (metadata != null) this.fileDatabase.addMetadataToDB(imageId, metadata);
+            if (imageId > 0 && metadata != null) this.fileDatabase.addMetadataToDB(imageId, metadata);
             return metadata;
         }
 
@@ -197,7 +202,7 @@ namespace RPS {
             while (dr != null) {
                 if (i % 50 == 0) this.fileDatabase.toggleMetadataTransaction();
                 this.exifToolWorkerStarted();
-                meta = this.exifToolWorker.SendCommand(Convert.ToString(dr["path"]));
+                meta = this.exifToolWorker.SendCommand(Convert.ToString(dr["path"]) + Constants.ExifToolMetadataOptions);
                 /*              // Alternative using exiv2, slightly (10% - 15%) quicker but output needs more processing (not tab deliminated)
                                 Process proc = new Process {
                                     StartInfo = new ProcessStartInfo {
@@ -272,7 +277,7 @@ namespace RPS {
             return false;
         }
 
-        public string checkImageCache(string filename, long monitor) {
+        public string checkImageCache(string filename, long monitor, ref Hashtable settings) {
             if ((this.config.getValue("rawExtensions").IndexOf(Path.GetExtension(filename).ToLower()) > -1) && this.config.getCheckboxValue("rawUseConverter")) {
                 string cachedFilename = null;
                 bool hideFolder = true;
@@ -301,6 +306,8 @@ namespace RPS {
                     break;
                 }
                 if (!File.Exists(cachedFilename)) this.cacheRawImage(filename, cachedFilename, hideFolder, hideFile);
+                if (settings.ContainsKey("raw")) settings["raw"] = true;
+                else settings.Add("raw", true);
                 //this.screensaver.monitors[monitor].showInfoOnMonitor("");
                 return cachedFilename;
             }

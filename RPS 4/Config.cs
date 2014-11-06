@@ -113,6 +113,11 @@ namespace RPS {
             return null;
         }
 
+        public void loadPersistantConfig() {
+            if (this.screensaver.monitors != null) this.loadPersistantConfig(this.screensaver.monitors.Length);
+            else this.loadPersistantConfig(Screen.AllScreens.Length);
+        }
+
         public void loadPersistantConfig(int nrMonitors) {
 
             this.browser.Document.InvokeScript("initMonitors", new string[] { Convert.ToString(Screen.AllScreens.Length) });
@@ -346,7 +351,7 @@ namespace RPS {
             }
 
             if (this.getValue("folders") == null) {
-                this.loadPersistantConfig(this.screensaver.monitors.Length);
+                this.loadPersistantConfig();
             }
 
             foreach (string folder in this.getValue("folders").Split(new string[] { Environment.NewLine, "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries)) {
@@ -482,13 +487,18 @@ namespace RPS {
         public string getValue(string id) {
             HtmlElement he = this.getElementById(id);
             if (he == null) return null;
-            switch (he.TagName.ToLower()) {
-                case "textarea":
-                    return he.InnerHtml;
-                break;
-                default:
-                    return he.GetAttribute("value");
-                break;
+            try {
+                switch (he.TagName.ToLower()) {
+                    case "textarea":
+                        return he.InnerHtml;
+                        break;
+                    default:
+                        return he.GetAttribute("value");
+                        break;
+                }
+            } catch (System.Runtime.InteropServices.COMException co) {
+                //this.screensaver.showInfoOnMonitors("Error getValue(" + id + ")\n" + Convert.ToString(co.Message));
+                return null;
             }
             return null;
         }

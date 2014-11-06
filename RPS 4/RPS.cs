@@ -241,7 +241,6 @@ namespace RPS {
 			            switch (e.KeyCode) {
 				            case Keys.D8: 
                                 KeyCode = Keys.OemOpenBrackets;
-					            //KeyCode = Keys.OemOpenBrackets;
 				            break;
 				            case Keys.D9:
 					            KeyCode = Keys.OemCloseBrackets;
@@ -531,17 +530,20 @@ namespace RPS {
         }
 
         private void MouseClick(object sender, MouseEventArgs e) {
-            if (this.config.getCheckboxValue("browseMouse")) {
-                switch (e.Button) { 
-                    case MouseButtons.Left:
-                        this.actionNext(1);
-                    break;
-                    case MouseButtons.Right:
-                        this.actionPrevious(1);
-                    break;
+            if (!this.config.Visible) {
+                //if (this.config.hiding) return null;
+                if (this.config.getCheckboxValue("browseMouse")) {
+                    switch (e.Button) {
+                        case MouseButtons.Left:
+                            this.actionNext(1);
+                            break;
+                        case MouseButtons.Right:
+                            this.actionPrevious(1);
+                            break;
+                    }
+                } else {
+                    this.OnExit();
                 }
-            } else {
-                this.OnExit();
             }
         }
 
@@ -636,7 +638,6 @@ namespace RPS {
 
                     Application.Run(screensaver);
                 break;
-
             }
         }
     }

@@ -147,6 +147,11 @@
 				  "settings":{"animated": "true", "mediatype": "image"}
 				},
 				{
+					"source": "file://F:\\photos\\Wales 2003\\Bath\\movies\\MVI_2312.AVI",
+				  "metadata": "no meta",
+				  "settings":'{"animated": "true", "mediatype": "video","stretchSmallVideos":"false"}'
+				},
+				{
 					"source": "file://F:\\photos\\Wales 2003\\Brecon Beacons\\thumbs\\1942.jpg",
 				  "metadata": "no meta",
 				  "settings":'{"animated": "true", "mediatype": "image"}'
@@ -165,11 +170,6 @@
 					"source": "file://F:\\photos\\Wales 2003\\Angel\\thumbs\\2789 Angel Halo.jpg",
 				  "metadata": "no meta",
 				  "settings":'{"animated": "true", "mediatype": "image"}'
-				},
-				{
-					"source": "file://F:\\photos\\Wales 2003\\Bath\\movies\\MVI_2312.AVI",
-				  "metadata": "no meta",
-				  "settings":'{"animated": "true", "mediatype": "object","stretchSmallVideos":"true"}'
 				},
 				{
 					"source": "file://F:\\photos\\Wales 2003\\Angel\\thumbs\\2788 Angel.jpg",
@@ -288,18 +288,51 @@ function beep() {
 			$(".card .image").last().attr("style", "transform:rotate(" + deg + "deg) scale(" + scale + ");");
 		}
 
+		var g_source, g_displayPath, g_metadata, g_settings;
+
+		function useBackupVideoSolution(me) {
+			g_settings.mediatype = "object";
+			showImage(g_source, g_displayPath, g_metadata, g_settings);
+		}
+
+		function getVideoObjectElement(source, settings) {
+			var playCount = 1;
+			var stretch = "";
+			if (settings.stretchSmallVideos) stretch = " stretch";
+			if (settings.loop) playCount = 9999;
+			html = '<object class="object media' + stretch + '" id="mediaPlayer" classid="CLSID:22D6F312-B0F6-11D0-94AB-0080C74C7E95"'
+					+ 'codebase="http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=5,1,52,701"'
+					+ 'standby="Loading Microsoft® Windows® Media Player components..." type="application/x-oleobject">'
+					+ '<param name="FileName" value="' + source + '" />'
+					+ '<param name="Mute" value="' + settings.mute + '"/>'
+					+ '<param name="playCount" value="' + playCount + '"/>'
+					+ '<param name="AutoStart" value="True" />'
+					+ '<param name="DefaultFrame" value="mainFrame" />'
+					+ '<param name="ShowStatusBar" value="0" />'
+					+ '<param name="windowlessVideo" value="true" />'
+					+ '<param name="ShowPositionControls" value="' + settings.showcontrols + '" />'
+					+ '<param name="showcontrols" value="' + settings.showcontrols + '" />'
+					+ '<param name="ShowAudioControls" value="' + settings.showcontrols + '" />'
+					+ '<param name="ShowTracker" value="0" />'
+					+ '<param name="EnablePositionControls" value="0" />'
+			html += '</object>';
+			return html;
+		}
+
 		function showImage(source, displayPath, metadata, settings) {
 			if (typeof settings == "string") settings = JSON.parse(settings);
+
 			var html = '';
 			var stretch = false;
 			if (settings.mediatype == undefined) settings.mediatype = "image";
+
+			g_source = source;
+			g_displayPath = displayPath;
+			g_metadata = metadata;
+			g_settings = settings;
+
 			switch(settings.mediatype) {
 				case "image":
-				// TODO Calculate ratio in RPS
-				// GET width + height from RPS.
-				// Calculate scale
-				// style="scale()"
-					//console.log("Rotate: " + settings.exifRotate);
 					style = '';
 					if ((settings.exifRotate != undefined && settings.exifRotate != 0) || (settings.resizeRatio != undefined && settings.resizeRatio != 1)) {
 						if (settings.exifRotate == undefined) settings.exifRotate = 0;
@@ -310,10 +343,9 @@ function beep() {
 					if (style != '') html += 'style="' + style + '"';
 					html += 'class="image media" src="' + source + '"/>';
 					if (settings.stretchSmallImages) stretch = true;
-//					alert(html);
 				break;
 				case "video":
-					html = '<video class="video media" src="' + source + '" autoplay';
+					html = '<video class="video media" src="' + source + '" onerror="useBackupVideoSolution()" autoplay';
 					if (settings.loop) html += ' loop';
 					if (settings.mute) html += ' muted';
 					if (settings.showcontrols) html += ' controls';
@@ -321,26 +353,7 @@ function beep() {
 					if (settings.stretchSmallVideos) stretch = true;
 				break;
 				case "object":
-					var playCount = 1;
-					var stretch = "";
-					if (settings.stretchSmallVideos) stretch = " stretch";
-					if (settings.loop) playCount = 9999;
-					html = '<object class="object media' + stretch + '" id="mediaPlayer" classid="CLSID:22D6F312-B0F6-11D0-94AB-0080C74C7E95"'
-							+ 'codebase="http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=5,1,52,701"'
-							+ 'standby="Loading Microsoft® Windows® Media Player components..." type="application/x-oleobject">'
-							+ '<param name="FileName" value="' + source + '" />'
-							+ '<param name="Mute" value="' + settings.mute + '"/>'
-							+ '<param name="playCount" value="' + playCount + '"/>'
-							+ '<param name="AutoStart" value="True" />'
-							+ '<param name="DefaultFrame" value="mainFrame" />'
-							+ '<param name="ShowStatusBar" value="0" />'
-							+ '<param name="windowlessVideo" value="true" />'
-							+ '<param name="ShowPositionControls" value="' + settings.showcontrols + '" />'
-							+ '<param name="showcontrols" value="' + settings.showcontrols + '" />'
-							+ '<param name="ShowAudioControls" value="' + settings.showcontrols + '" />'
-							+ '<param name="ShowTracker" value="0" />'
-							+ '<param name="EnablePositionControls" value="0" />'
-						html += '</object>';
+					html = getVideoObjectElement(source, settings);
 				break;
 			}
 

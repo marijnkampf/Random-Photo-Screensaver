@@ -278,7 +278,10 @@ namespace RPS {
         }
 
         public string checkImageCache(string filename, long monitor, ref Hashtable settings) {
-            if ((this.config.getValue("rawExtensions").IndexOf(Path.GetExtension(filename).ToLower()) > -1) && this.config.getCheckboxValue("rawUseConverter")) {
+            string rawExtensions = this.config.getValue("rawExtensions");
+            bool rawUseConverter = this.config.getCheckboxValue("rawUseConverter");
+            //if ((this.config.getValue("rawExtensions").IndexOf(Path.GetExtension(filename).ToLower()) > -1) && this.config.getCheckboxValue("rawUseConverter")) {
+            if ((rawExtensions.IndexOf(Path.GetExtension(filename).ToLower()) > -1) && rawUseConverter) {
                 string cachedFilename = null;
                 bool hideFolder = true;
                 bool hideFile = false;

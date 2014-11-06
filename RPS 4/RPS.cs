@@ -149,7 +149,8 @@ namespace RPS {
 
         public void resumeAll(bool showInfo) {
             for (int i = 0; i < this.monitors.Length; i++) {
-                this.monitors[i].timer.Enabled = true;
+                //this.monitors[i].timer.Enabled = true;
+                this.monitors[i].startTimer();
                 if (showInfo) this.monitors[i].showInfoOnMonitor("|>");
             }
         }
@@ -159,7 +160,8 @@ namespace RPS {
             for (int i = 0; i < this.monitors.Length; i++) {
                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                     ///this.monitors[i].setTimerInterval();
-                    this.monitors[i].timer.Enabled = !this.monitors[i].paused;
+                    this.monitors[i].startTimer();
+                    //this.monitors[i].timer.Enabled = !this.monitors[i].paused;
                     /*if (!this.monitors[i].paused) {
                         this.monitors[i].timer.Start();
                     }*/

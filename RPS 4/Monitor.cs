@@ -222,10 +222,10 @@ namespace RPS {
             if (this.screensaver.config.getCheckboxValue("saveExifOnRotation")) {
                 bool backedUp = true; // default to true to enable save without backup option
                 if (this.screensaver.config.getCheckboxValue("backupExifOnRotation")) {
-                    if (!File.Exists(Path.ChangeExtension(Convert.ToString(this.currentImage["path"]), ".bak"))) {
+                    if (!File.Exists(Convert.ToString(this.currentImage["path"]) + ".bak")) {
                         try {
                             // Copy if file doesn't exists
-                            File.Copy(Convert.ToString(this.currentImage["path"]), Path.ChangeExtension(Convert.ToString(this.currentImage["path"]), ".bak"));
+                            File.Copy(Convert.ToString(this.currentImage["path"]), Convert.ToString(this.currentImage["path"]) + ".bak");
                         } catch (Exception e) {
                             this.showInfoOnMonitor(e.Message, true);
                             backedUp = false;

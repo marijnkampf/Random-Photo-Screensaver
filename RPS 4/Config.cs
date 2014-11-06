@@ -39,9 +39,10 @@ namespace RPS {
         //SQLiteConnection connection;
 
         private Screensaver screensaver;
-        private FolderBrowserDialog folderBrowserDialog1;
+        //private FolderBrowserDialog folderBrowserDialog1;
 
         private string folderChanged = null;
+        private bool excludeAllSubfolders;
 
         public long maxScreenSize = 0;
 
@@ -584,9 +585,10 @@ namespace RPS {
             if (this.Visible) {
                 // Showing
                 this.folderChanged = this.getValue("folders");
+                this.excludeAllSubfolders = this.getCheckboxValue("excludeAllSubfolders");
             } else {
                 // Hiding
-                if (this.folderChanged != this.getValue("folders")) {
+                if (this.folderChanged != this.getValue("folders") || this.excludeAllSubfolders != this.getCheckboxValue("excludeAllSubfolders")) {
                     //this.screensaver.fileNodes.purgeNotMatchingParentFolders(this.getValue("folders"));
                     this.screensaver.fileNodes.restartBackgroundWorkerImageFolder();
 //                    MessageBox.Show("changed");

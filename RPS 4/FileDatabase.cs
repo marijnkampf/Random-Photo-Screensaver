@@ -268,8 +268,10 @@ namespace RPS {
             return r;
         }
 
-        public int purgeNotMatchingParentFolders(List<string> folders) {
-            string where = "WHERE NOT parentpath LIKE \"" + String.Join("%\" AND NOT parentpath LIKE \"", folders) + "%\"";
+        public int purgeNotMatchingParentFolders(List<string> folders, bool exactMatch) {
+            string match = "%";
+            if (exactMatch) match = "";
+            string where = "WHERE NOT parentpath LIKE \"" + String.Join(match + "\" AND NOT parentpath LIKE \"", folders) + match + "\"";
             SQLiteCommand command;
             int r = 0;
 

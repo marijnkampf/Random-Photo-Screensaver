@@ -121,6 +121,7 @@ namespace RPS {
                     string allowedExtensions;
                     bool ignoreHiddenFiles;
                     bool ignoreHiddenFolders;
+                    bool excludeSubfolders;
                     string rawExtensions = null;
 
                     try {
@@ -128,6 +129,7 @@ namespace RPS {
                         allowedExtensions = this.config.getValue("imageExtensions").ToLower() + " " + this.config.getValue("videoExtensions").ToLower();
                         ignoreHiddenFiles = this.config.getCheckboxValue("ignoreHiddenFiles");
                         ignoreHiddenFolders = this.config.getCheckboxValue("ignoreHiddenFolders");
+                        excludeSubfolders = this.config.getCheckboxValue("excludeAllSubfolders");
 
                         if (this.config.getCheckboxValue("rawUseConverter")) {
                             rawExtensions = this.config.getValue("rawExtensions").ToLower();
@@ -162,19 +164,21 @@ namespace RPS {
                             this.fileDatabase.addFileToDB(fi);
                         }
                     }
-                    string[] subfolders = new string[] { };
-                    try {
-                        subfolders = Directory.GetDirectories(folders[0]);
-                    } catch (System.UnauthorizedAccessException uae) { }
-                    i = 0;
-                    foreach (string subfolder in subfolders) {
-                        FileAttributes fa = File.GetAttributes(subfolder);
-                        // Ignore hidden folders if option checked
-                        if (!ignoreHiddenFolders || (ignoreHiddenFolders && (fa & FileAttributes.Hidden) != FileAttributes.Hidden)) {
-                            i++;
-                            folders.Add(subfolder);
+                    if (!excludeSubfolders) {
+                        string[] subfolders = new string[] { };
+                        try {
+                            subfolders = Directory.GetDirectories(folders[0]);
+                        } catch (System.UnauthorizedAccessException uae) { }
+                        i = 0;
+                        foreach (string subfolder in subfolders) {
+                            FileAttributes fa = File.GetAttributes(subfolder);
+                            // Ignore hidden folders if option checked
+                            if (!ignoreHiddenFolders || (ignoreHiddenFolders && (fa & FileAttributes.Hidden) != FileAttributes.Hidden)) {
+                                i++;
+                                folders.Add(subfolder);
+                            }
+                            if ((i % 100 == 0) && (this.bwCancelled() == true)) break;
                         }
-                        if ((i % 100 == 0) && (this.bwCancelled() == true)) break;
                     }
                 }
                 folders.RemoveAt(0);
@@ -399,7 +403,7 @@ namespace RPS {
         }
 
         public int purgeNotMatchingParentFolders(List<string> folders) {
-            return this.fileDatabase.purgeNotMatchingParentFolders(folders);
+            return this.fileDatabase.purgeNotMatchingParentFolders(folders, this.screensaver.config.getCheckboxValue("excludeAllSubfolders"));
         }
 /*
         public void addIdToMetadataQueue(long monitorId, DataRow image) {

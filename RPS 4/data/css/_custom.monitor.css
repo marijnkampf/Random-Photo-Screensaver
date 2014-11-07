@@ -1,0 +1,58 @@
+/****
+ * Rename this file custom.monitor.css and customise the look and feel of RPS 4.
+ *
+ * If you make your own customistions please let send me your custom.monitor.css at marijn@abscreensavers.com 
+ * I might include it as default or alternative settings in next versions
+ *
+ * Multi monitor systems
+ * To target a specific monitor use .monitor#, for example to show the filename on monitor 2 in the top right corner use:
+ *
+ * .monitor2 #filename {
+ * 	left: auto;
+ * 	right: 0.25em;
+ * }
+ *
+ ****/
+ 
+/*** 
+ * Generic info text shown on monitors 
+ * Make changes you want to apply to all info text in here (colour / font type / ...)
+ ***/
+.info {
+
+}
+
+/*** Clock ***/
+#clock { 
+
+}
+
+/*** Current filename ***/
+#filename { 
+
+}
+
+/*** Database and file/folder scanning progress ***/
+#dbinfo { 
+
+}  
+
+/*** Database and file/folder scanning progress ***/
+#quickMetadata { 
+
+}
+
+/*** Used to identify monitor (multi screen) ***/
+#identify { 
+
+}
+/*** Normal low priority information (e.g. navigation feedback <<, >>, ^, v and settings) ***/
+#showinfo {
+
+}
+
+/*** High priority information (e.g. errors etc) ***/
+#showpriorityinfo {
+
+}
+

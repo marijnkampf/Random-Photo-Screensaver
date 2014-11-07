@@ -26,12 +26,12 @@
 </head>
 <body>
 	<div id="donation"><a class="hideMessage" href="#">[X]</a>
-		<a id="donate" class="linkButton" href="http://www.abscreensavers.com/random-photo-screensaver/donation?source=RPS4">Donate</a>
-		Random Photo Screensaver is <strong>donationware</strong>, you are <strong>required</strong> to make a <a href="http://www.abscreensavers.com/random-photo-screensaver/donation?source=RPS4">donation to the author</a> is you continue using this software after your 30 days trail ends.
+		<a id="donate" class="linkButton external" target="_blank" href="http://www.abscreensavers.com/random-photo-screensaver/donation?source=RPS4">Donate</a>
+		Random Photo Screensaver is <strong>donationware</strong>, you are <strong>required</strong> to make a <a class="external" target="_blank" href="http://www.abscreensavers.com/random-photo-screensaver/donation?source=RPS4">donation to the author</a> is you continue using this software after your 30 days trail ends.
 		<div><strong>Thank you for your support!</strong></div>
 	</div>
 	<div id="navigation">
-		<h1>RPS 4 Beta 7</h1>
+		<h1>RPS 4 Beta 8</h1>
 		<ul>
 			<li><a href="#settings">Settings</a></li>
 		</ul>
@@ -40,6 +40,8 @@
 		<input id="search" type="text" placeholder="Search settings" aria-label="Search settings"/>
 		<a id="settings"></a><h1 class="underline">Settings</h1>
 		<div class="previewTip">Tip: You can also access the settings menu by pressing the 'S' key when the screensaver is running</div>
+		<div class="lowIEWarning">Internet Explorer 8 or greater is required, please <a class="external" target="_blank" href="http://windows.microsoft.com/en-us/internet-explorer/download-ie">upgrade Internet Explorer</a>!</div>
+
 		<form>
 			<div class="set">
 				<h2>Folders</h2>
@@ -133,11 +135,11 @@
 				<div class="clear"></div>
 			</div>
 
-
-			<div class="set">
+			<div class="et">
 				<h2>Show</h2>
 				<h3>Background colour</h3>
-				<input type="text" id="backgroundColour" value="#000000" />
+				<div class="onlyIE8 note">Background colour not supported in IE8</div>
+				<input class="notIE8" type="text" id="backgroundColour" value="#000000" />
 				<div class="clear"></div>
 				<div class="keywords">background color</div>
 			</div>
@@ -355,6 +357,9 @@
 					<h4>Keyboard settings</h4>
 					<input type="checkbox" id="onlyEscapeExits"/> <label for="onlyEscapeExits" title="Only escape key closes screensaver (separate from mouse movement).">Only escape key exits screensaver</label>
 					<input type="checkbox" id="closeAfterImageLocate"/> <label for="closeAfterImageLocate"  title="Close screensaver after locating images (E key).">Close screensaver after image locate (E-key)</label>
+					<label for="externalEditor">Custom editor</label>
+					<div class="browseFile"><input type="text" id="externalEditor" data-filter="Executable files (*.exe)|*.exe" value="" /><a id="externalEditorBrowse" class="button" href="#">Browse</a></div>
+
 					<input type="checkbox" id="deleteKey" checked/> <label for="deleteKey"  title="Place selected monitors photos into recycling bin on Delete key">Enable delete key</label>
 					<input type="checkbox" id="deleteKeyConfirmation"  checked/> <label for="deleteKeyConfirmation"  title="Ask for confirmation on delete">Show confirm delete dialog</label>
 				</div>
@@ -378,22 +383,65 @@
 					<div class="keywords">elapsed data</div>
 				</div>
 			</div-->
+			<div class="set">
+				<h2 class="underline">Keys</h2>
+				<table>
+					<thead>
+						<tr>
+							<th>Key</th>
+							<th>[Alternative]</th>
+							<th>Function</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<th colspan="3">Navigate in order</th>
+						</tr>
+						<tr>
+							<th>Numpad 8</th>
+							<th>[Up Arrow]</th>
+							<th>Next image</th>
+						</tr>
+						<tr>
+							<th>Numpad 2</th>
+							<th>[Down Arrow]</th>
+							<th>Previous image</th>
+						</tr>
+						<tr>
+							<th>Numpad 6</th>
+							<th>[Right Arrow]</th>
+							<th>Next image</th>
+						</tr>
+						<tr>
+							<th>Numpad 4</th>
+							<th>[Left Arrow]</th>
+							<th>Previous image</th>
+						</tr>
+						<tr>
+							<th></th>
+							<th></th>
+							<th></th>
+						</tr>
+						<tr>
+							<th></th>
+							<th></th>
+							<th></th>
+						</tr>
+						<tr>
+							<th></th>
+							<th></th>
+							<th></th>
+						</tr>
+					</tbody>
+				</table>
+				<div class="keywords">keyboard shortcut keys</div>
+				<div class="clear"></div>
+			</div>
 
 			<input id="sequentialStartImageId" type="hidden"/>
 			<input id="randomStartImages" type="hidden"/>
-
-			<div class="set">
-				<h2 class="underline">To Do</h2>
-				<ul>
-					<li>Delete/refresh/update file database/index (store.sqlite)</li>
-					<li>Updates</li>
-					<li></li>
-					<li></li>
-					<li></li>
-					<li>Minimum system requirements IE 8</li>
-				</ul>
-			</div>
 		</form>
+		<a class="external" target="_blank" href="http://www.abscreensavers.com/rps?source=RPS4">Visit abScreensavers.com/rps for help and information</a>
 	</div>
 	<div id="debug"></div>
 </body>

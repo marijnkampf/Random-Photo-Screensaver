@@ -21,7 +21,7 @@ namespace RPS {
         public bool applicationClosing = false;
         private IntPtr[] hwnds;
         private System.Windows.Forms.Keys previousKey;
-        private bool configHidden = false;
+        public bool configHidden = false;
 
         public int currentMonitor = CM_ALL;
 
@@ -137,9 +137,14 @@ namespace RPS {
         }
 
         public void showInfoOnMonitors(string info, bool highPriority) {
+            this.showInfoOnMonitors(info, highPriority, false);
+        }
+
+
+        public void showInfoOnMonitors(string info, bool highPriority, bool fade) {
             for (int i = 0; i < this.monitors.Length; i++) {
                 if ((this.currentMonitor == CM_ALL) || (this.currentMonitor == i)) {
-                    this.monitors[i].showInfoOnMonitor(info, highPriority);
+                    this.monitors[i].showInfoOnMonitor(info, highPriority, fade);
                     //this.monitors[i].browser.Document.InvokeScript("showInfo", new String[] { info });
                 }
             }
@@ -241,6 +246,11 @@ namespace RPS {
                                 this.config.Hide();
                             }
                         break;
+                        case Keys.S:
+                            if (this.config != Form.ActiveForm) {
+                                this.config.Activate();
+                            }
+                        break;
                     }
                 } else {
 		            Keys KeyCode = e.KeyCode;
@@ -270,7 +280,15 @@ namespace RPS {
                             for (int i = 0; i < this.monitors.Length; i++) {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                                     if (this.monitors[i].imagePath() != null) {
-                                        Process.Start("explorer.exe", "/e,/select," + this.monitors[i].imagePath());
+                                        if (e.Control) {
+                                            if (!File.Exists(this.config.getValue("externalEditor"))) {
+                                                this.monitors[i].showInfoOnMonitor("External editor: '" + this.config.getValue("externalEditor") + "' not found.", true, true);
+                                            } else {
+                                                Process.Start(this.config.getValue("externalEditor"), this.monitors[i].imagePath());
+                                            }
+                                        } else {
+                                            Process.Start("explorer.exe", "/e,/select," + this.monitors[i].imagePath());
+                                        }
                                     }
                                 }
                             }
@@ -281,6 +299,13 @@ namespace RPS {
                             for (int i = 0; i < this.monitors.Length; i++) {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                                     this.config.setValue("showFilenameM" + (i + 1), Convert.ToString(this.monitors[i].InvokeScript("toggle", new string[] { "#filename" })));
+                                }
+                            }
+                        break;
+                        case Keys.I:
+                            for (int i = 0; i < this.monitors.Length; i++) {
+                                if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
+                                    this.monitors[i].browser.Document.InvokeScript("identify");
                                 }
                             }
                         break;

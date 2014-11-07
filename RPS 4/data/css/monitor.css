@@ -1,0 +1,129 @@
+html, .card {
+	background-color: black; /* set through javascript from C# setting */
+}
+
+body {
+	margin: auto;
+	padding: 0;
+}
+
+.card {
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	overflow:hidden;
+}
+
+#rolodex {
+	z-index : 0;
+}
+
+embed {
+	z-index : 1;
+}
+
+.object.stretch {
+	width: 100%;
+	height: 100%;
+}
+
+.pano.image {
+	max-width: none;
+	max-height: none;
+	margin: 0px;
+}
+
+.image, .video, .object {
+	max-width:100%;
+	max-height:100%;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto;
+	overflow:hidden;
+}
+
+html, body {
+	height: 100%;
+	width: 100%;
+}
+
+.preview {
+	font-size: 20%;
+}
+
+.info {
+	position: absolute;
+	font-family: 'Segoe UI', Tahoma, sans-serif;
+	color: #FFFFFF;
+	text-shadow: 1px 1px #000000;
+}
+
+#identify {
+	z-index: 1000;
+	text-align:center;
+	font-size: 600px;
+	width: 100%;
+	max-width:100%;
+	max-height:100%;
+	margin:auto auto;
+	opacity: 0.5;
+	text-shadow: 10px 10px #000000;
+	display: none;
+	overflow:hidden;
+}
+
+#filename {
+	z-index: 100;
+	left: 0.5em;
+	top: 0.25em;
+}
+
+#dbinfo {
+	z-index: 90;
+	left: 0.5em;
+	bottom: 0.5em;
+}
+
+#quickMetadata {
+	z-index: 100;
+	right: 0.5em;
+	bottom: 0.5em;
+}
+
+#showinfo {
+	z-index: 80;
+	text-align: center;
+	bottom: 0.5em;
+	width: 100%;
+}
+
+#showpriorityinfo {
+	z-index: 90;
+	margin: auto;
+	position: absolute;
+	top: 40%;
+	width: 100%;
+	text-align: center;
+	font-size: 200%;
+}
+
+#clock {
+	font-size: 5em;
+	z-index: 90;
+	right: 0.25em;
+	top: -0.125em;
+}
+
+.animStart {
+	display: none;
+}
+
+.wait {
+	height: 16px;
+	width: 16px;
+	background-image: url("images/spinner.gif");
+	display: inline-block;
+}

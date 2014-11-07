@@ -246,3 +246,23 @@ label {
 .multi .multiOnly {
 	display: block;
 }
+
+.lowIEWarning {
+	display: none;
+}
+
+.IE8 .notIE8 {
+	display: none;
+}
+
+.onlyIE8 {
+	display: none;
+}
+
+.IE8 .onlyIE8 {
+	display: block;
+}
+
+.lowIE .lowIEWarning {
+	display: block;
+}

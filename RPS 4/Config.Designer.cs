@@ -32,7 +32,7 @@
             this.browser.Location = new System.Drawing.Point(0, 0);
             this.browser.MinimumSize = new System.Drawing.Size(20, 20);
             this.browser.Name = "browser";
-            this.browser.Size = new System.Drawing.Size(717, 571);
+            this.browser.Size = new System.Drawing.Size(837, 537);
             this.browser.TabIndex = 0;
             // 
             // Config
@@ -43,12 +43,11 @@
             this.Controls.Add(this.browser);
             this.Name = "Config";
             this.Text = "Configuration Random Photo Screensaver";
-            this.TopMost = true;
+            this.Deactivate += new System.EventHandler(this.Config_Deactivate);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Config_FormClosing);
             this.Shown += new System.EventHandler(this.Config_Shown);
             this.VisibleChanged += new System.EventHandler(this.Config_VisibleChanged);
             this.ResumeLayout(false);
-
 
         }
 

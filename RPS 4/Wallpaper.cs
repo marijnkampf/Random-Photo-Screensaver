@@ -122,7 +122,6 @@ namespace RPS {
                             bounds = Screen.AllScreens[i].Bounds;
                         }
 
-
                         g.FillRectangle(fill, bounds);
                         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                         g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
@@ -148,7 +147,6 @@ namespace RPS {
             if (File.Exists(wallpaperPath)) {
                 SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, wallpaperPath, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
                 this.screensaver.config.setValue("wallpaperLastChange", Convert.ToString(DateTime.Today));
-                Console.Beep();
             }
         }
     }

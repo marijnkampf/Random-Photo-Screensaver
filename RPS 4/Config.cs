@@ -56,7 +56,6 @@ namespace RPS {
             this.InitializeComponent();
             this.browser.ObjectForScripting = this;
             this.browser.AllowWebBrowserDrop = false;
-            this.TopMost = true;
             foreach (Screen screen in Screen.AllScreens) {
                 this.maxMonitorDimension = Math.Max(Math.Max(this.maxMonitorDimension, screen.Bounds.Width), screen.Bounds.Height);
             }
@@ -112,6 +111,27 @@ namespace RPS {
                 }
             }
             return null;
+        }
+
+        public void setBrowserBodyClasses(WebBrowser browser, Screensaver.Actions action) {
+            setBrowserBodyClasses(browser, action, null);
+        }
+
+        public static void setBrowserBodyClasses(WebBrowser browser, Screensaver.Actions action, string classes) {
+            HtmlElementCollection elems = browser.Document.GetElementsByTagName("body");
+            foreach (HtmlElement elem in elems) {
+                switch (action) {
+                    case Screensaver.Actions.Preview: classes += "preview"; break;
+                    case Screensaver.Actions.Config: classes += "config"; break;
+                    case Screensaver.Actions.Screensaver: classes += "screensaver"; break;
+                    case Screensaver.Actions.Test: classes += "test"; break;
+                    case Screensaver.Actions.Slideshow: classes += "slideshow"; break;
+                }
+                classes += " IE" + browser.Version.Major;
+                //if (browser.Version.Major < 8) 
+                    classes += " lowIE";
+                elem.SetAttribute("className", elem.GetAttribute("className") + classes);
+            }
         }
 
         public void loadPersistantConfig() {
@@ -186,21 +206,9 @@ namespace RPS {
                 e.SetAttribute("value", this.persistant[e.GetAttribute("id")]);
             }
 
-
-            HtmlElementCollection elems = this.browser.Document.GetElementsByTagName("body");
-            foreach (HtmlElement elem in elems) {
-                string classes = "";
-                switch (this.screensaver.action) {
-                    case Screensaver.Actions.Preview: classes += "preview"; break;
-                    case Screensaver.Actions.Config: classes += "config"; break;
-                    case Screensaver.Actions.Screensaver: classes += "screensaver"; break;
-                    case Screensaver.Actions.Test: classes += "test"; break;
-                    case Screensaver.Actions.Slideshow: classes += "slideshow"; break;
-                }
-                if (nrMonitors > 1) classes += " multi";
-                elem.SetAttribute("className", elem.GetAttribute("className") + classes);
-                classes = null;
-            }
+            string classes= null;
+            if (nrMonitors > 1) classes += " multi";
+            Config.setBrowserBodyClasses(this.browser, this.screensaver.action, classes);
 
             this.browser.Document.InvokeScript("persistantConfigLoaded", new string[] { Convert.ToString(Screen.AllScreens.Length) });
 
@@ -597,6 +605,11 @@ namespace RPS {
             }
 
 
+        }
+
+        private void Config_Deactivate(object sender, EventArgs e) {
+            this.screensaver.configHidden = true;
+            this.Hide();
         }
     }
 }

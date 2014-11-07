@@ -99,21 +99,11 @@ namespace RPS {
             //MessageBox.Show("Monitor Document Completed: " + Constants.getDataFolder(Constants.ConfigHtmlFile));
 
             if (this.browser.Url.Segments.Last().Equals(Constants.MonitorHtmlFile)) {
-                HtmlElementCollection elems = this.browser.Document.GetElementsByTagName("body");
-                foreach (HtmlElement elem in elems) {
-                    string classes = "monitor" + (this.id+1);
-                    if (this.screensaver.monitors.Length > 1) classes += " multimonitor";
-                    classes += " ";
-                    switch (this.screensaver.action) {
-                        case Screensaver.Actions.Preview: classes += "preview"; break;
-                        case Screensaver.Actions.Config: classes += "config"; break;
-                        case Screensaver.Actions.Screensaver: classes += "screensaver"; break;
-                        case Screensaver.Actions.Test: classes += "test"; break;
-                        case Screensaver.Actions.Slideshow: classes += "slideshow"; break;
-                    }
-                    elem.SetAttribute("className", elem.GetAttribute("className") + classes);
-                    classes = null;                    
-                }
+
+                string classes = "monitor" + (this.id + 1);
+                if (this.screensaver.monitors.Length > 1) classes += " multimonitor";
+                Config.setBrowserBodyClasses(this.browser, this.screensaver.action, classes);
+                
                 this.browser.Document.GetElementById("identify").InnerText = Convert.ToString(this.id+1);
                 this.browser.Show();
                 // Focus browser to ensure key strokes are previewed
@@ -357,10 +347,6 @@ namespace RPS {
                             this.imageSettings["pano.width"] = pano.Width;
                             this.imageSettings["pano.height"] = pano.Height;
 
-                            this.imageSettings["metadata"] += "Pano: " + this.imageSettings["pano.left"] + ", " + this.imageSettings["pano.top"] + ", " + this.imageSettings["pano.width"] + ", " + this.imageSettings["pano.height"] + ";";
-                            /*if (this.panoramaPart <= 0) {
-
-                            }*/
                             if (this.id == 0) {
                                 for (int i = 1; i < this.screensaver.monitors.Length; i++) {
                                     if (this.screensaver.monitors[i] != null) this.screensaver.monitors[i].trySetNextImage(Convert.ToInt32(this.currentImage["id"]));
@@ -397,12 +383,14 @@ namespace RPS {
                             this.imageSettings["rawCached"] = e.Result;
                         }
                         //metadata += " " + this.imageSettings["exifRotate"] + " " + this.Bounds.ToString();
-                        this.showInfoOnMonitor(this.info, false, true);
+                        //this.showInfoOnMonitor(this.info, false, true);
                         this.browser.Document.InvokeScript("showImage", new Object[] { e.Result, Convert.ToString(this.currentImage["path"]), JsonConvert.SerializeObject(this.imageSettings) });
                     };
                     string path = "";
                     object[] prms = new object[] { path };
-                    this.info = this.showInfoOnMonitor("Converting from RAW to JPEG <span class='wait'></span>", false, false);
+                    if (this.screensaver.config.getCheckboxValue("rawUseConverter") && (this.screensaver.config.getValue("rawExtensions").IndexOf(Path.GetExtension(Convert.ToString(this.currentImage["path"])).ToLower()) > -1)) {
+                        this.info = this.showInfoOnMonitor("Converting from RAW to JPEG <span class='wait'></span>", false, false);
+                    }
 
                     bgw.RunWorkerAsync(prms);
 
@@ -422,7 +410,6 @@ namespace RPS {
         public bool fileExistsOnDisk(DataRow dr) {
             if (dr == null) return true;
             if (!File.Exists(Convert.ToString(dr["path"]))) {
-                Console.Beep();
                 this.screensaver.fileNodes.deleteFromDB(Convert.ToInt32(dr["id"]));
                 return false;
             }

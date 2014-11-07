@@ -350,7 +350,6 @@ $(function(){
 		});
 	});
 
-
 	$(".toggleTreeTextareas").click(function() {
 		$("#textareas textarea").height($("#foldersFancyTree").height());
 		if ($("#tree").is(":visible")) {

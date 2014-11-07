@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Windows.Forms;
+using System.Drawing;
 
 namespace RPS {
     static class Constants {
@@ -78,6 +79,38 @@ CREATE TABLE `Setting` (
 
 CREATE UNIQUE INDEX `keys` ON `Setting` (`key` ASC);
         ";
+
+        public static Rectangle getDesktopBounds() {
+            Rectangle r = Screen.AllScreens[0].Bounds;
+            for (int i = 1; i < Screen.AllScreens.Length; i++) {
+                r = Rectangle.Union(r, Screen.AllScreens[i].Bounds);
+            }
+            return r;
+        }
+
+        public static Rectangle FitIntoBounds(Rectangle image, Rectangle boundingBox, bool stretchSmall) {
+            Rectangle r = boundingBox;
+            double rw, rh;
+            rw = (double)boundingBox.Width / (double)image.Width;
+            rh = (double)boundingBox.Height / (double)image.Height;
+            if (!stretchSmall && rw > 1 && rh > 1) {
+                r.Width = image.Width;
+                r.Height = image.Height;
+            } else {
+                if (rw < rh) {
+                    r.Width = (int)Math.Round((double)image.Width * rw);
+                    r.Height = (int)Math.Round((double)image.Height * rw);
+                } else {
+                    r.Width = (int)Math.Round((double)image.Width * rh);
+                    r.Height = (int)Math.Round((double)image.Height * rh);
+                }
+            }
+            r.X = boundingBox.X + (int)(boundingBox.Width - r.Width) / 2;
+            r.Y = boundingBox.Y + (int)(boundingBox.Height - r.Height) / 2;
+            return r;
+        }
+
+
 
         /**
          * path: should contain full path and filename

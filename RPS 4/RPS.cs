@@ -29,6 +29,8 @@ namespace RPS {
         public Actions action;
         public Config config;
         public Monitor[] monitors;
+        public Rectangle Desktop;
+        public float desktopRatio;
         public FileNodes fileNodes;
 
         private Screensaver(Actions action, IntPtr[] hwnds) {
@@ -100,7 +102,10 @@ namespace RPS {
                             this.monitors[i].Show();
                             i++;
                         }
+                        
                     }
+                    this.Desktop = Constants.getDesktopBounds();
+                    this.desktopRatio = Desktop.Width / Desktop.Height;
                 }
             }
         }
@@ -201,6 +206,7 @@ namespace RPS {
                 //for (int i = (this.monitors.Length - 1); i >= 0 ; i--) {
                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                     this.monitors[i].timer.Stop();
+                    //if (i > 0) this.monitors[i].imageSettings["pano"] = false;
                     this.monitors[i].previousImage(step);
                     string s = "";
                     if (step > 1) s = " x " + step;

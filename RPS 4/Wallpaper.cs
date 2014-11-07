@@ -29,14 +29,6 @@ namespace RPS {
 //            this.setWallpaper();
         }
 
-        public Rectangle getDesktopBounds() {
-            Rectangle r = Screen.AllScreens[0].Bounds;
-            for(int i = 1; i < Screen.AllScreens.Length; i++) {
-                r = Rectangle.Union(r, Screen.AllScreens[i].Bounds);
-            }
-            return r;
-        }
-
         public bool changeWallpaper() {
             switch(this.screensaver.config.getRadioValue("wallpaperChange")) {
                 case "never": 
@@ -47,29 +39,6 @@ namespace RPS {
                 break;
             }
             return true;
-        }
-
-        // ToDo: Move to separate helper class? Extend Rectangle?
-        public static Rectangle FitIntoBounds(Rectangle image, Rectangle boundingBox, bool stretchSmall) {
-            Rectangle r = boundingBox;
-            double rw, rh;
-            rw = (double)boundingBox.Width / (double)image.Width;
-            rh = (double)boundingBox.Height / (double)image.Height;
-            if (!stretchSmall && rw > 1 && rh > 1) {
-                r.Width = image.Width;
-                r.Height = image.Height;
-            } else {
-                if (rw < rh) {
-                    r.Width = (int)Math.Round((double)image.Width * rw);
-                    r.Height = (int)Math.Round((double)image.Height * rw);
-                } else {
-                    r.Width = (int)Math.Round((double)image.Width * rh);
-                    r.Height = (int)Math.Round((double)image.Height * rh);
-                }
-            }
-            r.X = boundingBox.X + (int)(boundingBox.Width - r.Width) / 2;
-            r.Y = boundingBox.Y + (int)(boundingBox.Height - r.Height) / 2;
-            return r;
         }
 
         public void setWallpaper() {
@@ -110,7 +79,7 @@ namespace RPS {
         public void setWallpaper(long monitor, string[] paths) {
             // Wallpaper will have exact size of monitors so wallpaper style (Tile, Center, Stretch, Fit, Fill) shouldn't matter
             string wallpaperPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Constants.AppFolderName, Constants.WallpaperFileName);
-            Rectangle r = this.getDesktopBounds();
+            Rectangle r = Constants.getDesktopBounds();
             Bitmap wallpaper  = new Bitmap(r.Width, r.Height);
             Graphics g = Graphics.FromImage(wallpaper);
             GraphicsUnit units = GraphicsUnit.Pixel;
@@ -141,19 +110,31 @@ namespace RPS {
                         this.screensaver.monitors[0].showInfoOnMonitor("File not found '" + paths[i] + "' for wallpaper");
                     }
                     if (readSuccess) {
-                        g.FillRectangle(fill, Screen.AllScreens[i].Bounds);
+                        float imgRatio = (float)image.Width / (float)image.Height;
+                        string path = paths[i];
+                        // Panorama
+                        Rectangle bounds;
+                        if (i == 0 && this.screensaver.config.getCheckboxValue("stretchPanoramas") && imgRatio >= this.screensaver.desktopRatio) {
+                            // ToDo: Stretch wallpaper parts to fit monitor(s)
+                            bounds = this.screensaver.Desktop;
+                            i = Screen.AllScreens.Length;
+                        } else {
+                            bounds = Screen.AllScreens[i].Bounds;
+                        }
+
+
+                        g.FillRectangle(fill, bounds);
                         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                         g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g.DrawImage(image, Wallpaper.FitIntoBounds(Rectangle.Round(image.GetBounds(ref units)), Screen.AllScreens[i].Bounds, this.screensaver.config.getCheckboxValue("wallpaperStretchSmall")));
+                        g.DrawImage(image, Constants.FitIntoBounds(Rectangle.Round(image.GetBounds(ref units)), bounds, this.screensaver.config.getCheckboxValue("wallpaperStretchSmall")));
                         if (this.screensaver.config.getCheckboxValue("wallpaperFilenames")) {
                             // ToDo: Get font settings from config.html
                             Font font = new Font("Arial", 10);
-                            g.DrawString(paths[i], font, new SolidBrush(Color.Black), Screen.AllScreens[i].Bounds.Left + 1, Screen.AllScreens[i].Bounds.Top + 1);
-                            g.DrawString(paths[i], font, new SolidBrush(Color.White), Screen.AllScreens[i].Bounds.Left, Screen.AllScreens[i].Bounds.Top);
+                            g.DrawString(path, font, new SolidBrush(Color.Black), bounds.Left + 1, bounds.Top + 1);
+                            g.DrawString(path, font, new SolidBrush(Color.White), bounds.Left, bounds.Top);
                         }
                     }
                 }
-                //this.screensaver.config.getCheckboxValue("wallpaperStretchSmall")
             }
             if (!Directory.Exists(Path.GetDirectoryName(wallpaperPath))) {
                 if (DialogResult.OK != MessageBox.Show("Create folder '"+Path.GetDirectoryName(wallpaperPath)+"'>\n\nOk: Creates folder for backgrounds\nCancel doesn't change background image.", "Installation folder for background not found!", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation)) {

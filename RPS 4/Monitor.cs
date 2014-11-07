@@ -38,7 +38,10 @@ namespace RPS {
 
         public bool paused = false;
 
+        public bool panoramaPart = false;
+
         public DataRow currentImage;
+        //string metadata;
         MetadataTemplate quickMetadata;
         Hashtable imageSettings = new Hashtable();
 
@@ -134,23 +137,11 @@ namespace RPS {
             }
         }
 
-        public void debug(string s) {
-//            if (InvokeRequired) {
-                //Invoke(new GetStringHandler(this.browser.Document.InvokeScript("test", new String[] { s }));
-                this.browser.Invoke(new Action(() => {
-                    //this.browser.Document.InvokeScript("test", new String[] { s });
-                    this.browser.Document.Write(s + "<br/>");
-                }));
-  /*          } else {
-                this.browser.Document.InvokeScript("test", new String[] { s });
-            }*/
-        }
-
         private void Monitor_Load(object sender, EventArgs e) {
             this.browser.AllowWebBrowserDrop = false;
             this.browser.ObjectForScripting = this;
-            this.nextImage();
-            if (this.currentImage != null) this.setTimerInterval();
+
+            this.timer.Interval = 1;
             this.startTimer();
         }
 
@@ -285,8 +276,8 @@ namespace RPS {
                 // Swap width, height values
                 // Determine size ratio between un-rotated and rotated image
                 if (width > this.Bounds.Width || height > this.Bounds.Height) {
-                    Rectangle newR = Wallpaper.FitIntoBounds(new Rectangle(this.Bounds.Location, new Size(width, height)), this.Bounds, false);
-                    Rectangle oldR = Wallpaper.FitIntoBounds(new Rectangle(this.Bounds.Location, new Size(height, width)), this.Bounds, false);
+                    Rectangle newR = Constants.FitIntoBounds(new Rectangle(this.Bounds.Location, new Size(width, height)), this.Bounds, false);
+                    Rectangle oldR = Constants.FitIntoBounds(new Rectangle(this.Bounds.Location, new Size(height, width)), this.Bounds, false);
                     this.imageSettings["resizeRatio"] = (float)oldR.Height / newR.Width;
                 }
                 this.quickMetadata.metadata["image width"] = Convert.ToString(width);
@@ -295,12 +286,13 @@ namespace RPS {
             return Convert.ToInt32(this.imageSettings["resizeRatio"]);
         }
 
-        public void showImage(bool animated) {
+        public void readMetadataImage() {
             if (this.currentImage != null) {
-                string metadata = "";
+                //string metadata = "";
                 string rawMetadata = null;
 
                 this.imageSettings.Clear();
+                this.imageSettings["metadata"] = "";
 
                 if (this.currentImage.Table.Columns.Contains("all")) {
                     rawMetadata = Convert.ToString(this.currentImage["all"]);
@@ -310,13 +302,13 @@ namespace RPS {
                         try {
                             rawMetadata = this.screensaver.fileNodes.exifToolGetMetadata(Convert.ToString(this.currentImage["path"]) + Constants.ExifToolMetadataOptions, Convert.ToInt32(this.currentImage["id"]));
                         } catch (System.IO.FileNotFoundException fnfe) {
-                            metadata = "ExifTool not found: '" + this.screensaver.config.getValue("exifTool") + "'";
+                            this.imageSettings["metadata"] = "ExifTool not found: '" + this.screensaver.config.getValue("exifTool") + "'";
                         }
                     }
                 }
                 if (rawMetadata != null && rawMetadata != "") {
                     this.quickMetadata = new MetadataTemplate(rawMetadata, this.screensaver.config.getValue("quickMetadata"));
-                    metadata = this.quickMetadata.fillTemplate();
+                    this.imageSettings["metadata"] = this.quickMetadata.fillTemplate();
                 }
                 this.imageSettings["mediatype"] = "image";
                 if (this.screensaver.config.getValue("videoExtensions").IndexOf(Path.GetExtension(Convert.ToString(this.currentImage["path"]).ToLower())) > -1) {
@@ -327,7 +319,6 @@ namespace RPS {
                         this.imageSettings["mediatype"] = "object";
                     break;
                 }
-                this.imageSettings["animated"] = Convert.ToString(animated).ToLower();
                 switch (Convert.ToString(this.imageSettings["mediatype"])) {
                     case "image":
                         this.imageSettings["stretchSmallImages"] = this.screensaver.config.getCheckboxValue("stretchSmallImages");
@@ -351,6 +342,35 @@ namespace RPS {
                                 }
                             }
                         }
+                        int width = Convert.ToInt32(this.quickMetadata.metadata["image width"]);
+                        int height = Convert.ToInt32(this.quickMetadata.metadata["image height"]);
+                        float imgRatio = (float)width / (float)height;
+                        if (this.screensaver.config.getCheckboxValue("stretchPanoramas") && imgRatio >= this.screensaver.desktopRatio) {
+                            Rectangle pano = Constants.FitIntoBounds(new Rectangle(0, 0, width, height), this.screensaver.Desktop, false);
+                            this.imageSettings["pano"] = true;
+                            if (this.id != 0 && this.Bounds.Height != this.screensaver.monitors[0].Bounds.Height) {
+                                this.imageSettings["pano.top"] = (this.Bounds.Height - pano.Height) / 2;//pano.Y - this.Bounds.Y;
+                            } else {
+                                this.imageSettings["pano.top"] = pano.Y - this.Bounds.Y;
+                            }
+                            this.imageSettings["pano.left"] = pano.X - this.Bounds.X;
+                            this.imageSettings["pano.width"] = pano.Width;
+                            this.imageSettings["pano.height"] = pano.Height;
+
+                            this.imageSettings["metadata"] += "Pano: " + this.imageSettings["pano.left"] + ", " + this.imageSettings["pano.top"] + ", " + this.imageSettings["pano.width"] + ", " + this.imageSettings["pano.height"] + ";";
+                            /*if (this.panoramaPart <= 0) {
+
+                            }*/
+                            if (this.id == 0) {
+                                for (int i = 1; i < this.screensaver.monitors.Length; i++) {
+                                    if (this.screensaver.monitors[i] != null) this.screensaver.monitors[i].trySetNextImage(Convert.ToInt32(this.currentImage["id"]));
+                                }
+                            }
+                        } else {
+                            for (int i = 0; i < this.screensaver.monitors.Length; i++) {
+                                this.screensaver.monitors[i].panoramaPart = false;
+                            }
+                        }
                     break;
                     case "object": case "video":
                         this.imageSettings["stretchSmallVideos"] = this.screensaver.config.getCheckboxValue("stretchSmallVideos");
@@ -359,6 +379,12 @@ namespace RPS {
                         this.imageSettings["mute"] = this.screensaver.config.getCheckboxValue("videosMute");
                     break;
                 }
+            }
+        }
+
+        public void showImage(bool animated) {
+            if (this.currentImage != null) {
+                this.imageSettings["animated"] = Convert.ToString(animated).ToLower();
                 try {
                     var bgw = new BackgroundWorker();
                     bgw.DoWork += (object sender, DoWorkEventArgs e) => {
@@ -370,9 +396,9 @@ namespace RPS {
                             this.imageSettings["resizeRatio"] = 1;
                             this.imageSettings["rawCached"] = e.Result;
                         }
-                        metadata += " " + this.imageSettings["exifRotate"] + " " + this.Bounds.ToString();
+                        //metadata += " " + this.imageSettings["exifRotate"] + " " + this.Bounds.ToString();
                         this.showInfoOnMonitor(this.info, false, true);
-                        this.browser.Document.InvokeScript("showImage", new Object[] { e.Result, Convert.ToString(this.currentImage["path"]), metadata, JsonConvert.SerializeObject(this.imageSettings) });
+                        this.browser.Document.InvokeScript("showImage", new Object[] { e.Result, Convert.ToString(this.currentImage["path"]), JsonConvert.SerializeObject(this.imageSettings) });
                     };
                     string path = "";
                     object[] prms = new object[] { path };
@@ -408,8 +434,10 @@ namespace RPS {
                 this.offset += i;
                 //this.seedImage = this.currentImage;
                 this.currentImage = this.screensaver.fileNodes.getImageById(Convert.ToInt32(this.seedImageId), this.offset);
+                this.readMetadataImage();
                 return this.currentImage;
             } else {
+                // this.readMetadataImage() called in methods below;
                 if (i > 0) return this.nextImage();
                 else return this.previousImage();
             }
@@ -448,6 +476,7 @@ namespace RPS {
                 this.currentImage = this.screensaver.fileNodes.getSequentialImage(this.id, offset);
             }
             if (!fileExistsOnDisk(this.currentImage)) return this.previousImage();
+            this.readMetadataImage();
             return this.currentImage;
         }
 
@@ -477,10 +506,28 @@ namespace RPS {
                 }
             } else {
                 //int offset = 1;
-                this.currentImage = this.screensaver.fileNodes.getSequentialImage(this.id, step);
+                if (this.panoramaPart) {
+                    this.currentImage = this.screensaver.monitors[0].currentImage;
+                } else {
+                    this.currentImage = this.screensaver.fileNodes.getSequentialImage(this.id, step);
+                }
             }
             if (!fileExistsOnDisk(this.currentImage)) return this.nextImage();
+            this.readMetadataImage();
             return this.currentImage;
+        }
+
+        public bool trySetNextImage(long seedImageId) {
+            if (this.screensaver.config.getOrder() == Config.Order.Random) {
+                if (this.historyPointer == this.history.Count()-1) {
+                    this.history.Add(seedImageId);
+                    return true;
+                } else return false;
+            } else {
+                this.panoramaPart = true;
+            }
+
+            return false;
         }
 
         public void setTimerInterval() {

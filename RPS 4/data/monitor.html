@@ -36,6 +36,12 @@
 			height: 100%;
 		}
 
+		.pano.image {
+			max-width: none;
+			max-height: none;
+			margin: 0px;
+		}
+
 		.image, .video, .object {
 			max-width:100%;
 			max-height:100%;
@@ -147,34 +153,32 @@
 				  "settings":{"animated": "true", "mediatype": "image"}
 				},
 				{
+					"source": "file://F:\\tests\\panorama\\9227-9230 Wide view of the castle.jpg",
+				  "settings":{"metadata": "no meta","animated": "true", "mediatype": "image"}
+				},
+				{
 					"source": "file://F:\\photos\\Wales 2003\\Bath\\movies\\MVI_2312.AVI",
-				  "metadata": "no meta",
-				  "settings":'{"animated": "true", "mediatype": "video","stretchSmallVideos":"false"}'
+				  "settings":'{"metadata": "no meta","animated": "true", "mediatype": "video","stretchSmallVideos":"false"}'
 				},
 				{
 					"source": "file://F:\\photos\\Wales 2003\\Brecon Beacons\\thumbs\\1942.jpg",
-				  "metadata": "no meta",
-				  "settings":'{"animated": "true", "mediatype": "image"}'
+				  "settings":'{"metadata": "no meta","animated": "true", "mediatype": "image"}'
 				},
 				{
 					"source": "file://F:\\photos\\Wales 2003\\Angel\\2788 Angel.jpg",
-				  "metadata": "no meta",
-				  "settings":'{"animated": "true", "mediatype": "image"}'
+				  "settings":'{"metadata": "no meta","animated": "true", "mediatype": "image"}'
 				},
 				{
 					"source": "file://F:\\photos\\2014\\20140201 Reel Big Fish and Less Than Jake\\20140201_212242 Reel Big Fish - Nirvana.mp4",
-				  "metadata": "no meta",
-				  "settings":'{"animated": "true", "mediatype": "video"}'
+				  "settings":'{"metadata": "no meta","animated": "true", "mediatype": "video"}'
 				},
 				{
 					"source": "file://F:\\photos\\Wales 2003\\Angel\\thumbs\\2789 Angel Halo.jpg",
-				  "metadata": "no meta",
-				  "settings":'{"animated": "true", "mediatype": "image"}'
+				  "settings":'{"metadata": "no meta","animated": "true", "mediatype": "image"}'
 				},
 				{
 					"source": "file://F:\\photos\\Wales 2003\\Angel\\thumbs\\2788 Angel.jpg",
-				  "metadata": "no meta",
-				  "settings":'{"animated": "true", "mediatype": "image"}'
+				  "settings":'{"metadata": "no meta","animated": "true", "mediatype": "image"}'
 				}
 			);
 
@@ -182,7 +186,7 @@
 				i++;
 				if (i >= a.length) i = 0;
 				console.log(a[i]["source"]);
-				showImage(a[i]["source"], a[i]["source"], a[i]["metadata"], a[i]["settings"]);
+				showImage(a[i]["source"], a[i]["source"], a[i]["settings"]);
 				//identify();
 			}
 		}
@@ -288,11 +292,11 @@ function beep() {
 			$(".card .image").last().attr("style", "transform:rotate(" + deg + "deg) scale(" + scale + ");");
 		}
 
-		var g_source, g_displayPath, g_metadata, g_settings;
+		var g_source, g_displayPath, g_settings;
 
 		function useBackupVideoSolution(me) {
 			g_settings.mediatype = "object";
-			showImage(g_source, g_displayPath, g_metadata, g_settings);
+			showImage(g_source, g_displayPath, g_settings);
 		}
 
 		function getVideoObjectElement(source, settings) {
@@ -319,7 +323,7 @@ function beep() {
 			return html;
 		}
 
-		function showImage(source, displayPath, metadata, settings) {
+		function showImage(source, displayPath, settings) {
 			if (typeof settings == "string") settings = JSON.parse(settings);
 
 			var html = '';
@@ -328,20 +332,32 @@ function beep() {
 
 			g_source = source;
 			g_displayPath = displayPath;
-			g_metadata = metadata;
 			g_settings = settings;
 
 			switch(settings.mediatype) {
 				case "image":
 					style = '';
+					classes = '';
 					if ((settings.exifRotate != undefined && settings.exifRotate != 0) || (settings.resizeRatio != undefined && settings.resizeRatio != 1)) {
 						if (settings.exifRotate == undefined) settings.exifRotate = 0;
 						if (settings.resizeRatio == undefined) settings.resizeRatio = 1;
 						style='transform:rotate(' + settings.exifRotate + 'deg) scale(' + settings.resizeRatio + ');';
 					}
+					if (settings["pano"] != undefined && settings["pano"] == true) {
+						classes += 'pano ';
+						style +=
+							'width: ' + settings["pano.width"] + 'px;'+
+							'height: ' + settings["pano.height"] + 'px;'+
+							'left: ' + settings["pano.left"] + 'px;'+
+							'top: ' + settings["pano.top"] + 'px;'
+						;
+
+					}
 					html = '<img ';
 					if (style != '') html += 'style="' + style + '"';
-					html += 'class="image media" src="' + source + '"/>';
+					html += 'class="image ' + classes +'media" src="' + source + '"/>';
+					//alert(html);
+					//window.clipboardData.setData("Text", html);
 					if (settings.stretchSmallImages) stretch = true;
 				break;
 				case "video":
@@ -357,6 +373,7 @@ function beep() {
 				break;
 			}
 
+//html = '<img style="width: 3360px;height: 738px;left: 0px;top: 171px;"class="image pano media" src="F:\\tests\\panorama\\SX20484-94 Panorama inner court Harlech Castle.jpg"/>';
 			card = $("<div class='card stretch'>" + html + "</div>").hide();
 			//card = $(html).hide();
 			//card = $(html).show();
@@ -393,7 +410,12 @@ function beep() {
 			}
 
 			document.getElementById("filename").innerText = displayPath;
-			document.getElementById("quickMetadata").innerText = metadata;
+			document.getElementById("quickMetadata").innerText = settings["metadata"];
+
+			if (settings["pano"] != undefined && settings["pano"] == true) {
+//				window.prompt("Copy to clipboard: Ctrl+C, Enter", html);
+			}
+
 		}
 
 		function resize() {

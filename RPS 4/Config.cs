@@ -44,7 +44,7 @@ namespace RPS {
         private string folderChanged = null;
         private bool excludeAllSubfolders;
 
-        public long maxScreenSize = 0;
+        public long maxMonitorDimension = 0;
 
 
         //public WebBrowser browser;
@@ -58,7 +58,7 @@ namespace RPS {
             this.browser.AllowWebBrowserDrop = false;
             this.TopMost = true;
             foreach (Screen screen in Screen.AllScreens) {
-                this.maxScreenSize = Math.Max(Math.Max(this.maxScreenSize, screen.Bounds.Width), screen.Bounds.Height);
+                this.maxMonitorDimension = Math.Max(Math.Max(this.maxMonitorDimension, screen.Bounds.Width), screen.Bounds.Height);
             }
         }
 

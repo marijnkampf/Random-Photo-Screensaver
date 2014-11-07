@@ -257,7 +257,7 @@ namespace RPS {
             // Hide raw file
             string size = "";
             if (this.config.getRadioValue("rawCacheSize") == "monitor") {
-                size = "--size=" + this.config.maxScreenSize;// Get screen max dimensions!!!
+                size = "--size=" + this.config.maxMonitorDimension;// Get screen max dimensions!!!
 
             }
             System.Threading.Thread.Sleep(250);

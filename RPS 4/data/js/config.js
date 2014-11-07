@@ -342,9 +342,12 @@ $(function(){
 	});
 
 	$(".expandSelected").click(function() {
-			$.each($("#foldersFancyTree").fancytree("getTree").getSelectedNodes(true), function(node){
-				this.makeVisible(true);
-			});
+		if (!$("#tree").is(":visible")) {
+			$(".toggleTreeTextareas").click();
+		}
+		$.each($("#foldersFancyTree").fancytree("getTree").getSelectedNodes(true), function(node){
+			this.makeVisible(true);
+		});
 	});
 
 

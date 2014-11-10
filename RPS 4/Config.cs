@@ -32,6 +32,7 @@ namespace RPS {
     [System.Runtime.InteropServices.ComVisibleAttribute(true)]
 
     public partial class Config : Form {
+
         public enum Order { Random, Sequential };
 
         private Dictionary<string, string> persistant;
@@ -46,6 +47,7 @@ namespace RPS {
 
         public long maxMonitorDimension = 0;
 
+        public jsonFolder effects;
 
         //public WebBrowser browser;
 
@@ -113,6 +115,15 @@ namespace RPS {
             return null;
         }
 
+        public void jsSetSelectedEffects(string jsonEffects) {
+            this.effects = JsonConvert.DeserializeObject<jsonFolder>(jsonEffects);
+            this.persistant["effects"] = jsonEffects;
+        }
+
+        public string jsGetSelectedEffects() {
+            return JsonConvert.SerializeObject(this.effects);
+        }
+
         public void setBrowserBodyClasses(WebBrowser browser, Screensaver.Actions action) {
             setBrowserBodyClasses(browser, action, null);
         }
@@ -140,7 +151,6 @@ namespace RPS {
         }
 
         public void loadPersistantConfig(int nrMonitors) {
-
             this.browser.Document.InvokeScript("initMonitors", new string[] { Convert.ToString(Screen.AllScreens.Length) });
             //SQLiteConnection connection = 
             this.connectToDB();
@@ -178,6 +188,22 @@ namespace RPS {
                 }
             }
 
+            if (!this.persistant.ContainsKey("effects") || this.persistant["effects"] == null || this.persistant["effects"] == "null" || this.persistant["effects"].Trim().Length == 0) {
+                // Load from effects.json
+                string path = Constants.getDataFolder(Constants.EffectsJsonFile);
+                if (File.Exists(path)) {
+                    //this.effects = new jsonFolder();
+                    JsonSerializer serializer = new JsonSerializer();
+                    serializer.NullValueHandling = NullValueHandling.Ignore;
+                    using (StreamReader sr = new StreamReader(path))
+                    using (JsonReader reader = new JsonTextReader(sr)) {
+                        this.effects = serializer.Deserialize<jsonFolder>(reader);
+                    }
+                }
+            } else {
+                this.effects = JsonConvert.DeserializeObject<jsonFolder>(this.persistant["effects"]);
+            }
+
             HtmlElementCollection hec = this.GetElementsByTagName("input");
             foreach (HtmlElement e in hec) {
                 if (this.persistant.ContainsKey(e.GetAttribute("id")) || (e.GetAttribute("type") == "radio" && this.persistant.ContainsKey(e.GetAttribute("name")))) {
@@ -207,7 +233,7 @@ namespace RPS {
             }
 
             string classes= null;
-            if (nrMonitors > 1) classes += " multi";
+            if (nrMonitors > 1) classes += " multi ";
             Config.setBrowserBodyClasses(this.browser, this.screensaver.action, classes);
 
             this.browser.Document.InvokeScript("persistantConfigLoaded", new string[] { Convert.ToString(Screen.AllScreens.Length) });
@@ -215,6 +241,8 @@ namespace RPS {
         }
 
         public void safePersistantConfig() {
+            this.persistant["effects"] = JsonConvert.SerializeObject(this.effects);
+
             HtmlElementCollection hec = this.GetElementsByTagName("input");
             foreach (HtmlElement e in hec) {
                 switch (e.GetAttribute("type")) {
@@ -232,11 +260,11 @@ namespace RPS {
                 }
             }
                
-
             hec = this.browser.Document.GetElementsByTagName("textarea");
             foreach (HtmlElement e in hec) {
                 this.persistant[e.GetAttribute("id")] = e.GetAttribute("value");
             }
+
 
             //SQLiteConnection connection = this.connectToDB();
 /*
@@ -437,6 +465,26 @@ namespace RPS {
             return JsonConvert.SerializeObject(this.getFolder(folder));
         }
 
+        public string getEffectsJSON() {
+            return JsonConvert.SerializeObject(this.effects);
+
+        }
+
+        public string getRandomEffect() {
+            string json = null;
+            if (this.getCheckboxValue("useTransitions") && this.effects != null) {
+                jsonFolder effect = jsonFolder.getRandomSelected(this.effects.children);
+                jsonFolder direction = null;
+                json += "{\"effect\":\"" + effect.key + "\"";
+                if (effect.children.Count > 0) {
+                    direction = jsonFolder.getRandomSelected(effect.children);
+                    if (direction != null) json += ", \"direction\":\"" + direction.title.ToLower() + "\"";
+                }
+                json += ", \"duration\":1000}";
+            }
+            return json;
+        }
+
         public string InvokeScriptOnMonitor(int monitor, string script, string parameters) {
             string s = null;
             for (int i = 0; i < this.screensaver.monitors.Length; i++) {
@@ -587,6 +635,7 @@ namespace RPS {
 
         private void Config_Shown(object sender, EventArgs e) {
             this.browser.Document.InvokeScript("initFancyTreeFolder");
+            this.browser.Document.InvokeScript("initFancyTreeTransitions");
         }
 
         private void Config_VisibleChanged(object sender, EventArgs e) {
@@ -594,7 +643,7 @@ namespace RPS {
                 // Showing
                 this.folderChanged = this.getValue("folders");
                 this.excludeAllSubfolders = this.getCheckboxValue("excludeAllSubfolders");
-            } else {
+            } else if (this.screensaver.action != Screensaver.Actions.Config) {
                 // Hiding
                 if (this.folderChanged != this.getValue("folders") || this.excludeAllSubfolders != this.getCheckboxValue("excludeAllSubfolders")) {
                     //this.screensaver.fileNodes.purgeNotMatchingParentFolders(this.getValue("folders"));

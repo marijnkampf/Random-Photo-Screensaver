@@ -20,6 +20,7 @@ namespace RPS {
     [System.Runtime.InteropServices.ComVisibleAttribute(true)]
 
     public partial class Monitor : Form {
+        static Random rnd = new Random();
         private int id;
         private Screensaver screensaver;
 
@@ -377,6 +378,9 @@ namespace RPS {
         public void showImage(bool animated) {
             if (this.currentImage != null) {
                 this.imageSettings["animated"] = Convert.ToString(animated).ToLower();
+                if (animated) {
+                    this.imageSettings["effect"] = this.screensaver.config.getRandomEffect();
+                }
                 try {
                     var bgw = new BackgroundWorker();
                     bgw.DoWork += (object sender, DoWorkEventArgs e) => {
@@ -535,7 +539,7 @@ namespace RPS {
                 if (this.screensaver.config.getCheckboxValue("variableTimeout")) {
                     int min;
                     int max;
-                    Random rnd = new Random();
+                    rnd.Next();
                     try {
                         min = Math.Min(timeout, Convert.ToInt32(this.screensaver.config.getValue("timeoutMax")) * 1000);
                     } catch (Exception e) {

@@ -119,6 +119,32 @@ function initFancyTreeFolder() {
 	});
 }
 
+function initFancyTreeTransitions() {
+	$("#transitionsFancyTree").fancytree({
+		extensions: ["menu", "rps"/*"excludedSubfolders"/*, "filter"*/],
+		checkbox: true,
+		selectMode: 3,
+		source: function() {
+			if (typeof(window.external.jsGetSelectedEffects) !== "undefined") {
+				return JSON.parse(window.external.jsGetSelectedEffects());
+			} else {
+				return $.getJSON("./js/effects.json");
+			}
+		},
+		select: function(event, data) {
+			if (typeof(window.external.jsSetSelectedEffects) !== "undefined") {
+				return window.external.jsSetSelectedEffects(JSON.stringify(data.tree.toDict(true)));
+			} else {
+				alert(JSON.stringify(data.tree.toDict(true)));
+			}
+
+			//alert("changed");
+		},
+		cookieId: "fancytree-Cb4",
+		idPrefix: "fancytree-Cb4-"
+	});
+}
+
 function getChildFromPathElements(pathElements, node, addNode) {
 	if (addNode == undefined) addNode = false;
 //		if (node.children == undefined || node.children == null)
@@ -248,11 +274,57 @@ function checkRawConverter() {
  **/
 function persistantConfigLoaded() {
 		checkRawConverter();
+		$("#backgroundColour").spectrum("set", $("#backgroundColour").val());
+		$("#wallpaperBackgroundColour").spectrum("set", $("#wallpaperBackgroundColour").val());
 }
 
 $(function(){
 	// Rerun on refresh
 	persistantConfigLoaded();
+//alert($("#backgroundColour").val());
+	$("#backgroundColour, #wallpaperBackgroundColour").spectrum({
+			showInput: true,
+			className: "full-spectrum",
+			showInitial: true,
+			showPalette: true,
+			showSelectionPalette: true,
+			clickoutFiresChange: true,
+			maxPaletteSize: 10,
+			preferredFormat: "hex",
+			localStorageKey: "spectrum.demo",
+			move: function (color) {
+
+			},
+			show: function () {
+
+			},
+			beforeShow: function () {
+
+			},
+			hide: function () {
+
+			},
+			change: function() {
+
+			},
+			palette: [
+					["rgb(0, 0, 0)", "rgb(67, 67, 67)", "rgb(102, 102, 102)",
+					"rgb(204, 204, 204)", "rgb(217, 217, 217)","rgb(255, 255, 255)"],
+					["rgb(152, 0, 0)", "rgb(255, 0, 0)", "rgb(255, 153, 0)", "rgb(255, 255, 0)", "rgb(0, 255, 0)",
+					"rgb(0, 255, 255)", "rgb(74, 134, 232)", "rgb(0, 0, 255)", "rgb(153, 0, 255)", "rgb(255, 0, 255)"],
+					["rgb(230, 184, 175)", "rgb(244, 204, 204)", "rgb(252, 229, 205)", "rgb(255, 242, 204)", "rgb(217, 234, 211)",
+					"rgb(208, 224, 227)", "rgb(201, 218, 248)", "rgb(207, 226, 243)", "rgb(217, 210, 233)", "rgb(234, 209, 220)",
+					"rgb(221, 126, 107)", "rgb(234, 153, 153)", "rgb(249, 203, 156)", "rgb(255, 229, 153)", "rgb(182, 215, 168)",
+					"rgb(162, 196, 201)", "rgb(164, 194, 244)", "rgb(159, 197, 232)", "rgb(180, 167, 214)", "rgb(213, 166, 189)",
+					"rgb(204, 65, 37)", "rgb(224, 102, 102)", "rgb(246, 178, 107)", "rgb(255, 217, 102)", "rgb(147, 196, 125)",
+					"rgb(118, 165, 175)", "rgb(109, 158, 235)", "rgb(111, 168, 220)", "rgb(142, 124, 195)", "rgb(194, 123, 160)",
+					"rgb(166, 28, 0)", "rgb(204, 0, 0)", "rgb(230, 145, 56)", "rgb(241, 194, 50)", "rgb(106, 168, 79)",
+					"rgb(69, 129, 142)", "rgb(60, 120, 216)", "rgb(61, 133, 198)", "rgb(103, 78, 167)", "rgb(166, 77, 121)",
+					"rgb(91, 15, 0)", "rgb(102, 0, 0)", "rgb(120, 63, 4)", "rgb(127, 96, 0)", "rgb(39, 78, 19)",
+					"rgb(12, 52, 61)", "rgb(28, 69, 135)", "rgb(7, 55, 99)", "rgb(32, 18, 77)", "rgb(76, 17, 48)"]
+			]
+	});
+
 
 	$( "#timeout,#timeoutMax" ).spinner({ min: 1 });
 
@@ -322,12 +394,10 @@ $(function(){
 		}
 	});
 
-	$("#backgroundColour").change(function() {
-		window.external.InvokeScriptOnMonitor(-1, "setBackgroundColour", $("#backgroundColour").val());
-	});
-
 	$("#clearWallpaper").click(function() {
-		window.external.resetWallpaper();
+		if (typeof(window.external.resetWallpaper) !== "undefined") {
+			window.external.resetWallpaper();
+		}
 		alert("Wallpaper reset");
 	});
 
@@ -387,8 +457,16 @@ $(function(){
 	if (typeof(window.external.getInitialFoldersJSON) === "undefined") {
 		// Manually initiale on in browser preview
 		initFancyTreeFolder();
+		initFancyTreeTransitions();
 		updateExcludedFolders();
 	}
+
+	$("#backgroundColour").change(function() {
+		if (typeof(window.external.InvokeScriptOnMonitor) !== "undefined") {
+			window.external.InvokeScriptOnMonitor(-1, "setBackgroundColour", $("#backgroundColour").val());
+		}
+	});
+
 
 /*
 	$.each(excludedFolders, function() {
@@ -442,7 +520,8 @@ function initMonitors(count) {
 
 		var monitor = this.id.match(/(.*)M([0-9]+)$/);
 		var action = monitor[1];
-		var monitor = monitor[2];
+		var monitor = monitor[2] - 1;
+
 		switch(action) {
 			case "showQuickMetadata":
 				var params = [ "#quickMetadata", this.checked ];
@@ -452,6 +531,14 @@ function initMonitors(count) {
 				var params = [ "#filename", this.checked ];
 				window.external.InvokeScriptOnMonitor(monitor, "toggle", params.join(";"));
 			break;
+			case "noClock":
+			case "currentClock":
+			case "elapsedClock":
+				var params = [ action.replace("Clock", "") ];
+				window.external.InvokeScriptOnMonitor(monitor, "setClockType", params.join(";"));
+			break;
+
+
 		}
 
 //		InvokeScriptOnMonitor(

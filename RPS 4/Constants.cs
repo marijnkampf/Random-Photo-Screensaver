@@ -13,7 +13,8 @@ namespace RPS {
         public const string devDataFolder = "../../data";
         public const string ConfigHtmlFile = "config.html";
         public const string MonitorHtmlFile = "monitor.html";
-
+        public const string EffectsJsonFile = "js/effects.json";
+        
         public const int reloadFilters = 500;
         public const string AppFolderName = "Random Photo Screensaver";
         public const string DbFileName = "store.sqlite";

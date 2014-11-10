@@ -1,10 +1,11 @@
 html, .card {
-	background-color: black; /* set through javascript from C# setting */
+	background-color: black; /* set through javascript from C# setting, except in IE8 */
 }
 
 body {
 	margin: auto;
 	padding: 0;
+	overflow:hidden;
 }
 
 .card {
@@ -116,10 +117,10 @@ html, body {
 	right: 0.25em;
 	top: -0.125em;
 }
-
+/*
 .animStart {
 	display: none;
-}
+}*/
 
 .wait {
 	height: 16px;

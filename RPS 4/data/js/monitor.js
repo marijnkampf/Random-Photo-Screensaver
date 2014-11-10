@@ -1,3 +1,6 @@
+/**
+ * Some test files for offline testing (Use Internet Explorer 8+, latest IE recommended)
+ **/
 if (typeof(window.external.RunningFromRPS)=== "undefined") {
 	var i = 0;
 	var a = new Array(
@@ -45,16 +48,28 @@ if (typeof(window.external.RunningFromRPS)=== "undefined") {
 	}
 }
 
+if (!String.prototype.endsWith) {
+	String.prototype.endsWith = function (searchString, position) {
+		var subjectString = this.toString();
+		if (position === undefined || position > subjectString.length) {
+			position = subjectString.length;
+		}
+		position -= searchString.length;
+		var lastIndex = subjectString.indexOf(searchString, position);
+		return lastIndex !== -1 && lastIndex === position;
+	}
+}
+
 function getStyleSheet(stylesheet) {
 	for(i = 0; i < document.styleSheets.length; i++){
-		if (stylesheet == document.styleSheets[i].href) return document.styleSheets[i];
+		if (document.styleSheets[i].href.endsWith(stylesheet)) return document.styleSheets[i];
 	}
 	return undefined;
 }
 
 function getStyleSheetRule(stylesheet, selector) {
-	sheet = getStyleSheet(null); // styles defined on page
-	if (sheet != undefined) {
+	sheet = getStyleSheet("monitor.css"); // styles defined on page
+	if (sheet != undefined && sheet.cssRules != undefined) {
 		for(i = 0; i < sheet.cssRules.length; i++){
 			if (selector == sheet.cssRules[i].selectorText) return sheet.cssRules[i];
 		}
@@ -100,10 +115,8 @@ function hide(id) {
 
 function setBackgroundColour(colour) {
 	cssRule = getStyleSheetRule(null, "html, .card");
-	try {
+	if (cssRule != undefined && cssRule.style != undefined) {
 		cssRule.style.backgroundColor = colour;
-	} catch(e) {
-
 	}
 }
 
@@ -231,12 +244,10 @@ function showImage(source, displayPath, settings) {
 		break;
 	}
 
-//html = '<img style="width: 3360px;height: 738px;left: 0px;top: 171px;"class="image pano media" src="F:\\tests\\panorama\\SX20484-94 Panorama inner court Harlech Castle.jpg"/>';
 	card = $("<div class='card stretch'>" + html + "</div>").hide();
-	//card = $(html).hide();
-	//card = $(html).show();
 	$("#rolodex").append(card);
-	if (settings.animated) card.fadeIn(1000);
+
+	if (settings.animated == "true") card.show(JSON.parse(settings.effect));
 	else card.show();
 	if (stretch) {
 		$(".media").objectFit('contain');
@@ -283,6 +294,7 @@ function resize() {
 
 function setClockType(type) {
 	clockType = type;
+	$("#clock").toggle(clockType != "no" && clockType != "none");
 }
 
 var startTime = new moment();

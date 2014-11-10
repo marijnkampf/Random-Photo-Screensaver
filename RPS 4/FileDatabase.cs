@@ -326,7 +326,9 @@ namespace RPS {
                         this.metaDataTransaction.Commit();
                 }
                 this.metaDataTransaction = this.metaDataDbConnector.connection.BeginTransaction();
-            } catch (System.Data.SQLite.SQLiteException e) {
+            } catch (Exception e) {
+                // System.Data.SQLite.SQLiteException e
+                // System.ArgumentNullException
                 // Ignore failed commits;
             }
         }

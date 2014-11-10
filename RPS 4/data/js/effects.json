@@ -1,0 +1,145 @@
+{
+"selected": false,
+"expanded": false,
+"unselectable": false,
+"key": "root",
+"title": "Root",
+"lazy": false,
+"folder": true,
+"children": [
+  {
+    "selected": true,
+    "expanded": true,
+    "unselectable": false,
+    "key": "fade",
+    "title": "Fade in",
+    "lazy": false,
+    "folder": true
+  },
+  {
+    "selected": false,
+    "expanded": false,
+    "unselectable": false,
+    "key": "bounce",
+    "title": "Bounce",
+    "lazy": false,
+    "folder": true,
+		"children": [
+			{ "selected": true, "title": "Up" },
+			{ "selected": true, "title": "Down" },
+			{ "selected": true, "title": "Left" },
+			{ "selected": true, "title": "Right" }
+		]
+  },
+  {
+    "selected": true,
+    "expanded": false,
+    "unselectable": false,
+    "key": "blind",
+    "title": "Blind",
+    "lazy": false,
+    "folder": true,
+		"children": [
+			{ "selected": true, "title": "Up" },
+			{ "selected": true, "title": "Down" },
+			{ "selected": true, "title": "Left" },
+			{ "selected": true, "title": "Right" }
+		]
+  },
+  {
+    "selected": true,
+    "expanded": false,
+    "unselectable": false,
+    "key": "clip",
+    "title": "Clip",
+    "lazy": false,
+    "folder": true,
+		"children": [
+			{ "selected": true, "title": "Vertical" },
+			{ "selected": true, "title": "Horizontal" }
+		]
+  },
+  {
+    "selected": true,
+    "expanded": false,
+    "unselectable": false,
+    "key": "drop",
+    "title": "Drop",
+    "lazy": false,
+    "folder": true,
+		"children": [
+			{ "selected": true, "title": "Up" },
+			{ "selected": true, "title": "Down" },
+			{ "selected": true, "title": "Left" },
+			{ "selected": true, "title": "Right" }
+		]
+  },
+  {
+    "selected": false,
+    "expanded": false,
+    "unselectable": false,
+    "key": "fold",
+    "title": "Fold",
+    "lazy": false,
+    "folder": true,
+		"children": [
+			{ "selected": true, "title": "Vertical" },
+			{ "selected": true, "title": "Horizontal" }
+		]
+  },
+  {
+    "selected": true,
+    "expanded": true,
+    "unselectable": false,
+    "key": "puff",
+    "title": "Puff",    
+    "lazy": false,
+    "folder": true
+  },
+  {
+    "selected": false,
+    "expanded": true,
+    "unselectable": false,
+    "key": "pulsate",
+    "title": "Pulsate",    
+    "lazy": false,
+    "folder": true
+  },
+  {
+    "selected": true,
+    "expanded": true,
+    "unselectable": false,
+    "key": "scale",
+    "title": "Scale",    
+    "lazy": false,
+    "folder": true
+  },
+  {
+    "selected": false,
+    "expanded": false,
+    "unselectable": false,
+    "key": "shake",
+    "title": "Shake",
+    "lazy": false,
+    "folder": true,
+		"children": [
+			{ "selected": true, "key": "up", "title": "Vertical" },
+			{ "selected": true, "key": "left", "title": "Horizontal" }
+		]
+  },
+  {
+    "selected": true,
+    "expanded": false,
+    "unselectable": false,
+    "key": "slide",
+    "title": "Slide",
+    "lazy": false,
+    "folder": true,
+		"children": [
+			{ "selected": true, "title": "Up" },
+			{ "selected": true, "title": "Down" },
+			{ "selected": true, "title": "Left" },
+			{ "selected": true, "title": "Right" }
+		]
+  }
+]}

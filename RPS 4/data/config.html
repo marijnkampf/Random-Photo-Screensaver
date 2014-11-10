@@ -15,6 +15,9 @@
 	<link rel="stylesheet" href="vendor/Numeric-Stepper/stepper/jquery.stepper.css"/>
 	<script src="vendor/Numeric-Stepper/stepper/jquery.stepper.js"></script>
 
+	<script src='vendor/spectrum/spectrum.js'></script>
+	<link rel='stylesheet' href='vendor/spectrum/spectrum.css' />
+
 	<script src="js/polyfill.js"></script>
 	<script src="js/config.js"></script>
 	<link rel="stylesheet" href="css/config.css"/>
@@ -31,7 +34,7 @@
 		<div><strong>Thank you for your support!</strong></div>
 	</div>
 	<div id="navigation">
-		<h1>RPS 4 Beta 8</h1>
+		<h1>RPS 4 Beta 9</h1>
 		<ul>
 			<li><a href="#settings">Settings</a></li>
 		</ul>
@@ -116,7 +119,22 @@
 				<div class="keywords">sort ordering sorting sort by</div>
 				<div class="clear"></div>
 			</div>
+			<div class="set">
+				<h3>Effects</h3>
+				<div class="set checkboxGroup">
+					<input type="checkbox" id="useTransitions" checked/> <label for="useTransitions">Use transition effects</label>
+					<div id="transitions">
+						<label>Select transition effect(s) to use</label>
+						<div id="transitionsFancyTree"></div>
+					</div>
 
+					<input type="checkbox" id="randomiseTransitions" checked/> <label for="randomiseTransitions" title="If you select no transitions all will be used anyway">Randomise transition effects</label>
+					<input type="checkbox" id="useTransitionsOnInput"/> <label for="useTransitionsOnInput">Use transition effects when navigating</label>
+				</div>
+
+				<div class="keywords">effects animations transitions</div>
+				<div class="clear"></div>
+			</div>
 			<div class="set">
 				<h3>Sequential ordering</h3>
 				<h4>Sort by</h4>
@@ -304,9 +322,9 @@
 				<div class="clear"></div>
 			</div>
 
-			<div class="set multimonitor">
+			<div class="set">
 				<h2>Monitor settings</h2>
-				<div class="monitors">
+				<div class="monitors multimonitor">
 					<div id="M1" class="monitor">
 						<h3>Monitor 1</h3>
 						<div class="set">

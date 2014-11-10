@@ -5,6 +5,8 @@ using System.Text;
 
 namespace RPS {
     public class jsonFolder {
+        private static Random rnd = new Random();
+
         public bool folder = true;
         public bool selected { get; set; }
         public bool expanded { get; set; }
@@ -26,7 +28,7 @@ namespace RPS {
             this.expanded = false;
             this.selected = false;
             this.unselectable = false;
-            this.key = title.ToLower();
+            if (title != null) this.key = title.ToLower();
             this.title = title;
             this.selected = selected;
             this.children = children;
@@ -38,5 +40,26 @@ namespace RPS {
             }
             return null;
         }
+
+        public static jsonFolder getRandomSelected(List<jsonFolder> children) {
+            List<int> effectIDs = new List<int>();
+            for (int i = 0; i < children.Count; i++) {
+                if (children[i].selected) {
+                    effectIDs.Add(i);
+                } else {
+                    for (int j = 0; j < children[i].children.Count; j++) {
+                        if (children[i].children[j].selected) {
+                            effectIDs.Add(i);
+                            break;
+                        }
+                    }
+                }
+            }
+            if (effectIDs.Count > 0) {
+                return children[effectIDs[rnd.Next(effectIDs.Count)]];
+            }
+            return null;
+        }
+
     }
 }

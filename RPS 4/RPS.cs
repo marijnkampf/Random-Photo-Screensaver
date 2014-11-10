@@ -168,7 +168,7 @@ namespace RPS {
         public void startTimers() {
             //for (int i = (this.monitors.Length - 1); i >= 0 ; i--) {
             for (int i = 0; i < this.monitors.Length; i++) {
-                if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
+    //            if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                     ///this.monitors[i].setTimerInterval();
                     this.monitors[i].startTimer();
                     //this.monitors[i].timer.Enabled = !this.monitors[i].paused;
@@ -176,16 +176,16 @@ namespace RPS {
                         this.monitors[i].timer.Start();
                     }*/
                     //
-                }
+      //          }
             }
         }
 
         public void stopTimers() {
             for (int i = 0; i < this.monitors.Length; i++) {
-                if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
+//                if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                     //this.monitors[i].timer.Stop();
                     this.monitors[i].timer.Enabled = false;
-                }
+  //              }
             }
         }
 
@@ -198,7 +198,7 @@ namespace RPS {
                     string s = "";
                     if (step > 1) s = " x " + step;
                     this.monitors[i].showInfoOnMonitor(">>" + s);
-                    this.monitors[i].showImage(false);
+                    this.monitors[i].showImage(this.config.getCheckboxValue("useTransitionsOnInput"));
                     //this.monitors[i].startTimer();
                 }
             }
@@ -216,7 +216,7 @@ namespace RPS {
                     string s = "";
                     if (step > 1) s = " x " + step;
                     this.monitors[i].showInfoOnMonitor("<<" + s);
-                    this.monitors[i].showImage(false);
+                    this.monitors[i].showImage(this.config.getCheckboxValue("useTransitionsOnInput"));
                     //this.monitors[i].startTimer();
                 }
             }
@@ -416,7 +416,7 @@ namespace RPS {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                                     this.monitors[i].timer.Stop();
                                     this.monitors[i].offsetImage(1);
-                                    this.monitors[i].showImage(false);
+                                    this.monitors[i].showImage(this.config.getCheckboxValue("useTransitionsOnInput"));
                                     this.monitors[i].showInfoOnMonitor("v (" + this.monitors[i].offset + ")");
                                     this.monitors[i].startTimer();
                                 }
@@ -429,7 +429,7 @@ namespace RPS {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                                     this.monitors[i].timer.Stop();
                                     this.monitors[i].offsetImage(-1);
-                                    this.monitors[i].showImage(false);
+                                    this.monitors[i].showImage(this.config.getCheckboxValue("useTransitionsOnInput"));
                                     this.monitors[i].showInfoOnMonitor("^ (" + this.monitors[i].offset + ")");
                                     this.monitors[i].startTimer();
                                 }

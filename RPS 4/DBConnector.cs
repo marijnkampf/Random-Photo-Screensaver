@@ -151,18 +151,21 @@ namespace RPS {
         }
 
         public static DataRow executeReaderFirstDataRow(SQLiteCommand command) {
-            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-            sw.Start();
-            SQLiteDataReader reader = command.ExecuteReader();
-            DataTable dt = new DataTable();
-            dt.Load(reader);
-            sw.Stop();
-            Debug.WriteLine(DBConnector.ToReadableString(command) + " in " + sw.ElapsedMilliseconds + "ms");
-            if (dt.Rows.Count >= 1) {
-                return dt.Rows[0];
-            } else {
-                return null;
+            try {
+                System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+                sw.Start();
+                SQLiteDataReader reader = command.ExecuteReader();
+                DataTable dt = new DataTable();
+                dt.Load(reader);
+                sw.Stop();
+                Debug.WriteLine(DBConnector.ToReadableString(command) + " in " + sw.ElapsedMilliseconds + "ms");
+                if (dt.Rows.Count >= 1) {
+                    return dt.Rows[0];
+                } 
+            } catch (Exception e) {
+                Debug.WriteLine("Error: " + e.Message);
             }
+            return null;
         }
     }
 }

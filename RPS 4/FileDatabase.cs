@@ -195,8 +195,6 @@ namespace RPS {
                         offset = offset % this.nrImagesFilter();                        
                         dr = getFirstImage(sortByColumn, sortByDirection, offset);
                     }
-                } else {
-                    Console.WriteLine(dr["id"]);
                 }
             }
             return dr;
@@ -298,20 +296,23 @@ namespace RPS {
             string tableName = this.filterReady();
             SQLiteCommand command = new SQLiteCommand("SELECT COUNT(id) FROM `FileNodes`;", this.dbConnector.connection);
             DataRow dr = DBConnector.executeReaderFirstDataRow(command);
-            return Convert.ToInt32(dr[0]);
+            if (dr != null) return Convert.ToInt32(dr[0]);
+            else return -1;
         }
 
         public int nrImagesFilter() {
             string tableName = this.filterReady();
             SQLiteCommand command = new SQLiteCommand("SELECT COUNT(id) FROM `" + tableName + "`;", this.dbConnector.connection);
             DataRow dr = DBConnector.executeReaderFirstDataRow(command);
-            return Convert.ToInt32(dr[0]);
+            if (dr != null) return Convert.ToInt32(dr[0]);
+            else return -1;
         }
 
         public int nrMetadataImagesToProcess() {
             SQLiteCommand command = new SQLiteCommand("SELECT COUNT(id) FROM `FileNodes` WHERE metainfoindexed = 0 LIMIT 1;", this.dbConnector.connection);
             DataRow dr = DBConnector.executeReaderFirstDataRow(command);
-            return Convert.ToInt32(dr[0]);
+            if (dr != null) return Convert.ToInt32(dr[0]);
+            else return -1;
         }
 
         public DataRow nextMetadataLessImage() {

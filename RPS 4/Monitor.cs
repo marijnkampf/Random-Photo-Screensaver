@@ -23,7 +23,7 @@ namespace RPS {
         private int id;
         private Screensaver screensaver;
 
-        private string info = "";
+        public string info = "";
         private string priorityInfo = "";
 
         // Random photo history
@@ -153,7 +153,12 @@ namespace RPS {
             if (highPriority) {
                 previousInfo = this.priorityInfo;
                 this.priorityInfo = info;
-                this.browser.Document.InvokeScript("showPriorityInfo", new String[] { info, Convert.ToString(fade) });
+                try {
+                    this.browser.Document.InvokeScript("showPriorityInfo", new String[] { info, Convert.ToString(fade) });
+                } catch (Exception e) {
+                    // TODO: log to debug file?
+                    Debug.WriteLine(info);
+                }
             } else {
                 previousInfo = this.info;
                 this.info = info;
@@ -252,6 +257,7 @@ namespace RPS {
                         this.showInfoOnMonitor(e.Message, true);
                         backedUp = false;
                     }
+                    this.showInfoOnMonitor(this.info + "\r\nFile saved", true);
                 }
             }
         }

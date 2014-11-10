@@ -135,7 +135,10 @@ namespace RPS {
                             rawExtensions = this.config.getValue("rawExtensions").ToLower();
                             allowedExtensions += " " + rawExtensions;
                         }
-                    } catch (System.Runtime.InteropServices.InvalidComObjectException icoe) {
+                    } catch (Exception e) {
+                        // TODO: only catch:
+                        // System.NullReferenceException
+                        // System.Runtime.InteropServices.InvalidComObjectException icoe
                         // Occurs when shutting down, cancel thread
                         this.bwCancelled();
                         return;
@@ -161,7 +164,11 @@ namespace RPS {
                         ) {
                             this.nrFiles++;
                             if ((i % 10 == 0) && (this.bwCancelled() == true)) break;
-                            this.fileDatabase.addFileToDB(fi);
+                            try {
+                                this.fileDatabase.addFileToDB(fi);
+                            } catch (Exception e) {
+                                this.screensaver.showInfoOnMonitors("Error: " + e.Message, true);
+                            }
                         }
                     }
                     if (!excludeSubfolders) {
@@ -267,7 +274,6 @@ namespace RPS {
             p.StartInfo.CreateNoWindow = true;
             p.StartInfo.FileName = this.config.getValue("rawConverter");
             p.StartInfo.Arguments = size + " " + this.config.getValue("rawConverterParams").Replace("#RAW#", rawSource).Replace("#JPG#", jpgDest);
-            //Console.WriteLine(p.StartInfo.FileName + " " + p.StartInfo.Arguments);
             p.Start();
             p.PriorityClass = ProcessPriorityClass.BelowNormal;
             p.WaitForExit();

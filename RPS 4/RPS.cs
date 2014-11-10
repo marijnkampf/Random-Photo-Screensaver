@@ -459,6 +459,7 @@ namespace RPS {
 
                             for (int i = 0; i < this.monitors.Length; i++) {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
+                                    this.monitors[i].info = message;
                                     this.monitors[i].showInfoOnMonitor(message, true, true);
                                     this.monitors[i].rotateImage(deg);
                                 }

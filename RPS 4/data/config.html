@@ -44,6 +44,7 @@
 		<a id="settings"></a><h1 class="underline">Settings</h1>
 		<div class="previewTip">Tip: You can also access the settings menu by pressing the 'S' key when the screensaver is running</div>
 		<div class="lowIEWarning">Internet Explorer 8 or greater is required, please <a class="external" target="_blank" href="http://windows.microsoft.com/en-us/internet-explorer/download-ie">upgrade Internet Explorer</a>!</div>
+		<div id="update" class="note"></div>
 
 		<form>
 			<div class="set">
@@ -385,6 +386,20 @@
 					<h3>History</h3>
 					<label for="rememberLast">Remember last images for next session</label><input type="number" id="rememberLast" value="10"/>
 					<label for="maxHistory" title="Unlimited max history size will eventually result in out of memory error.">Maximum random history size (?)</label><input type="number" id="maxHistory" value="10000"/>
+					<div class="keywords">previous old</div>
+				</div>
+				<div class="set advanced checkboxGroup">
+					<h3>Updates</h3>
+					<div class="note">None of the updates are automatically installed.</div>
+					<div class="set radioGroup">
+						<div id="checkUpdates">
+							<input id="checkUpdatesYes" type="radio" name="checkUpdates" value="yes" checked/><label for="checkUpdatesYes">Check for updates and automatically download</label>
+							<input id="checkUpdatesNotify" type="radio" name="checkUpdates" value="notify"/><label for="checkUpdatesNotify">Check for updates, but let me choose whether to download them</label>
+							<input id="checkUpdatesNo" type="radio" name="checkUpdates" value="no"/><label for="checkUpdatesNo">Don't check for updates</label>
+						</div>
+					</div>
+					<div class="keywords">previous old</div>
+				</div>
 
 			</div>
 

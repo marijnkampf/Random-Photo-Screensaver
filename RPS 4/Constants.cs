@@ -24,6 +24,9 @@ namespace RPS {
 
         public const string ExifToolMetadataOptions = "\n-All\n-Orientation#";
 
+        public const string UpdateCheckURL = "http://www.abscreensavers.com/abdownloads/rps/latestversion.php";
+        public const string DownloadFolder = "downloads";
+
         public enum Orientation {
             Horizontal = 1,
             Mirror_Horizontal = 2,

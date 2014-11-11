@@ -353,8 +353,6 @@ $(function(){
 		$(this).change();
 });
 
-	//$(".external")
-
 	$(".browseFile .button").click(function() {
 		var id = this.id.replace("Browse", "");
 		if (typeof(window.external.jsFileBrowserDialog) === "undefined") {

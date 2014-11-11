@@ -23,7 +23,10 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
+            this.components = new System.ComponentModel.Container();
             this.browser = new System.Windows.Forms.WebBrowser();
+            this.webUpdateCheck = new System.Windows.Forms.WebBrowser();
+            this.timerCheckUpdates = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // browser
@@ -35,11 +38,29 @@
             this.browser.Size = new System.Drawing.Size(837, 537);
             this.browser.TabIndex = 0;
             // 
+            // webUpdateCheck
+            // 
+            this.webUpdateCheck.Location = new System.Drawing.Point(0, 0);
+            this.webUpdateCheck.MinimumSize = new System.Drawing.Size(20, 20);
+            this.webUpdateCheck.Name = "webUpdateCheck";
+            this.webUpdateCheck.ScriptErrorsSuppressed = true;
+            this.webUpdateCheck.Size = new System.Drawing.Size(250, 250);
+            this.webUpdateCheck.TabIndex = 1;
+            this.webUpdateCheck.Visible = false;
+            this.webUpdateCheck.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.webUpdateCheck_DocumentCompleted);
+            // 
+            // timerCheckUpdates
+            // 
+            this.timerCheckUpdates.Enabled = true;
+            this.timerCheckUpdates.Interval = 600;
+            this.timerCheckUpdates.Tick += new System.EventHandler(this.timerCheckUpdates_Tick);
+            // 
             // Config
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(837, 537);
+            this.Controls.Add(this.webUpdateCheck);
             this.Controls.Add(this.browser);
             this.Name = "Config";
             this.Text = "Configuration Random Photo Screensaver";
@@ -54,6 +75,8 @@
         #endregion
 
         public System.Windows.Forms.WebBrowser browser;
+        private System.Windows.Forms.WebBrowser webUpdateCheck;
+        private System.Windows.Forms.Timer timerCheckUpdates;
 
 
 

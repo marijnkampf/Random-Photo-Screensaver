@@ -168,6 +168,10 @@ namespace RPS {
             return previousInfo;
         }
 
+        public void showUpdateInfo(string info) {
+            this.browser.Document.InvokeScript("showUpdateInfo", new String[] { info });
+        }
+
         public long imageId() {
             if (this.currentImage != null) {
                 return Convert.ToInt32(this.currentImage["id"]);

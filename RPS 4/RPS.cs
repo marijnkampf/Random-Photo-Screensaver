@@ -152,6 +152,10 @@ namespace RPS {
             this.showInfoOnMonitors(info, highPriority, false);
         }
 
+        public void showUpdateInfo(string info) {
+            this.monitors[0].showUpdateInfo(info);
+        }
+
 
         public void showInfoOnMonitors(string info, bool highPriority, bool fade) {
             for (int i = 0; i < this.monitors.Length; i++) {

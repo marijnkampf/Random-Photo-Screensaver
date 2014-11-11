@@ -19,6 +19,8 @@ using System.Collections;
 //using System.Management;
 using Newtonsoft.Json;
 using Microsoft.Win32;
+using System.Net;
+using System.Security.Cryptography;
 /***
  * 
  * Consider optimising by storing all values from html in c# array?
@@ -48,6 +50,11 @@ namespace RPS {
         public long maxMonitorDimension = 0;
 
         public jsonFolder effects;
+
+        private bool checkUpdates = false;
+        private bool downloadUpdates = false;
+        private bool newVersionAvailable = false;
+        //private bool installUpdates = false;
 
         //public WebBrowser browser;
 
@@ -657,15 +664,83 @@ namespace RPS {
                     this.screensaver.fileNodes.restartBackgroundWorkerImageFolder();
 //                    MessageBox.Show("changed");
                 }
-
             }
-
-
         }
 
         private void Config_Deactivate(object sender, EventArgs e) {
             this.screensaver.configHidden = true;
             this.Hide();
+        }
+
+        void DownloadFileCompleted(object sender, AsyncCompletedEventArgs e) {
+            HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
+            string updatePath = Path.Combine(Application.StartupPath, Constants.DownloadFolder, Path.GetFileName(he.GetAttribute("href")));
+            if (!this.VerifyMD5(updatePath, he.GetAttribute("data-md5"))) {
+                this.showUpdateInfo("Download " + he.GetAttribute("data-version") + " failed<br/>Please <a href='" + he.GetAttribute("href") + "'>download update manually</a>.");
+            }
+            this.screensaver.showUpdateInfo("RPS " + he.GetAttribute("data-version") + " downloaded<br/><a class='exit external' target='_blank' href='file://" + updatePath + "'>Click to install now</a>.");
+        }
+
+        bool VerifyMD5(string path, string md5verify) {
+            using (var md5 = MD5.Create()) {
+                using (var stream = File.OpenRead(path)) {
+                    return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", string.Empty).ToLower() == md5verify.ToLower();
+                }
+            } 
+        }
+
+        private void notifyUpdateAvailable() {
+
+        }
+
+        private void showUpdateInfo(string info) {
+            HtmlElement he = this.browser.Document.GetElementById("update");
+            he.InnerHtml = info.Replace("<br/>", " ");
+            this.screensaver.showUpdateInfo(info);
+        }
+
+        private void webUpdateCheck_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
+            if (this.webUpdateCheck.Url.Equals(Constants.UpdateCheckURL)) {
+                HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
+                Version update = new Version(he.GetAttribute("data-version"));
+                this.newVersionAvailable = (this.screensaver.version.CompareTo(update) < 0);
+
+                if (this.newVersionAvailable) {
+                    if (this.downloadUpdates) {
+                        string updatePath = Path.Combine(Application.StartupPath, Constants.DownloadFolder, Path.GetFileName(he.GetAttribute("href")));
+                        if (!File.Exists(updatePath) || !this.VerifyMD5(updatePath, he.GetAttribute("data-md5"))) {
+                            this.showUpdateInfo("Downloading update: " + update.ToString());
+                            Directory.CreateDirectory(Path.Combine(Application.StartupPath, Constants.DownloadFolder));
+                            WebClient client = new WebClient();
+                            client.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadFileCompleted);
+                            client.DownloadFileAsync(new Uri(he.GetAttribute("href")), updatePath);
+                            return;
+                        } else {
+                            this.DownloadFileCompleted(this, null);
+                        }
+                    } else {
+                        this.showUpdateInfo("Update available<br/><a href='" + he.GetAttribute("href") + "'>Download RPS " + he.GetAttribute("data-version-text") + "</a>");
+                    }
+                }
+
+            }
+        }
+
+        private void timerCheckUpdates_Tick(object sender, EventArgs e) {
+            this.timerCheckUpdates.Enabled = false;
+            switch (this.getRadioValue("checkUpdates")) {
+                case "yes":
+                    this.checkUpdates = true;
+                    this.downloadUpdates = true;
+                break;
+                case "notify":
+                    this.checkUpdates = true;
+                break;
+            }
+            if (this.checkUpdates) {
+                this.webUpdateCheck.Url = new Uri(Constants.UpdateCheckURL);
+            }
+
         }
     }
 }

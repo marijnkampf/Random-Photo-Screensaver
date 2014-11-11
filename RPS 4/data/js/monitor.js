@@ -151,6 +151,13 @@ function showPriorityInfo(info, fade) {
 	if (fade.toLowerCase() == "true") $("#showpriorityinfo").stop().fadeOut(5000);
 }
 
+function showUpdateInfo(info) {
+	document.getElementById("updateinfomessage").innerHTML = info;
+	$("#updateinfo").stop(true, true);
+	$("#updateinfo").show("blind", "direction:up");
+	return true;
+}
+
 function showMetadata(metadata) {
 	document.getElementById("quickMetadata").innerText = metadata;
 }
@@ -246,8 +253,7 @@ function showImage(source, displayPath, settings) {
 
 	card = $("<div class='card stretch'>" + html + "</div>").hide();
 	$("#rolodex").append(card);
-
-	if (settings.animated == "true") card.show(JSON.parse(settings.effect));
+	if (settings.animated == "true" && settings.effect != undefined) card.show(JSON.parse(settings.effect));
 	else card.show("fade", 250);
 	if (stretch) {
 		$(".media").objectFit('contain');
@@ -314,7 +320,14 @@ window.onresize = function() {
 	resize();
 }
 
+$(function(){
+	$(".closeX").click(function() {
+		$(this).parent().hide("blind", "direction:down");
+	});
+});
+
 window.onload = function() {
+
 	resize();
 	clockTick();
 	if (typeof(window.external.RunningFromRPS)=== "undefined") {
@@ -327,3 +340,4 @@ window.onload = function() {
 		});
 	}
 }
+

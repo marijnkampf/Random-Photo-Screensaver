@@ -52,7 +52,7 @@
             // timerCheckUpdates
             // 
             this.timerCheckUpdates.Enabled = true;
-            this.timerCheckUpdates.Interval = 600;
+            this.timerCheckUpdates.Interval = 10000;
             this.timerCheckUpdates.Tick += new System.EventHandler(this.timerCheckUpdates_Tick);
             // 
             // Config

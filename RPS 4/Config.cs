@@ -146,8 +146,7 @@ namespace RPS {
                     case Screensaver.Actions.Slideshow: classes += "slideshow"; break;
                 }
                 classes += " IE" + browser.Version.Major;
-                //if (browser.Version.Major < 8) 
-                    classes += " lowIE";
+                if (browser.Version.Major < 8) classes += " lowIE";
                 elem.SetAttribute("className", elem.GetAttribute("className") + classes);
             }
         }
@@ -702,27 +701,28 @@ namespace RPS {
         private void webUpdateCheck_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
             if (this.webUpdateCheck.Url.Equals(Constants.UpdateCheckURL)) {
                 HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
-                Version update = new Version(he.GetAttribute("data-version"));
-                this.newVersionAvailable = (this.screensaver.version.CompareTo(update) < 0);
+                if (he != null) {
+                    Version update = new Version(he.GetAttribute("data-version"));
+                    this.newVersionAvailable = (this.screensaver.version.CompareTo(update) < 0);
 
-                if (this.newVersionAvailable) {
-                    if (this.downloadUpdates) {
-                        string updatePath = Path.Combine(Application.StartupPath, Constants.DownloadFolder, Path.GetFileName(he.GetAttribute("href")));
-                        if (!File.Exists(updatePath) || !this.VerifyMD5(updatePath, he.GetAttribute("data-md5"))) {
-                            this.showUpdateInfo("Downloading update: " + update.ToString());
-                            Directory.CreateDirectory(Path.Combine(Application.StartupPath, Constants.DownloadFolder));
-                            WebClient client = new WebClient();
-                            client.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadFileCompleted);
-                            client.DownloadFileAsync(new Uri(he.GetAttribute("href")), updatePath);
-                            return;
+                    if (this.newVersionAvailable) {
+                        if (this.downloadUpdates) {
+                            string updatePath = Path.Combine(Application.StartupPath, Constants.DownloadFolder, Path.GetFileName(he.GetAttribute("href")));
+                            if (!File.Exists(updatePath) || !this.VerifyMD5(updatePath, he.GetAttribute("data-md5"))) {
+                                this.showUpdateInfo("Downloading update: " + update.ToString());
+                                Directory.CreateDirectory(Path.Combine(Application.StartupPath, Constants.DownloadFolder));
+                                WebClient client = new WebClient();
+                                client.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadFileCompleted);
+                                client.DownloadFileAsync(new Uri(he.GetAttribute("href")), updatePath);
+                                return;
+                            } else {
+                                this.DownloadFileCompleted(this, null);
+                            }
                         } else {
-                            this.DownloadFileCompleted(this, null);
+                            this.showUpdateInfo("Update available<br/><a href='" + he.GetAttribute("href") + "'>Download RPS " + he.GetAttribute("data-version-text") + "</a>");
                         }
-                    } else {
-                        this.showUpdateInfo("Update available<br/><a href='" + he.GetAttribute("href") + "'>Download RPS " + he.GetAttribute("data-version-text") + "</a>");
                     }
                 }
-
             }
         }
 

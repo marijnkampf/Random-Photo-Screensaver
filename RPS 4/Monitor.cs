@@ -401,11 +401,7 @@ namespace RPS {
                     if (this.screensaver.config.getCheckboxValue("rawUseConverter") && (this.screensaver.config.getValue("rawExtensions").IndexOf(Path.GetExtension(Convert.ToString(this.currentImage["path"])).ToLower()) > -1)) {
                         this.info = this.showInfoOnMonitor("Converting from RAW to JPEG <span class='wait'></span>", false, false);
                     }
-
                     bgw.RunWorkerAsync(prms);
-
-                    //this.showInfoOnMonitor("Converting RAW");
-                    //this.showInfoOnMonitor("Converted");
                 } catch (Exception e) {
                     this.showInfoOnMonitor(e.Message, true);
                 }
@@ -438,7 +434,31 @@ namespace RPS {
                 if (i > 0) return this.nextImage();
                 else return this.previousImage();
             }
-            
+        }
+
+
+        public void historyAdd(long id) {
+            this.history.Add(Convert.ToInt32(this.currentImage["id"]));
+            long max = Convert.ToInt32(this.screensaver.config.getValue("maxHistory"));
+            if (max > 0) while (this.history.Count() > max) {
+                    // Decrease historyPointer first to be on the safe side
+                    this.historyPointer--;
+                    this.history.RemoveAt(0);
+                }
+        }
+
+        public void setHistory(List<long> history, int offset) {
+            this.history = history;
+            this.historyPointer = history.Count;
+            this.offset = offset;
+        }
+
+        public List<long> historyLastEntries(int count) {
+            int start;
+            start = this.historyPointer - count +1;
+            if (start < 0) start = 0;
+            if (this.history.Count < start + count) count = this.history.Count - start;
+            return this.history.GetRange(start, count);
         }
 
         public DataRow previousImage() {
@@ -492,7 +512,7 @@ namespace RPS {
                     this.historyPointer = this.history.Count();
                     this.currentImage = this.screensaver.fileNodes.getRandomImage();
                     if (this.currentImage != null) {
-                        this.history.Add(Convert.ToInt32(this.currentImage["id"]));
+                        this.historyAdd(Convert.ToInt32(this.currentImage["id"]));
                         //this.historyPointer += step;
 
                         this.seedImageId = Convert.ToInt32(this.currentImage["id"]);
@@ -517,7 +537,7 @@ namespace RPS {
         public bool trySetNextImage(long seedImageId) {
             if (this.screensaver.config.getOrder() == Config.Order.Random) {
                 if (this.historyPointer == this.history.Count()-1) {
-                    this.history.Add(seedImageId);
+                    this.historyAdd(seedImageId);
                     return true;
                 } else return false;
             } else {

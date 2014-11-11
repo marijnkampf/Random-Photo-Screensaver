@@ -326,8 +326,10 @@ namespace RPS {
             }
             return filename;
         }
-
+/*
         public DataRow getFirstImage(int monitor) {
+            this.
+            /*
             string[] imageIds;
             string s = this.config.getValue("randomStartImages");
             if (s != null && s.Length > 0) {
@@ -341,7 +343,7 @@ namespace RPS {
                 return this.fileDatabase.getImageById(imageId, 0);
             }
             return null;
-        }
+        }*/
 
         public DataRow getSequentialImage(int monitor, int offset) {
             DataRow currentImage = null;

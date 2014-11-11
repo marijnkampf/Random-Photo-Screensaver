@@ -248,7 +248,7 @@ function showImage(source, displayPath, settings) {
 	$("#rolodex").append(card);
 
 	if (settings.animated == "true") card.show(JSON.parse(settings.effect));
-	else card.show();
+	else card.show("fade", 250);
 	if (stretch) {
 		$(".media").objectFit('contain');
 	}

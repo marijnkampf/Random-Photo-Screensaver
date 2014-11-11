@@ -326,7 +326,7 @@ $(function(){
 	});
 
 
-	$( "#timeout,#timeoutMax" ).spinner({ min: 1 });
+	$( "input[type=number]" ).spinner({ min: 1 });
 
 	$( ".linkButton" ).button();
 

@@ -243,6 +243,11 @@ namespace RPS {
         public void safePersistantConfig() {
             this.persistant["effects"] = JsonConvert.SerializeObject(this.effects);
 
+            for(int i = 0; i < this.screensaver.monitors.Length; i++) {
+                this.persistant["historyM" + Convert.ToString(i)] = JsonConvert.SerializeObject(this.screensaver.monitors[i].historyLastEntries(Convert.ToInt32(this.getValue("rememberLast"))));
+                this.persistant["historyOffsetM"  + Convert.ToString(i)] = Convert.ToString(this.screensaver.monitors[i].offset);
+            }
+
             HtmlElementCollection hec = this.GetElementsByTagName("input");
             foreach (HtmlElement e in hec) {
                 switch (e.GetAttribute("type")) {
@@ -265,24 +270,13 @@ namespace RPS {
                 this.persistant[e.GetAttribute("id")] = e.GetAttribute("value");
             }
 
-
-            //SQLiteConnection connection = this.connectToDB();
-/*
-            DataContext context = new DataContext(connection);
-            var items = context.GetTable<Setting>();
-
-            foreach (Setting item in items) {
-                if (this.persistant.ContainsKey(item.Key)) {
-                    item.Value = this.persistant[item.Key];
-                    this.persistant.Remove(item.Key);
-                }
-            }
-            context.SubmitChanges();
-            connection.Open();
-            */
             this.connectToDB();
-            // Couldn't figure out how to use System.Data.SQLite.Linq to add new records to the DB, so old fashioned SQL it is.
-            var transaction = this.dbConnector.connection.BeginTransaction();
+            SQLiteTransaction transaction = null;
+            try {
+                transaction = this.dbConnector.connection.BeginTransaction();
+            } catch (System.Data.SQLite.SQLiteException se) {
+                this.screensaver.showInfoOnMonitors("Error: " + se.Message, true);
+            }
             foreach (var p in this.persistant) {
                 SQLiteCommand insertSQL = new SQLiteCommand("INSERT OR REPLACE INTO Setting (key, value) VALUES (@key, @value);", this.dbConnector.connection);
                 insertSQL.Parameters.AddWithValue("@key", p.Key);
@@ -292,6 +286,11 @@ namespace RPS {
             transaction.Commit();
             //connection.Close();
             this.dbConnector.Close();
+        }
+
+        public string getPersistant(string key) {
+            if (!this.persistant.ContainsKey(key)) throw new KeyNotFoundException(key);
+            return this.persistant[key];
         }
 
         public void Message(string Text) {
@@ -583,6 +582,13 @@ namespace RPS {
             }
         }
 
+        public void setInnerHTML(string id, string html) {
+            HtmlElement he = this.getElementById(id);
+            if (he != null) {
+                he.InnerHtml = html;
+            }
+        }
+
         public void setValue(string id, string value) {
             HtmlElement he = this.getElementById(id);
             if (he != null) {
@@ -634,6 +640,7 @@ namespace RPS {
         }
 
         private void Config_Shown(object sender, EventArgs e) {
+            this.setInnerHTML("version", Application.ProductVersion.Replace(".0.", " Beta ").Replace(".0", ""));
             this.browser.Document.InvokeScript("initFancyTreeFolder");
             this.browser.Document.InvokeScript("initFancyTreeTransitions");
         }

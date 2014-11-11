@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Threading;
 using Microsoft.VisualBasic.FileIO;
 using System.Drawing;
+using Newtonsoft.Json;
 
 //using System.Windows.Forms.HtmlElement;
 
@@ -33,7 +34,10 @@ namespace RPS {
         public float desktopRatio;
         public FileNodes fileNodes;
 
+        public Version version;
+
         private Screensaver(Actions action, IntPtr[] hwnds) {
+            this.version = new Version(Application.ProductVersion);
             this.action = action;
             this.hwnds = hwnds;
             this.config = new Config(this);
@@ -102,10 +106,18 @@ namespace RPS {
                             this.monitors[i].Show();
                             i++;
                         }
-                        
                     }
                     this.Desktop = Constants.getDesktopBounds();
                     this.desktopRatio = Desktop.Width / Desktop.Height;
+                    this.MonitorsAndConfigReady();
+                }
+            }
+        }
+
+        private void MonitorsAndConfigReady() {
+            if (this.action != Actions.Preview) {
+                for (int i = 0; i < this.monitors.Length; i++) {
+                    this.monitors[i].setHistory(JsonConvert.DeserializeObject<List<long>>(this.config.getPersistant("historyM" + Convert.ToString(i))), Convert.ToInt32(this.config.getPersistant("historyOffsetM" + Convert.ToString(i))));
                 }
             }
         }
@@ -194,10 +206,10 @@ namespace RPS {
             for (int i = 0; i < this.monitors.Length; i++) {
                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                     this.monitors[i].timer.Stop();
-                    this.monitors[i].nextImage(step);
                     string s = "";
                     if (step > 1) s = " x " + step;
                     this.monitors[i].showInfoOnMonitor(">>" + s);
+                    this.monitors[i].nextImage(step);
                     this.monitors[i].showImage(this.config.getCheckboxValue("useTransitionsOnInput"));
                     //this.monitors[i].startTimer();
                 }
@@ -212,10 +224,10 @@ namespace RPS {
                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                     this.monitors[i].timer.Stop();
                     //if (i > 0) this.monitors[i].imageSettings["pano"] = false;
-                    this.monitors[i].previousImage(step);
                     string s = "";
                     if (step > 1) s = " x " + step;
                     this.monitors[i].showInfoOnMonitor("<<" + s);
+                    this.monitors[i].previousImage(step);
                     this.monitors[i].showImage(this.config.getCheckboxValue("useTransitionsOnInput"));
                     //this.monitors[i].startTimer();
                 }
@@ -514,7 +526,7 @@ namespace RPS {
             for(int i = 0; i < this.monitors.Length; i++) {
                 imageIds += this.monitors[i].imageId() + ";";
             }
-            this.config.setValue("randomStartImages", imageIds);            
+            //this.config.setValue("randomStartImages", imageIds);            
             this.config.safePersistantConfig();
             if (this.fileNodes != null) this.fileNodes.OnExitCleanUp();
             // Manually call config close to ensure it will not cancel the close.

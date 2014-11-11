@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 
 namespace RPS {
+    // TODO rename class to jsonFancyTree (as it's a more generic class used in Folders and Effects selection)
     public class jsonFolder {
         private static Random rnd = new Random();
 

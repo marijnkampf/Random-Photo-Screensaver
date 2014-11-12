@@ -70,10 +70,13 @@ The following (free) libraries and programs have been used in/ship with RPS4:
     - [Highlight text](http://johannburkard.de/blog/programming/javascript/highlight-javascript-text-higlighting-jquery-plugin.html)
     - [Object fit by Steve Workman/Simon Schmid](https://github.com/steveworkman/jquery-object-fit)
     - [Colour picker](http://bgrins.github.io/spectrum/)
+- CSS
+		- [Pure CSS speech bubbles](nicolasgallagher.com/pure-css-speech-bubbles/)
 
 License
 -------
 To be decided
+(c) 2014 Marijn Kampf all rights reserved
 
 
 ToDo

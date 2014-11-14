@@ -62,17 +62,17 @@ namespace RPS {
                         nrMonitors = Screen.AllScreens.Length;
                     }
                     // Avoid double loading config from DB
-                    if (config.getValue("folders") == null) {
+                    if (!config.persistantLoaded()) {
                         this.config.loadPersistantConfig(nrMonitors);
                     }
                     this.configInitialised = true;
 
                     fileNodes = new FileNodes(this.config, this);
-                    
-                    System.Drawing.Color backgroundColour = System.Drawing.ColorTranslator.FromHtml(this.config.getValue("backgroundColour"));
 
-                    if (this.config.getCheckboxValue("useFilter")) {
-                        this.fileNodes.setFilterSQL(this.config.getValue("filter"));
+                    System.Drawing.Color backgroundColour = System.Drawing.ColorTranslator.FromHtml(this.config.getPersistantString("backgroundColour"));
+
+                    if (this.config.getPersistantBool("useFilter")) {
+                        this.fileNodes.setFilterSQL(this.config.getPersistantString("filter"));
                     }
 
                     int i = 0;
@@ -117,13 +117,15 @@ namespace RPS {
         private void MonitorsAndConfigReady() {
             if (this.action != Actions.Preview) {
                 for (int i = 0; i < this.monitors.Length; i++) {
-                    this.monitors[i].setHistory(JsonConvert.DeserializeObject<List<long>>(this.config.getPersistant("historyM" + Convert.ToString(i))), Convert.ToInt32(this.config.getPersistant("historyOffsetM" + Convert.ToString(i))));
+                    if (this.config.hasPersistantKey("historyM" + Convert.ToString(i)) && this.config.hasPersistantKey("historyOffsetM" + Convert.ToString(i))) {
+                        this.monitors[i].setHistory(JsonConvert.DeserializeObject<List<long>>((string)this.config.getPersistant("historyM" + Convert.ToString(i))), Convert.ToInt32((string)this.config.getPersistant("historyOffsetM" + Convert.ToString(i))));
+                    }
                 }
             }
         }
 
         private void DoWorkDeleteFile(object sender, DoWorkEventArgs e) {
-            //            Debug.WriteLine(this.config.getValue("folders"));
+            //            Debug.WriteLine(this.config.getPersistant("folders"));
             BackgroundWorker worker = sender as BackgroundWorker;
             // Lower priority to ensure smooth working of main screensaver
             System.Diagnostics.Process.GetCurrentProcess().PriorityClass = System.Diagnostics.ProcessPriorityClass.BelowNormal;
@@ -214,7 +216,7 @@ namespace RPS {
                     if (step > 1) s = " x " + step;
                     this.monitors[i].showInfoOnMonitor(">>" + s);
                     this.monitors[i].nextImage(step);
-                    this.monitors[i].showImage(this.config.getCheckboxValue("useTransitionsOnInput"));
+                    this.monitors[i].showImage(this.config.getPersistantBool("useTransitionsOnInput"));
                     //this.monitors[i].startTimer();
                 }
             }
@@ -232,7 +234,7 @@ namespace RPS {
                     if (step > 1) s = " x " + step;
                     this.monitors[i].showInfoOnMonitor("<<" + s);
                     this.monitors[i].previousImage(step);
-                    this.monitors[i].showImage(this.config.getCheckboxValue("useTransitionsOnInput"));
+                    this.monitors[i].showImage(this.config.getPersistantBool("useTransitionsOnInput"));
                     //this.monitors[i].startTimer();
                 }
             }
@@ -297,10 +299,10 @@ namespace RPS {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                                     if (this.monitors[i].imagePath() != null) {
                                         if (e.Control) {
-                                            if (!File.Exists(this.config.getValue("externalEditor"))) {
-                                                this.monitors[i].showInfoOnMonitor("External editor: '" + this.config.getValue("externalEditor") + "' not found.", true, true);
+                                            if (!File.Exists(Convert.ToString(this.config.getPersistant("externalEditor")))) {
+                                                this.monitors[i].showInfoOnMonitor("External editor: '" + this.config.getPersistant("externalEditor") + "' not found.", true, true);
                                             } else {
-                                                Process.Start(this.config.getValue("externalEditor"), this.monitors[i].imagePath());
+                                                Process.Start(Convert.ToString(this.config.getPersistant("externalEditor")), this.monitors[i].imagePath());
                                             }
                                         } else {
                                             Process.Start("explorer.exe", "/e,/select," + this.monitors[i].imagePath());
@@ -308,13 +310,13 @@ namespace RPS {
                                     }
                                 }
                             }
-                            if (Convert.ToBoolean(this.config.getCheckboxValue("closeAfterImageLocate"))) this.OnExit();
+                            if (Convert.ToBoolean(this.config.getPersistantBool("closeAfterImageLocate"))) this.OnExit();
                         break;
                         case Keys.F:
                         case Keys.NumPad7:
                             for (int i = 0; i < this.monitors.Length; i++) {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
-                                    this.config.setValue("showFilenameM" + (i + 1), Convert.ToString(this.monitors[i].InvokeScript("toggle", new string[] { "#filename" })));
+                                    this.config.setPersistant("showFilenameM" + (i + 1), Convert.ToString(this.monitors[i].InvokeScript("toggle", new string[] { "#filename" })));
                                 }
                             }
                         break;
@@ -331,7 +333,7 @@ namespace RPS {
                         case Keys.N:
                             for (int i = 0; i < this.monitors.Length; i++) {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
-                                    this.config.setValue("showQuickMetadataM" + (i + 1), Convert.ToString(this.monitors[i].InvokeScript("toggle", new string[] { "#quickMetadata" })));
+                                    this.config.setPersistant("showQuickMetadataM" + (i + 1), Convert.ToString(this.monitors[i].InvokeScript("toggle", new string[] { "#quickMetadata" })));
                                 }
                             }
                         break;
@@ -376,16 +378,16 @@ namespace RPS {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                                     string display = "true";
                                     string clockType = "current";
-                                    switch(this.config.getValue("clockM" + (i + 1))) {
+                                    switch(Convert.ToString(this.config.getPersistant("clockM" + (i + 1)))) {
                                         case "none":
-                                            this.config.setValue("currentClockM" + (i + 1), "checked");
+                                            this.config.setPersistant("currentClockM" + (i + 1), "checked");
                                         break;
                                         case "current":
-                                            this.config.setValue("elapsedClockM" + (i + 1), "checked");
+                                            this.config.setPersistant("elapsedClockM" + (i + 1), "checked");
                                             clockType = "elapsed";
                                         break;
                                         case "elapsed":
-                                            this.config.setValue("noClockM" + (i + 1), "checked");
+                                            this.config.setPersistant("noClockM" + (i + 1), "checked");
                                             display = "false";
                                         break;
                                     }
@@ -432,7 +434,7 @@ namespace RPS {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                                     this.monitors[i].timer.Stop();
                                     this.monitors[i].offsetImage(1);
-                                    this.monitors[i].showImage(this.config.getCheckboxValue("useTransitionsOnInput"));
+                                    this.monitors[i].showImage(this.config.getPersistantBool("useTransitionsOnInput"));
                                     this.monitors[i].showInfoOnMonitor("v (" + this.monitors[i].offset + ")");
                                     this.monitors[i].startTimer();
                                 }
@@ -445,7 +447,7 @@ namespace RPS {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                                     this.monitors[i].timer.Stop();
                                     this.monitors[i].offsetImage(-1);
-                                    this.monitors[i].showImage(this.config.getCheckboxValue("useTransitionsOnInput"));
+                                    this.monitors[i].showImage(this.config.getPersistantBool("useTransitionsOnInput"));
                                     this.monitors[i].showInfoOnMonitor("^ (" + this.monitors[i].offset + ")");
                                     this.monitors[i].startTimer();
                                 }
@@ -483,7 +485,7 @@ namespace RPS {
                             this.startTimers();
                         break;
                         case Keys.Delete:
-                            if (this.config.getCheckboxValue("deleteKey")) {
+                        if (this.config.getPersistantBool("deleteKey")) {
                                 this.pauseAll(false);
                                 for (int i = 0; i < this.monitors.Length; i++) {
                                     if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
@@ -510,7 +512,7 @@ namespace RPS {
                             }
                         break;
                         default:
-                            if (!this.config.getCheckboxValue("onlyEscapeExits")) {
+                        if (!this.config.getPersistantBool("onlyEscapeExits")) {
                                 this.OnExit();
                             }
                         break;
@@ -525,7 +527,7 @@ namespace RPS {
             /***
              * ToDo: Store value for monitor 0 rather than last monitor
              ***/
-            this.config.setValue("sequentialStartImageId", this.fileNodes.currentSequentialSeedId.ToString());
+            this.config.setPersistant("sequentialStartImageId", this.fileNodes.currentSequentialSeedId.ToString());
             string imageIds = "";
             for(int i = 0; i < this.monitors.Length; i++) {
                 imageIds += this.monitors[i].imageId() + ";";
@@ -582,7 +584,7 @@ namespace RPS {
         private void MouseClick(object sender, MouseEventArgs e) {
             if (!this.config.Visible) {
                 //if (this.config.hiding) return null;
-                if (this.config.getCheckboxValue("browseMouse")) {
+                if (this.config.getPersistantBool("browseMouse")) {
                     switch (e.Button) {
                         case MouseButtons.Left:
                             this.actionNext(1);
@@ -605,7 +607,7 @@ namespace RPS {
                 if (this.mouseX == -1) this.mouseX = e.X;
                 if (this.mouseY == -1) this.mouseY = e.Y;
                 int sensitivity = 0;
-                switch (this.config.getRadioValue("mouseSensitivity")) {
+                switch (this.config.getPersistantString("mouseSensitivity")) {
                     case "high":
                         sensitivity = 0;
                     break;
@@ -628,8 +630,6 @@ namespace RPS {
                 this.mouseY = e.Y;
             }
         }
-
-
    
         /// <summary>
         /// The main entry point for the application.
@@ -674,6 +674,7 @@ namespace RPS {
                     Application.Run(screensaver);
                 break;
                 case Actions.Preview:
+    //MessageBox.Show(hwnds[0].ToString());
                     screensaver.monitors = new Monitor[hwnds.Length];
                     screensaver.monitors[0] = new Monitor(hwnds[0], 0, screensaver);
                     screensaver.monitors[0].FormClosed += new FormClosedEventHandler(screensaver.OnFormClosed);

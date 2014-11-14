@@ -11,10 +11,6 @@
   <script src="vendor/fancytree/dist/src/jquery.fancytree.filter.js" type="text/javascript"></script>
   <script src="js/jquery.fancytree.rps.js" type="text/javascript"></script>
   <script src="vendor/jquery.highlight-4.js" type="text/javascript"></script>
-
-	<link rel="stylesheet" href="vendor/Numeric-Stepper/stepper/jquery.stepper.css"/>
-	<script src="vendor/Numeric-Stepper/stepper/jquery.stepper.js"></script>
-
 	<script src='vendor/spectrum/spectrum.js'></script>
 	<link rel='stylesheet' href='vendor/spectrum/spectrum.css' />
 
@@ -114,8 +110,8 @@
 			<div class="set">
 				<h3>Order of slideshow</h3>
 				<div id="order" class="radioGroupHorizontal">
-					<input type="radio" id="orderRandom" name="order" value="random" checked /> <label for="orderRandom">Random</label>
-					<input type="radio" id="orderSequential" name="order" value="sequential"/> <label for="orderSequential">Sequential</label>
+					<input type="radio" id="orderRandom" name="order" value="1" checked /> <label for="orderRandom">Random</label>
+					<input type="radio" id="orderSequential" name="order" value="0"/> <label for="orderSequential">Sequential</label>
 				</div>
 				<div class="keywords">sort ordering sorting sort by</div>
 				<div class="clear"></div>
@@ -284,7 +280,7 @@
 				<input type="checkbox" id="useFilter"/> <label for="useFilter">Use filters</label>
 				<div class="clear"></div>
 				<label for="filter">Select filter</label>
-				<input type="text" id="filter" value="`all` LIKE '%Exposure Time	1/100\' || x'0d' || x'0a' || '%'"/>
+				<input type="text" id="filter" value="`all` LIKE &quot;%Exposure Time	1/100&quot; || x'0d' || x'0a' || &quot;%&quot;;"/>
 				<a id="applyFilter" class="button" href="#">Apply filter</a> <a id="clearFilter" class="button" href="#">Clear filter</a>
 				<div class="clear"></div>
 			</div>
@@ -325,8 +321,8 @@
 
 			<div class="set">
 				<h2>Monitor settings</h2>
-				<div class="monitors multimonitor">
-					<div id="M1" class="monitor">
+				<div class="monitors">
+					<div id="M1" class="monitor multimonitor">
 						<h3>Monitor 1</h3>
 						<div class="set">
 							<div class="set checkboxGroup">
@@ -337,7 +333,7 @@
 							<div class="set radioGroup">
 								<h4>Clock</h4>
 								<div id="clockM1">
-									<input id="noClockM1" type="radio" name="clockM1" value="none"/><label for="noClockM1">No clock</label>
+									<input id="noClockM1" type="radio" name="clockM1" value="none" checked/><label for="noClockM1">No clock</label>
 									<input id="currentClockM1" type="radio" name="clockM1" value="current"/><label for="currentClockM1">Current time</label>
 									<input id="elapsedClockM1" type="radio" name="clockM1" value="elapsed"/><label for="elapsedClockM1">Screensaver running time</label>
 								</div>
@@ -400,27 +396,7 @@
 					</div>
 					<div class="keywords">previous old</div>
 				</div>
-
 			</div>
-
-			<!--h2 class="underline">Plug-ins</h2>
-			<div class="set radioGroup">
-				<h3>Clock</h3>
-				<div class="monitor">
-					<h4>Monitor 1</h4>
-					<input id="noClock1" type="radio" name="clock1" value="none"/><label for="noClock1">No clock</label>
-					<input id="currentClock1" type="radio" name="clock1" value="current"/><label for="currentClock1">Current time</label>
-					<input id="elapsedClock1" type="radio" name="clock1" value="elapsed"/><label for="elapsedClock1">Screensaver running time</label>
-				</div>
-
-				<div class="monitor">
-					<h4>Monitor 2</h4>
-					<input id="noClock2" type="radio" name="clock2" value="none"/><label for="noClock2">No clock</label>
-					<input id="currentClock2" type="radio" name="clock2" value="current"/><label for="currentClock2">Current time</label>
-					<input id="elapsedClock2" type="radio" name="clock2" value="elapsed"/><label for="elapsedClock2">Screensaver running time</label>
-					<div class="keywords">elapsed data</div>
-				</div>
-			</div-->
 			<div class="set">
 				<h2 class="underline">Keys</h2>
 				<table>

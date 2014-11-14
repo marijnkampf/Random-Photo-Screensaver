@@ -25,10 +25,10 @@
     "lazy": false,
     "folder": true,
 		"children": [
-			{ "selected": true, "title": "Up" },
-			{ "selected": true, "title": "Down" },
-			{ "selected": true, "title": "Left" },
-			{ "selected": true, "title": "Right" }
+			{ "selected": false, "title": "Up" },
+			{ "selected": false, "title": "Down" },
+			{ "selected": false, "title": "Left" },
+			{ "selected": false, "title": "Right" }
 		]
   },
   {
@@ -75,7 +75,7 @@
 		]
   },
   {
-    "selected": false,
+    "selected": true,
     "expanded": false,
     "unselectable": false,
     "key": "fold",
@@ -123,8 +123,8 @@
     "lazy": false,
     "folder": true,
 		"children": [
-			{ "selected": true, "key": "up", "title": "Vertical" },
-			{ "selected": true, "key": "left", "title": "Horizontal" }
+			{ "selected": false, "key": "up", "title": "Vertical" },
+			{ "selected": false, "key": "left", "title": "Horizontal" }
 		]
   },
   {

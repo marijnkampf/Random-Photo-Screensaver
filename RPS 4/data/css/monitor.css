@@ -52,7 +52,7 @@ html, body {
 }
 
 .preview {
-	font-size: 20%;
+	font-size: 10% !important;
 }
 
 .info {

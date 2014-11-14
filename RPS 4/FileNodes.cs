@@ -71,14 +71,14 @@ namespace RPS {
 
         public void exifToolWorkerStarted() {
             if (this.exifToolWorker == null) {
-                this.exifToolWorker = new ExifTool.Wrapper(this.config.getValue("exifTool"));
+                this.exifToolWorker = new ExifTool.Wrapper(Convert.ToString(this.config.getPersistant("exifTool")));
                 this.exifToolWorker.Starter();
             }
         }
 
         public void exifToolMainStarted() {
             if (this.exifToolMain == null) {
-                this.exifToolMain = new ExifTool.Wrapper(this.config.getValue("exifTool"));
+                this.exifToolMain = new ExifTool.Wrapper(Convert.ToString(this.config.getPersistant("exifTool")));
                 this.exifToolMain.Starter();
             }
         }
@@ -117,7 +117,7 @@ namespace RPS {
 
                 if (Directory.Exists(folders[0])) {
                     this.nrFolders++;
-                    HtmlElement he;
+                    //HtmlElement he;
                     string allowedExtensions;
                     bool ignoreHiddenFiles;
                     bool ignoreHiddenFolders;
@@ -125,14 +125,14 @@ namespace RPS {
                     string rawExtensions = null;
 
                     try {
-                        he = this.config.getElementById("imageExtensions");
-                        allowedExtensions = this.config.getValue("imageExtensions").ToLower() + " " + this.config.getValue("videoExtensions").ToLower();
-                        ignoreHiddenFiles = this.config.getCheckboxValue("ignoreHiddenFiles");
-                        ignoreHiddenFolders = this.config.getCheckboxValue("ignoreHiddenFolders");
-                        excludeSubfolders = this.config.getCheckboxValue("excludeAllSubfolders");
+                        //he = this.config.getElementById("imageExtensions");
+                        allowedExtensions = this.config.getPersistantString("imageExtensions").ToLower() + " " + this.config.getPersistantString("videoExtensions").ToLower();
+                        ignoreHiddenFiles = this.config.getPersistantBool("ignoreHiddenFiles");
+                        ignoreHiddenFolders = this.config.getPersistantBool("ignoreHiddenFolders");
+                        excludeSubfolders = this.config.getPersistantBool("excludeAllSubfolders");
 
-                        if (this.config.getCheckboxValue("rawUseConverter")) {
-                            rawExtensions = this.config.getValue("rawExtensions").ToLower();
+                        if (this.config.getPersistantBool("rawUseConverter")) {
+                            rawExtensions = Convert.ToString(this.config.getPersistant("rawExtensions")).ToLower();
                             allowedExtensions += " " + rawExtensions;
                         }
                     } catch (Exception e) {
@@ -248,8 +248,8 @@ namespace RPS {
         public bool cacheRawImage(string rawSource, string jpgDest, bool hideFolder, bool hideFile) {
             if (File.Exists(jpgDest)) return true;
 
-            if (!File.Exists(this.config.getValue("rawConverter"))) {
-                throw new FileNotFoundException("Raw converter: '" + this.config.getValue("rawConverter") + "' not found."); 
+            if (!File.Exists(Convert.ToString(this.config.getPersistant("rawConverter")))) {
+                throw new FileNotFoundException("Raw converter: '" + this.config.getPersistant("rawConverter") + "' not found."); 
             }
 
             if (!Directory.Exists(Path.GetDirectoryName(jpgDest))) {
@@ -263,7 +263,7 @@ namespace RPS {
             // Convert raw
             // Hide raw file
             string size = "";
-            if (this.config.getRadioValue("rawCacheSize") == "monitor") {
+            if (this.config.getPersistantString("rawCacheSize") == "monitor") {
                 size = "--size=" + this.config.maxMonitorDimension;// Get screen max dimensions!!!
 
             }
@@ -272,8 +272,8 @@ namespace RPS {
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             p.StartInfo.CreateNoWindow = true;
-            p.StartInfo.FileName = this.config.getValue("rawConverter");
-            p.StartInfo.Arguments = size + " " + this.config.getValue("rawConverterParams").Replace("#RAW#", rawSource).Replace("#JPG#", jpgDest);
+            p.StartInfo.FileName = Convert.ToString(this.config.getPersistant("rawConverter"));
+            p.StartInfo.Arguments = size + " " + Convert.ToString(this.config.getPersistant("rawConverterParams")).Replace("#RAW#", rawSource).Replace("#JPG#", jpgDest);
             p.Start();
             p.PriorityClass = ProcessPriorityClass.BelowNormal;
             p.WaitForExit();
@@ -288,15 +288,15 @@ namespace RPS {
         }
 
         public string checkImageCache(string filename, long monitor, ref Hashtable settings) {
-            string rawExtensions = this.config.getValue("rawExtensions");
-            bool rawUseConverter = this.config.getCheckboxValue("rawUseConverter");
-            //if ((this.config.getValue("rawExtensions").IndexOf(Path.GetExtension(filename).ToLower()) > -1) && this.config.getCheckboxValue("rawUseConverter")) {
+            string rawExtensions = Convert.ToString(this.config.getPersistant("rawExtensions"));
+            bool rawUseConverter = this.config.getPersistantBool("rawUseConverter");
+            //if ((this.config.getPersistant("rawExtensions").IndexOf(Path.GetExtension(filename).ToLower()) > -1) && this.config.getCheckboxValue("rawUseConverter")) {
             if ((rawExtensions.IndexOf(Path.GetExtension(filename).ToLower()) > -1) && rawUseConverter) {
                 string cachedFilename = null;
                 bool hideFolder = true;
                 bool hideFile = false;
 
-                switch (this.config.getRadioValue("rawLocation")) {
+                switch (this.config.getPersistantString("rawLocation")) {
                     case "same":
                         cachedFilename = Path.ChangeExtension(filename, Constants.rawFileConvertedExt);
                         hideFile = true;
@@ -304,14 +304,14 @@ namespace RPS {
                     case "subfolder":
                         cachedFilename = Path.Combine(
                             Path.GetDirectoryName(filename),
-                            this.config.getValue("rawSubfolder"),
+                            Convert.ToString(this.config.getPersistant("rawSubfolder")),
                             Path.GetFileNameWithoutExtension(filename) + Constants.rawFileConvertedExt
                         );
                         hideFile = false;
                     break;
                     case "separate":
                         cachedFilename = Path.Combine(
-                            this.config.getValue("rawFolder"),
+                            Convert.ToString(this.config.getPersistant("rawFolder")),
                             Path.ChangeExtension(filename, Constants.rawFileConvertedExt).Replace(":", "")
                         );
                         hideFolder = false;
@@ -331,7 +331,7 @@ namespace RPS {
             this.
             /*
             string[] imageIds;
-            string s = this.config.getValue("randomStartImages");
+            string s = this.config.getPersistant("randomStartImages");
             if (s != null && s.Length > 0) {
                 imageIds = s.Split(';');
                 long imageId;
@@ -348,13 +348,13 @@ namespace RPS {
         public DataRow getSequentialImage(int monitor, int offset) {
             DataRow currentImage = null;
 
-            string sortByColumn = this.screensaver.config.getRadioValue("sortBy");
-            SortOrder sortDirection = new SortOrder(this.screensaver.config.getRadioValue("sortDirection"));
+            string sortByColumn = this.screensaver.config.getPersistantString("sortBy");
+            SortOrder sortDirection = new SortOrder(this.screensaver.config.getPersistantString("sortDirection"));
 
             if (this.currentSequentialSeedId == -1) {
                 try {
                     long imageId;
-                    imageId = Convert.ToInt32(this.config.getValue("sequentialStartImageId"));
+                    imageId = Convert.ToInt32(this.config.getPersistant("sequentialStartImageId"));
                     currentImage = this.fileDatabase.getImageById(imageId, (this.screensaver.monitors.Length - 1) * -1, sortByColumn, sortDirection);
                 } catch (Exception e) {
                     currentImage = this.fileDatabase.getFirstImage(sortByColumn, sortDirection);
@@ -372,8 +372,8 @@ namespace RPS {
             if (offset == 0) {
                 return fileDatabase.getImageById(id, offset);
             } else {
-                string sortByColumn = this.screensaver.config.getRadioValue("sortBy");
-                SortOrder sortDirection = new SortOrder(this.screensaver.config.getRadioValue("sortDirection"));
+                string sortByColumn = this.screensaver.config.getPersistantString("sortBy");
+                SortOrder sortDirection = new SortOrder(this.screensaver.config.getPersistantString("sortDirection"));
                 return fileDatabase.getImageById(id, offset, sortByColumn, sortDirection);
             }
         }
@@ -411,7 +411,7 @@ namespace RPS {
         }
 
         public int purgeNotMatchingParentFolders(List<string> folders) {
-            return this.fileDatabase.purgeNotMatchingParentFolders(folders, this.screensaver.config.getCheckboxValue("excludeAllSubfolders"));
+            return this.fileDatabase.purgeNotMatchingParentFolders(folders, this.screensaver.config.getPersistantBool("excludeAllSubfolders"));
         }
 /*
         public void addIdToMetadataQueue(long monitorId, DataRow image) {
@@ -423,13 +423,13 @@ namespace RPS {
             this.nrFolders = 0;
             this.nrUnprocessedMetadata = -1;
 
-//            Debug.WriteLine(this.config.getValue("folders"));
+//            Debug.WriteLine(this.config.getPersistant("folders"));
             BackgroundWorker worker = sender as BackgroundWorker;
             // Lower priority to ensure smooth working of main screensaver
             System.Diagnostics.Process.GetCurrentProcess().PriorityClass = System.Diagnostics.ProcessPriorityClass.BelowNormal;
             this.bwSender = sender;
             this.bwEvents = e;
-            var folders = stringToListFolders(this.config.getValue("folders"));
+            var folders = stringToListFolders(Convert.ToString(this.config.getPersistant("folders")));
             this.swFileScan = new System.Diagnostics.Stopwatch();
             this.swMetadata = new System.Diagnostics.Stopwatch();
             if (this.purgeNotMatchingParentFolders(folders) > 0) {
@@ -460,7 +460,7 @@ namespace RPS {
             long nrImagesFiltered = this.fileDatabase.nrImagesFilter();
             long nrImagesInDb = this.fileDatabase.nrImagesInDB();
             if (nrImagesFiltered > 0 || nrImagesInDb > 0) {
-                if (this.screensaver.config.getCheckboxValue("useFilter")) {
+                if (this.screensaver.config.getPersistantBool("useFilter")) {
                     info += String.Format("DB {0:##,#}, filter {1:##,#} images; ", this.fileDatabase.nrImagesInDB(), this.fileDatabase.nrImagesFilter(), this.nrFiles, this.nrFolders);
                 } else {
                     info += String.Format("DB {0:##,#} images; ", this.fileDatabase.nrImagesInDB());
@@ -475,7 +475,10 @@ namespace RPS {
             }
             try {
                 this.screensaver.monitors[0].browser.Document.InvokeScript("dbInfo", new String[] { info });
-            } catch (NullReferenceException nre) {
+                // TODO: Limit exceptions?
+            } catch (Exception ex) {
+                //NullReferenceException
+                // System.ObjectDisposedException: thrown on change screen saver preview
 
             }
         }

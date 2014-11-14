@@ -102,7 +102,12 @@ namespace RPS {
             command.Parameters.AddWithValue("@path", fi.FullName);
             SQLiteDataReader reader = command.ExecuteReader();
             DataTable dt = new DataTable();
-            dt.Load(reader);
+            try {
+                dt.Load(reader);
+            } catch (Exception e) {
+                // ToDo debug and work out exceptions that can occur here
+                return;
+            }
             bool executeNonQuery = false;
             if (dt.Rows.Count > 0) {
                 if ((DateTime)dt.Rows[0]["created"] < fi.CreationTime ||

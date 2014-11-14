@@ -23,6 +23,11 @@ using System.Net;
 using System.Security.Cryptography;
 /***
  * 
+ * TODO: Reflect changes made in config.html into this.persistant!!!
+ * 
+ * 
+ * 
+ * 
  * Consider optimising by storing all values from html in c# array?
  * this.folders: takes 0.0002ms - 0.0005ms
  * this.browser.Document.GetElementById(id).InnerHtml takes 55.1357ms first request and 0.2303ms - 0.3389ms consequtive requests
@@ -35,9 +40,9 @@ namespace RPS {
 
     public partial class Config : Form {
 
-        public enum Order { Random, Sequential };
+        public enum Order { Random = 1, Sequential = 0 };
 
-        private Dictionary<string, string> persistant;
+        private Dictionary<string, object> persistant;
         DBConnector dbConnector;
         //SQLiteConnection connection;
 
@@ -139,11 +144,11 @@ namespace RPS {
             HtmlElementCollection elems = browser.Document.GetElementsByTagName("body");
             foreach (HtmlElement elem in elems) {
                 switch (action) {
-                    case Screensaver.Actions.Preview: classes += "preview"; break;
-                    case Screensaver.Actions.Config: classes += "config"; break;
-                    case Screensaver.Actions.Screensaver: classes += "screensaver"; break;
-                    case Screensaver.Actions.Test: classes += "test"; break;
-                    case Screensaver.Actions.Slideshow: classes += "slideshow"; break;
+                    case Screensaver.Actions.Preview: classes += " preview"; break;
+                    case Screensaver.Actions.Config: classes += " config"; break;
+                    case Screensaver.Actions.Screensaver: classes += " screensaver"; break;
+                    case Screensaver.Actions.Test: classes += " test"; break;
+                    case Screensaver.Actions.Slideshow: classes += " slideshow"; break;
                 }
                 classes += " IE" + browser.Version.Major;
                 if (browser.Version.Major < 8) classes += " lowIE";
@@ -160,7 +165,7 @@ namespace RPS {
             this.browser.Document.InvokeScript("initMonitors", new string[] { Convert.ToString(Screen.AllScreens.Length) });
             //SQLiteConnection connection = 
             this.connectToDB();
-            this.persistant = new Dictionary<string, string>();
+            this.persistant = new Dictionary<string, object>();
 
             DataContext context = new DataContext(this.dbConnector.connection);
             var items = context.GetTable<Setting>();
@@ -170,7 +175,7 @@ namespace RPS {
 //                MessageBox.Show("item" + item.Key + " " + item.Value);
                 this.persistant.Add(item.Key, item.Value);
             }
-            if (!this.persistant.ContainsKey("folders") || this.persistant["folders"] == null || this.persistant["folders"].Trim().Length == 0) { 
+            if (!this.persistant.ContainsKey("folders") || this.persistant["folders"] == null || this.getPersistantString("folders").Trim().Length == 0) { 
                 string path = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) + Environment.NewLine + 
                                                         Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
                 if (!this.persistant.ContainsKey("folders")) {
@@ -180,7 +185,7 @@ namespace RPS {
                 }
             }
 
-            if (!this.persistant.ContainsKey("rawFolder") || this.persistant["rawFolder"] == null || this.persistant["rawFolder"].Trim().Length == 0) {
+            if (!this.persistant.ContainsKey("rawFolder") || this.persistant["rawFolder"] == null || Convert.ToString(this.persistant["rawFolder"]).Trim().Length == 0) {
                 string path = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), 
                     Constants.AppFolderName,
@@ -194,7 +199,7 @@ namespace RPS {
                 }
             }
 
-            if (!this.persistant.ContainsKey("effects") || this.persistant["effects"] == null || this.persistant["effects"] == "null" || this.persistant["effects"].Trim().Length == 0) {
+            if (!this.persistant.ContainsKey("effects") || this.persistant["effects"] == null || Convert.ToString(this.persistant["effects"]) == "null" || Convert.ToString(this.persistant["effects"]).Trim().Length == 0) {
                 // Load from effects.json
                 string path = Constants.getDataFolder(Constants.EffectsJsonFile);
                 if (File.Exists(path)) {
@@ -207,7 +212,7 @@ namespace RPS {
                     }
                 }
             } else {
-                this.effects = JsonConvert.DeserializeObject<jsonFolder>(this.persistant["effects"]);
+                this.effects = JsonConvert.DeserializeObject<jsonFolder>(Convert.ToString(this.persistant["effects"]));
             }
 
             HtmlElementCollection hec = this.GetElementsByTagName("input");
@@ -215,27 +220,41 @@ namespace RPS {
                 if (this.persistant.ContainsKey(e.GetAttribute("id")) || (e.GetAttribute("type") == "radio" && this.persistant.ContainsKey(e.GetAttribute("name")))) {
                     switch (e.GetAttribute("type")) {
                         case "checkbox":
-                            if (this.persistant[e.GetAttribute("id")] == "true") {
+                            if (this.getPersistantBool(e.GetAttribute("id")) == true) {
                                 e.SetAttribute("checked", "true");
                             } else {
                                 e.SetAttribute("checked", "");
                             }
+                            break;
+                        case "radio":
+                            if (this.getPersistantString(e.GetAttribute("name")) == e.GetAttribute("value")) {
+                                e.SetAttribute("checked", "true");
+                            }
+                            break;
+                        default:
+                            e.SetAttribute("value", this.getPersistantString(e.GetAttribute("id")));
+                            break;
+                    }
+                } else {
+                    switch (e.GetAttribute("type")) {
+                        case "checkbox":
+                            this.persistant[e.GetAttribute("id")] =  this.getDomCheckboxValue(e.GetAttribute("id"));
                         break;
                         case "radio":
-                            if (this.persistant[e.GetAttribute("name")] == e.GetAttribute("value")) {
-                                e.SetAttribute("checked", "true");
-                            } 
+                            this.persistant[e.GetAttribute("name")] =  this.getDomRadioValue(e.GetAttribute("name"));
                         break;
                         default:
-                            e.SetAttribute("value", this.persistant[e.GetAttribute("id")]);
+                            this.persistant[e.GetAttribute("id")] =  this.getDomValue(e.GetAttribute("id"));
                         break;
                     }
+                    
+                    // Set persistant value with default
                 }
             }
 
             hec = this.browser.Document.GetElementsByTagName("textarea");
             foreach (HtmlElement e in hec) if (this.persistant.ContainsKey(e.GetAttribute("id"))) {
-                e.SetAttribute("value", this.persistant[e.GetAttribute("id")]);
+                e.SetAttribute("value", Convert.ToString(this.persistant[e.GetAttribute("id")]));
             }
 
             string classes= null;
@@ -244,16 +263,21 @@ namespace RPS {
 
             this.browser.Document.InvokeScript("persistantConfigLoaded", new string[] { Convert.ToString(Screen.AllScreens.Length) });
 
+            if (this.screensaver.action == Screensaver.Actions.Preview && this.screensaver.monitors != null) {
+                this.screensaver.monitors[0].defaultShowHide();
+            }
+
         }
 
         public void safePersistantConfig() {
             this.persistant["effects"] = JsonConvert.SerializeObject(this.effects);
-
-            for(int i = 0; i < this.screensaver.monitors.Length; i++) {
-                this.persistant["historyM" + Convert.ToString(i)] = JsonConvert.SerializeObject(this.screensaver.monitors[i].historyLastEntries(Convert.ToInt32(this.getValue("rememberLast"))));
-                this.persistant["historyOffsetM"  + Convert.ToString(i)] = Convert.ToString(this.screensaver.monitors[i].offset);
+            if (this.screensaver.action != Screensaver.Actions.Config) {
+                for (int i = 0; i < this.screensaver.monitors.Length; i++) {
+                    this.persistant["historyM" + Convert.ToString(i)] = JsonConvert.SerializeObject(this.screensaver.monitors[i].historyLastEntries(Convert.ToInt32(this.getPersistant("rememberLast"))));
+                    this.persistant["historyOffsetM" + Convert.ToString(i)] = Convert.ToString(this.screensaver.monitors[i].offset);
+                }
             }
-
+/*
             HtmlElementCollection hec = this.GetElementsByTagName("input");
             foreach (HtmlElement e in hec) {
                 switch (e.GetAttribute("type")) {
@@ -275,7 +299,7 @@ namespace RPS {
             foreach (HtmlElement e in hec) {
                 this.persistant[e.GetAttribute("id")] = e.GetAttribute("value");
             }
-
+*/
             this.connectToDB();
             SQLiteTransaction transaction = null;
             try {
@@ -293,11 +317,12 @@ namespace RPS {
             //connection.Close();
             this.dbConnector.Close();
         }
-
+ 
+/*
         public string getPersistant(string key) {
             if (!this.persistant.ContainsKey(key)) throw new KeyNotFoundException(key);
-            return this.persistant[key];
-        }
+            return Convert.ToString(this.persistant[key]);
+        }*/
 
         public void Message(string Text) {
 //            Debug.WriteLine(this.Parent.ToString());
@@ -392,11 +417,11 @@ namespace RPS {
                 computer.children.Add(f);
             }
 
-            if (this.getValue("folders") == null) {
+            if (this.persistant == null || this.getPersistant("folders") == null) {
                 this.loadPersistantConfig();
             }
 
-            foreach (string folder in this.getValue("folders").Split(new string[] { Environment.NewLine, "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries)) {
+            foreach (string folder in Convert.ToString(this.getPersistant("folders")).Split(new string[] { Environment.NewLine, "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries)) {
                 if (folder.Substring(0, 2) == "\\\\") {
                     string[] parts = folder.Split(new string[] { "\\" }, StringSplitOptions.RemoveEmptyEntries);
                     int i = 0;
@@ -477,17 +502,33 @@ namespace RPS {
 
         public string getRandomEffect() {
             string json = null;
-            if (this.getCheckboxValue("useTransitions") && this.effects != null) {
+            if (this.getPersistantBool("useTransitions") && this.effects != null) {
                 jsonFolder effect = jsonFolder.getRandomSelected(this.effects.children);
                 jsonFolder direction = null;
-                json += "{\"effect\":\"" + effect.key + "\"";
-                if (effect.children.Count > 0) {
-                    direction = jsonFolder.getRandomSelected(effect.children);
-                    if (direction != null) json += ", \"direction\":\"" + direction.title.ToLower() + "\"";
+                if (effect == null) {
+                    json = "{\"effect\":\"fade\", \"duration\":100}";
+                } else { 
+                    json += "{\"effect\":\"" + effect.key + "\"";
+                    if (effect.children.Count > 0) {
+                        direction = jsonFolder.getRandomSelected(effect.children);
+                        if (direction != null) json += ", \"direction\":\"" + direction.title.ToLower() + "\"";
+                    }
+                    json += ", \"duration\":1000}";
                 }
-                json += ", \"duration\":1000}";
             }
             return json;
+        }
+
+        public void InputChanged(string id, string value) {
+            this.setPersistant(id, value);
+            /*            switch (type.ToLower()) {
+                            case "checkbox":
+                                this.setPersistant(id, this.getDomCheckboxValue(id));
+                            break;
+                            default:
+                                this.setPersistant(id, this.getDomValue(id));
+                            break;
+                        }*/
         }
 
         public string InvokeScriptOnMonitor(int monitor, string script, string parameters) {
@@ -500,12 +541,20 @@ namespace RPS {
             return s;
         }
 
+        private HtmlElement getElementById(string id) {
+            // Make thread safe 
+            try {
+                return (HtmlElement)this.browser.Invoke(new Func<HtmlElement>(() => this.browser.Document.GetElementById(id)));
+            } catch (Exception e) {
+                return null;
+            }
+        }
 
         /***
          * This function assumes that <div id="#name#"> encapsulates
          *  <input type="radio" name="#name# value=...> lines
          ***/
-        public string getRadioValue(string id) {
+        private string getDomRadioValue(string id) {
             HtmlElement he = (HtmlElement)this.browser.Invoke(new Func<HtmlElement>(() => this.browser.Document.GetElementById(id)));
             if (he != null) {
                 HtmlElementCollection hec = he.GetElementsByTagName("input");
@@ -518,21 +567,7 @@ namespace RPS {
             return null;
         }
 
-        public HtmlElement getElementById(string id) {
-            // Make thread safe 
-            try {
-                return (HtmlElement)this.browser.Invoke(new Func<HtmlElement>(() => this.browser.Document.GetElementById(id)));
-            } catch (Exception e) { 
-                return null; 
-            }
-        }
-
-        public void checkCheckbox(string id) {
-            HtmlElement he = this.getElementById(id);
-            if (he != null) he.SetAttribute("checked", "true"); 
-        }
-
-        public bool getCheckboxValue(string id) {
+        private bool getDomCheckboxValue(string id) {
             HtmlElement he = this.getElementById(id);
             if (he == null) return false;
             switch (he.TagName.ToLower()) {
@@ -546,45 +581,78 @@ namespace RPS {
             return false;
         }
 
-        public string getValue(string id) {
-            HtmlElement he = this.getElementById(id);
-            if (he == null) return null;
-            try {
-                switch (he.TagName.ToLower()) {
-                    case "textarea":
-                        return he.InnerHtml;
-                        break;
-                    default:
-                        return he.GetAttribute("value");
-                        break;
-                }
-            } catch (System.Runtime.InteropServices.COMException co) {
-                //this.screensaver.showInfoOnMonitors("Error getValue(" + id + ")\n" + Convert.ToString(co.Message));
-                return null;
+        public bool persistantLoaded() {
+            return this.persistant != null;
+        }
+
+        public bool hasPersistantKey(string key) {
+            return this.persistant.ContainsKey(key);
+        }
+
+        public void setPersistant(string key, object value) {
+            if (key == null) {
+                this.screensaver.showInfoOnMonitors("Invalid configuration key: null", true);
+            } else { 
+                this.persistant[key] = value;
             }
-            return null;
+        }
+
+        public object getPersistant(string key) {
+            if (!this.persistant.ContainsKey(key)) throw new KeyNotFoundException(key);
+            return persistant[key];
+        }
+
+        public bool getPersistantBool(string key) {
+            if (!this.persistant.ContainsKey(key)) throw new KeyNotFoundException(key);
+            if (this.persistant[key].GetType() == typeof(bool)) {
+                return (bool)this.persistant[key];
+            }
+            switch (Convert.ToString(this.persistant[key])) {
+                case "True": case "true": case "1": 
+                    return true; 
+                break;
+                case "False": case "false": case "0": 
+                    return false;
+                break;
+            }
+            throw new Exception("Can't cast keys '" + key + "' value " + this.persistant[key] + key + " to boolean");
+        }
+
+        public string getPersistantString(string key) {
+            return Convert.ToString(this.getPersistant(key));
         }
 
         public bool syncMonitors() {
-            return (this.getRadioValue("syncScreens").ToLower() == "true");
+            if (this.persistant == null) return false;
+            return this.getPersistantBool("syncScreens");
         }
 
         public Config.Order changeOrder() {
             if (this.getOrder() == Config.Order.Random) {
-                this.checkCheckbox("orderSequential");
+                //this.checkCheckbox("orderSequential");
+                this.setPersistant("order", Config.Order.Sequential);
                 return Config.Order.Sequential;
             } else {
-                this.checkCheckbox("orderRandom");
+                //this.checkCheckbox("orderRandom");
+                this.setPersistant("order", Config.Order.Random);
                 return Config.Order.Random;
             }
 //            return null;
         }
 
         public Config.Order getOrder() {
-            if (this.getCheckboxValue("orderRandom")) {
-                return Config.Order.Random;
+            if (this.getPersistant("order").GetType() == typeof(string)) {
+                switch (this.getPersistantString("order")) {
+                    case "random": case "1":
+                        return Config.Order.Random;
+                    break;
+                    default:
+                        return Config.Order.Sequential;
+                    break;
+                }
             } else {
-                return Config.Order.Sequential;
+                if ((Config.Order)Enum.Parse(typeof(Config.Order), this.getPersistantString("order")) == Config.Order.Random) return Config.Order.Random;
+                else return Config.Order.Sequential;
             }
         }
 
@@ -595,7 +663,7 @@ namespace RPS {
             }
         }
 
-        public void setValue(string id, string value) {
+        public void setDomValue(string id, string value) {
             HtmlElement he = this.getElementById(id);
             if (he != null) {
                 switch (he.TagName.ToLower()) {
@@ -628,6 +696,26 @@ namespace RPS {
             }
         }
 
+        public string getDomValue(string id) {
+            HtmlElement he = this.getElementById(id);
+            if (he == null) return null;
+            try {
+                switch (he.TagName.ToLower()) {
+                    case "textarea":
+                        return he.InnerHtml;
+                        break;
+                    default:
+                        return he.GetAttribute("value");
+                        break;
+                }
+            } catch (System.Runtime.InteropServices.COMException co) {
+                //this.screensaver.showInfoOnMonitors("Error getPersistant(" + id + ")\n" + Convert.ToString(co.Message));
+                return null;
+            }
+            return null;
+        }
+
+        
         public void Config_FormClosing(object sender, FormClosingEventArgs e) {            
             if (screensaver.action == Screensaver.Actions.Config) {
                 this.safePersistantConfig();
@@ -652,14 +740,14 @@ namespace RPS {
         }
 
         private void Config_VisibleChanged(object sender, EventArgs e) {
-            if (this.Visible) {
+            if (this.Visible && this.screensaver.action != Screensaver.Actions.Config) {
                 // Showing
-                this.folderChanged = this.getValue("folders");
-                this.excludeAllSubfolders = this.getCheckboxValue("excludeAllSubfolders");
+                this.folderChanged = Convert.ToString(this.getPersistant("folders"));
+                this.excludeAllSubfolders = this.getPersistantBool("excludeAllSubfolders");
             } else if (this.screensaver.action != Screensaver.Actions.Config) {
                 // Hiding
-                if (this.folderChanged != this.getValue("folders") || this.excludeAllSubfolders != this.getCheckboxValue("excludeAllSubfolders")) {
-                    //this.screensaver.fileNodes.purgeNotMatchingParentFolders(this.getValue("folders"));
+                if (this.folderChanged != this.getPersistant("folders") || this.excludeAllSubfolders != this.getPersistantBool("excludeAllSubfolders")) {
+                    //this.screensaver.fileNodes.purgeNotMatchingParentFolders(this.getPersistant("folders"));
                     this.screensaver.fileNodes.restartBackgroundWorkerImageFolder();
 //                    MessageBox.Show("changed");
                 }
@@ -728,7 +816,7 @@ namespace RPS {
 
         private void timerCheckUpdates_Tick(object sender, EventArgs e) {
             this.timerCheckUpdates.Enabled = false;
-            switch (this.getRadioValue("checkUpdates")) {
+            switch (this.getPersistantString("checkUpdates")) {
                 case "yes":
                     this.checkUpdates = true;
                     this.downloadUpdates = true;

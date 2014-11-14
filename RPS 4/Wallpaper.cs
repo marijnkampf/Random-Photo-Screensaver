@@ -30,12 +30,12 @@ namespace RPS {
         }
 
         public bool changeWallpaper() {
-            switch(this.screensaver.config.getRadioValue("wallpaperChange")) {
+            switch(this.screensaver.config.getPersistantString("wallpaperChange")) {
                 case "never": 
                     return false;
                 break;
                 case "daily":
-                    if (Convert.ToDateTime(this.screensaver.config.getValue("wallpaperLastChange")).Equals(DateTime.Today)) return false;
+                if (Convert.ToDateTime(this.screensaver.config.getPersistant("wallpaperLastChange")).Equals(DateTime.Today)) return false;
                 break;
             }
             return true;
@@ -50,7 +50,7 @@ namespace RPS {
                     dr = this.screensaver.fileNodes.getRandomImage(0);
                     paths[i] = Convert.ToString(dr["path"]);
                     // no videos
-                    if (this.screensaver.config.getValue("videoExtensions").ToLower().IndexOf(new FileInfo(paths[i]).Extension.ToLower()) > -1) {
+                    if (Convert.ToString(this.screensaver.config.getPersistant("videoExtensions")).ToLower().IndexOf(new FileInfo(paths[i]).Extension.ToLower()) > -1) {
                         paths[i] = null;
                     }
                     j++;
@@ -94,7 +94,7 @@ namespace RPS {
                     }
                 }
             }
-            Color c = (Color)new ColorConverter().ConvertFromString(Convert.ToString(this.screensaver.config.getValue("wallpaperBackgroundColour")));
+            Color c = (Color)new ColorConverter().ConvertFromString(Convert.ToString(this.screensaver.config.getPersistant("wallpaperBackgroundColour")));
             System.Drawing.Brush fill = new System.Drawing.SolidBrush(c);
 
             for(int i = 0; i < Screen.AllScreens.Length; i++) {
@@ -114,7 +114,7 @@ namespace RPS {
                         string path = paths[i];
                         // Panorama
                         Rectangle bounds;
-                        if (i == 0 && this.screensaver.config.getCheckboxValue("stretchPanoramas") && imgRatio >= this.screensaver.desktopRatio) {
+                        if (i == 0 && this.screensaver.config.getPersistantBool("stretchPanoramas") && imgRatio >= this.screensaver.desktopRatio) {
                             // ToDo: Stretch wallpaper parts to fit monitor(s)
                             bounds = this.screensaver.Desktop;
                             i = Screen.AllScreens.Length;
@@ -125,8 +125,8 @@ namespace RPS {
                         g.FillRectangle(fill, bounds);
                         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                         g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g.DrawImage(image, Constants.FitIntoBounds(Rectangle.Round(image.GetBounds(ref units)), bounds, this.screensaver.config.getCheckboxValue("wallpaperStretchSmall")));
-                        if (this.screensaver.config.getCheckboxValue("wallpaperFilenames")) {
+                        g.DrawImage(image, Constants.FitIntoBounds(Rectangle.Round(image.GetBounds(ref units)), bounds, this.screensaver.config.getPersistantBool("wallpaperStretchSmall")));
+                        if (this.screensaver.config.getPersistantBool("wallpaperFilenames")) {
                             // ToDo: Get font settings from config.html
                             Font font = new Font("Arial", 10);
                             g.DrawString(path, font, new SolidBrush(Color.Black), bounds.Left + 1, bounds.Top + 1);
@@ -146,7 +146,7 @@ namespace RPS {
             //} catch(Exception ex) {}
             if (File.Exists(wallpaperPath)) {
                 SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, wallpaperPath, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
-                this.screensaver.config.setValue("wallpaperLastChange", Convert.ToString(DateTime.Today));
+                this.screensaver.config.setPersistant("wallpaperLastChange", Convert.ToString(DateTime.Today));
             }
         }
     }

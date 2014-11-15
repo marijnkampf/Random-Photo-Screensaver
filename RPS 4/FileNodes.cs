@@ -14,6 +14,8 @@ using System.Collections;
 namespace RPS {
     public class FileNodes {
         System.ComponentModel.BackgroundWorker backgroundWorker;
+        AutoResetEvent cancelCompleteEvent = new AutoResetEvent(false);
+
         bool restartBackgroundWorker = false;
         FileDatabase fileDatabase;
         //FileDatabase metaDatabase;
@@ -83,6 +85,10 @@ namespace RPS {
             }
         }
 
+        public void CancelBackgroundWorker() {
+            this.backgroundWorker.CancelAsync();
+        }
+
         private bool bwCancelled() {
             if ((backgroundWorker.CancellationPending == true)) {
                 this.bwEvents.Cancel = true;
@@ -136,6 +142,7 @@ namespace RPS {
                             allowedExtensions += " " + rawExtensions;
                         }
                     } catch (Exception e) {
+                        Debug.WriteLine("processFolders " + e.Message);
                         // TODO: only catch:
                         // System.NullReferenceException
                         // System.Runtime.InteropServices.InvalidComObjectException icoe
@@ -211,7 +218,8 @@ namespace RPS {
             int i = 0;
             string meta = null;
             while (dr != null) {
-                if (i % 50 == 0) this.fileDatabase.toggleMetadataTransaction();
+                if (this.bwCancelled() == true) return;
+                if (i % 50 == 0) this.fileDatabase.toggleMetadataTransaction(this.bwCancelled());
                 this.exifToolWorkerStarted();
                 meta = this.exifToolWorker.SendCommand(Convert.ToString(dr["path"]) + Constants.ExifToolMetadataOptions);
                 /*              // Alternative using exiv2, slightly (10% - 15%) quicker but output needs more processing (not tab deliminated)
@@ -228,6 +236,7 @@ namespace RPS {
                                 string meta = proc.StandardOutput.ReadToEnd();
                                 proc.WaitForExit();
                 */
+                if (this.bwCancelled() == true) return;
                 this.fileDatabase.addMetadataToDB(Convert.ToInt32(dr["id"]), meta);
                 this.nrUnprocessedMetadata--;
 
@@ -236,7 +245,7 @@ namespace RPS {
                 dr = this.fileDatabase.nextMetadataLessImage();
                 i++;
             }
-            this.fileDatabase.toggleMetadataTransaction();
+            this.fileDatabase.toggleMetadataTransaction(this.bwCancelled());
         }
 
 
@@ -357,6 +366,7 @@ namespace RPS {
                     imageId = Convert.ToInt32(this.config.getPersistant("sequentialStartImageId"));
                     currentImage = this.fileDatabase.getImageById(imageId, (this.screensaver.monitors.Length - 1) * -1, sortByColumn, sortDirection);
                 } catch (Exception e) {
+                    Debug.WriteLine("getSequentialImage " + e.Message); 
                     currentImage = this.fileDatabase.getFirstImage(sortByColumn, sortDirection);
                 }
             } else {
@@ -442,10 +452,15 @@ namespace RPS {
             this.processMetadata();
             this.swMetadata.Stop();
 
-            this.fileDatabase.purgeMetadata();
+            if (!this.backgroundWorker.CancellationPending) this.fileDatabase.purgeMetadata();
             //if (Convert.ToDateTime(this.config.setValue("wallpaperLastChange")).Equals(DateTime.Today));
-            Wallpaper wallpaper = new Wallpaper(this.screensaver);
-            if (wallpaper.changeWallpaper()) wallpaper.setWallpaper();
+            if (!this.backgroundWorker.CancellationPending) {
+                Wallpaper wallpaper = new Wallpaper(this.screensaver);
+                if (wallpaper.changeWallpaper()) wallpaper.setWallpaper();
+            }
+
+            this.cancelCompleteEvent.Set();
+
 /*
             var command = new SQLiteCommand(conn);
             command.CommandText = @"SELECT COUNT(id) FROM `FileNodes`;";
@@ -477,6 +492,7 @@ namespace RPS {
                 this.screensaver.monitors[0].browser.Document.InvokeScript("dbInfo", new String[] { info });
                 // TODO: Limit exceptions?
             } catch (Exception ex) {
+                Debug.WriteLine("progressChanged " + ex.Message);
                 //NullReferenceException
                 // System.ObjectDisposedException: thrown on change screen saver preview
 
@@ -504,6 +520,8 @@ namespace RPS {
         }
 
         public void OnExitCleanUp() {
+            this.CancelBackgroundWorker();
+            this.cancelCompleteEvent.WaitOne();
             this.fileDatabase.storePersistant();
             this.fileDatabase.CloseConnections();
         }

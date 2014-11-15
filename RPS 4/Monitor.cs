@@ -84,15 +84,11 @@ namespace RPS {
         public Monitor(IntPtr previewHwnd, int id, Screensaver screensaver): this(id, screensaver) {
             SetParent(this.Handle, previewHwnd);
             SetWindowLong(this.Handle, -16, new IntPtr(GetWindowLong(this.Handle, 0) | 0x40000000));
-            // TODO adjust size of window
 
             // Place our window inside the parent
             Rectangle ParentRect;
             GetClientRect(previewHwnd, out ParentRect);
             Size = ParentRect.Size;
-            //Location = new Point(40, 40);
-              //          this.Bounds = ParentRect;
-            //this.browser.Scale(new SizeF((float)250, (float)250));
         }
 
         public void defaultShowHide() {
@@ -163,6 +159,7 @@ namespace RPS {
                 try {
                     this.browser.Document.InvokeScript("showPriorityInfo", new String[] { info, Convert.ToString(fade) });
                 } catch (Exception e) {
+                    Debug.WriteLine("showInfoOnMonitor " + e.Message);
                     // TODO: log to debug file?
                     Debug.WriteLine(info);
                 }

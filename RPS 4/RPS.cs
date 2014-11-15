@@ -260,8 +260,13 @@ namespace RPS {
                             if (this.config.WindowState == FormWindowState.Minimized) {
                                 this.config.WindowState = FormWindowState.Normal;
                             } else {
-                                this.configHidden = true;
-                                this.config.Hide();
+                                if (this.action == Actions.Config) {
+                                    this.config.Config_FormClosing(this, null);
+                                    //this.OnExit();
+                                } else {
+                                    this.configHidden = true;
+                                    this.config.Hide();
+                                }
                             }
                         break;
                         case Keys.S:
@@ -527,6 +532,7 @@ namespace RPS {
             /***
              * ToDo: Store value for monitor 0 rather than last monitor
              ***/
+            this.fileNodes.CancelBackgroundWorker();
             this.config.setPersistant("sequentialStartImageId", this.fileNodes.currentSequentialSeedId.ToString());
             string imageIds = "";
             for(int i = 0; i < this.monitors.Length; i++) {
@@ -636,6 +642,7 @@ namespace RPS {
         /// </summary>
         [STAThread]
         static void Main(string[] args) {
+            //MessageBox.Show(String.Join(" ", args));
             IntPtr previewHwnd = IntPtr.Zero;
             IntPtr[] hwnds;
             Actions action = Actions.Screensaver;

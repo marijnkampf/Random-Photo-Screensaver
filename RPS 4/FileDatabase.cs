@@ -47,7 +47,7 @@ namespace RPS {
 
         public void CloseConnections() {
             this.dbConnector.Close();
-            this.toggleMetadataTransaction();
+            this.toggleMetadataTransaction(true);
             this.metaDataDbConnector.Close();
         }
 
@@ -102,12 +102,13 @@ namespace RPS {
             command.Parameters.AddWithValue("@path", fi.FullName);
             SQLiteDataReader reader = command.ExecuteReader();
             DataTable dt = new DataTable();
-            try {
+            //try {
                 dt.Load(reader);
-            } catch (Exception e) {
+            //} catch (System.InvalidOperationException ioe) {
+                //MessageBox.Show("addFileToDB " + e.Message);
                 // ToDo debug and work out exceptions that can occur here
-                return;
-            }
+              //  return;
+            //}
             bool executeNonQuery = false;
             if (dt.Rows.Count > 0) {
                 if ((DateTime)dt.Rows[0]["created"] < fi.CreationTime ||
@@ -266,7 +267,7 @@ namespace RPS {
                 }
                 this.toggleMetadataTransaction();
             } catch (Exception e) {
-
+                Debug.WriteLine("purgeMetadata " + e.Message);
             }
             return r;
         }
@@ -326,16 +327,21 @@ namespace RPS {
         }
 
         public void toggleMetadataTransaction() {
-            try {
+            this.toggleMetadataTransaction(false);
+        }
+
+        public void toggleMetadataTransaction(bool closeOnly) {
+            //try {
                 if (this.metaDataTransaction != null) {
                         this.metaDataTransaction.Commit();
                 }
-                this.metaDataTransaction = this.metaDataDbConnector.connection.BeginTransaction();
-            } catch (Exception e) {
-                // System.Data.SQLite.SQLiteException e
+                if (!closeOnly) this.metaDataTransaction = this.metaDataDbConnector.connection.BeginTransaction();
+            //} catch (Exception e) {
+                //MessageBox.Show("toggleMetadataTransaction " + e.Message);                // System.Data.SQLite.SQLiteException e
+                //return;
                 // System.ArgumentNullException
                 // Ignore failed commits;
-            }
+            //}
         }
 
         public void addMetadataToDB(long id, string metadata) {

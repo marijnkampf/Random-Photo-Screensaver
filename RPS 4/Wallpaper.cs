@@ -90,7 +90,7 @@ namespace RPS {
                         g.DrawImage(old, old.GetBounds(ref units));
                         old.Dispose();
                     } catch (Exception ex) {
-
+                        this.screensaver.showInfoOnMonitors(ex.Message);
                     }
                 }
             }

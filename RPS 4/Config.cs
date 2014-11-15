@@ -315,7 +315,7 @@ namespace RPS {
             }
             transaction.Commit();
             //connection.Close();
-            this.dbConnector.Close();
+            //this.dbConnector.Close();
         }
  
 /*
@@ -485,6 +485,7 @@ namespace RPS {
                         children.Add(d);
                     }
                 } catch (Exception e) {
+                    Debug.WriteLine("getFolder " + e.Message);
                     // No access
                 }
             }
@@ -533,7 +534,7 @@ namespace RPS {
 
         public string InvokeScriptOnMonitor(int monitor, string script, string parameters) {
             string s = null;
-            for (int i = 0; i < this.screensaver.monitors.Length; i++) {
+            if (this.screensaver.monitors != null) for (int i = 0; i < this.screensaver.monitors.Length; i++) {
                 if (monitor == Screensaver.CM_ALL || monitor == i) {
                     s += Convert.ToString(this.screensaver.monitors[i].InvokeScript(script, parameters.Split(';')));
                 }
@@ -546,6 +547,7 @@ namespace RPS {
             try {
                 return (HtmlElement)this.browser.Invoke(new Func<HtmlElement>(() => this.browser.Document.GetElementById(id)));
             } catch (Exception e) {
+                Debug.WriteLine("getElementById" + e.Message);
                 return null;
             }
         }
@@ -755,8 +757,10 @@ namespace RPS {
         }
 
         private void Config_Deactivate(object sender, EventArgs e) {
-            this.screensaver.configHidden = true;
-            this.Hide();
+            if (this.screensaver.action != Screensaver.Actions.Config) {
+                this.screensaver.configHidden = true;
+                this.Hide();
+            }
         }
 
         void DownloadFileCompleted(object sender, AsyncCompletedEventArgs e) {

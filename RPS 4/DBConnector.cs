@@ -6,6 +6,7 @@ using System.Data.SQLite;
 using System.IO;
 using System.Data;
 using System.Diagnostics;
+using System.Windows.Forms;
 
 /**
  * Run time memory based SQLite DB connection that is automatically stored in file db.
@@ -163,6 +164,7 @@ namespace RPS {
                     return dt.Rows[0];
                 } 
             } catch (Exception e) {
+                //this.screensaver.showInfoOnMonitors("executeReaderFirstDataRow " + e.Message);
                 Debug.WriteLine("Error: " + e.Message);
             }
             return null;

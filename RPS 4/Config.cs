@@ -790,8 +790,15 @@ namespace RPS {
             this.screensaver.showUpdateInfo(info);
         }
 
+        private Uri getUpdateUri() {
+            string param = "";
+            if (this.screensaver.config.getPersistantBool("disableGoAn")) param = "?track=no";
+            return new Uri(Constants.UpdateCheckURL + param);
+        }
+
+
         private void webUpdateCheck_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
-            if (this.webUpdateCheck.Url.Equals(Constants.UpdateCheckURL)) {
+            if (this.webUpdateCheck.Url.Equals(this.getUpdateUri())) {
                 HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
                 if (he != null) {
                     Version update = new Version(he.GetAttribute("data-version"));
@@ -830,7 +837,7 @@ namespace RPS {
                 break;
             }
             if (this.checkUpdates) {
-                this.webUpdateCheck.Url = new Uri(Constants.UpdateCheckURL);
+                this.webUpdateCheck.Url = this.getUpdateUri();
             }
 
         }

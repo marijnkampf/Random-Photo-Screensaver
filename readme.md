@@ -19,7 +19,7 @@ Installation
 ------------
 If you only want to use the screensaver download the latest executable from [abScreensavers.com](http://www.abscreensavers.com/random-photo-screensaver). 
 
-It requires .Net 4.0 and Internet Explorer 8 (the latest version of IE is recommended though).
+RPS requires .Net 4.0 and Internet Explorer 8 (the latest version of IE is recommended though).
 
 Compiling from source
 ---------------------

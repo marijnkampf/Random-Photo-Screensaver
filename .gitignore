@@ -3,3 +3,7 @@
 /RPS 4/data/AppData Local.lnk
 /RPS 4/RPS 4.csproj.user
 /*.suo
+
+/RPS Launcher/RPS Launcher/bin
+/RPS Launcher/RPS Launcher/obj
+/RPS Launcher/RPS Launcher/RPS Launcher.csproj.user

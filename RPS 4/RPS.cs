@@ -124,6 +124,24 @@ namespace RPS {
             }
         }
 
+        private static void singleProcess() {
+            Process currentProcess = Process.GetCurrentProcess();
+            string filename = currentProcess.MainModule.FileName.ToLower();
+            Process[] processes = Process.GetProcessesByName(currentProcess.ProcessName);
+            for (int i = 0; i < processes.Length; i++) {
+                string t = processes[i].MainModule.FileName.ToLower();
+                if (String.Compare(processes[i].MainModule.FileName.ToLower(), filename) == 0) {
+                    if (processes[i].Id != currentProcess.Id) {
+                        if (processes[i].MainWindowHandle == currentProcess.MainWindowHandle) {
+                            if (!processes[i].CloseMainWindow()) {
+                                processes[i].Kill();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         private void DoWorkDeleteFile(object sender, DoWorkEventArgs e) {
             //            Debug.WriteLine(this.config.getPersistant("folders"));
             BackgroundWorker worker = sender as BackgroundWorker;
@@ -373,7 +391,10 @@ namespace RPS {
                             // Don't hide config screen if application is in Config mode
                             if (this.action != Actions.Config) {
                                 if (this.config.Visible) this.config.Hide();
-                                else this.config.Show();
+                                else {
+                                    this.config.Activate();
+                                    this.config.Show();
+                                }
                             } else {
 
                             }
@@ -400,6 +421,9 @@ namespace RPS {
                                     this.monitors[i].InvokeScript("toggle", new string[] { "#clock", display });
                                 }
                             }
+                        break;
+                        case Keys.U:
+                            this.config.installUpdate();
                         break;
                         case Keys.W:
                             string[] paths = new string[this.monitors.Length];
@@ -517,8 +541,10 @@ namespace RPS {
                             }
                         break;
                         default:
-                        if (!this.config.getPersistantBool("onlyEscapeExits")) {
-                                this.OnExit();
+        		            if (!e.Alt && !e.Control && !e.Shift) {
+                                if (!this.config.getPersistantBool("onlyEscapeExits")) {
+                                    this.OnExit();
+                                }
                             }
                         break;
                     }
@@ -532,6 +558,7 @@ namespace RPS {
             /***
              * ToDo: Store value for monitor 0 rather than last monitor
              ***/
+            Cursor.Show();
             this.fileNodes.CancelBackgroundWorker();
             this.config.setPersistant("sequentialStartImageId", this.fileNodes.currentSequentialSeedId.ToString());
             string imageIds = "";
@@ -642,6 +669,7 @@ namespace RPS {
         /// </summary>
         [STAThread]
         static void Main(string[] args) {
+            Screensaver.singleProcess();
             //MessageBox.Show(String.Join(" ", args));
             IntPtr previewHwnd = IntPtr.Zero;
             IntPtr[] hwnds;
@@ -690,6 +718,7 @@ namespace RPS {
                     Application.Run(screensaver.monitors[0]);
                 break;
                 default:
+                    Cursor.Hide();
                     Application.AddMessageFilter(new MouseMessageFilter());
                     MouseMessageFilter.MouseMove += new MouseEventHandler(screensaver.MouseMove);
                     MouseMessageFilter.MouseClick += new MouseEventHandler(screensaver.MouseClick);

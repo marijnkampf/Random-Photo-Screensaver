@@ -515,14 +515,14 @@ function searchSettings(event) {
 	var sets = document.querySelectorAll(".set");
 	if (sets != undefined) {
 		for(var i = 0; i < sets.length; i++) {
-			if (sets[i].innerText.toLowerCase().contains(this.value.toLowerCase())) {
+			if (sets[i].textContent.toLowerCase().contains(this.value.toLowerCase())) {
 				sets[i].style.display = 'block';
 			} else {
 				sets[i].style.display = 'none';
 			}
 		}
-		$(sets).removeHighlight();
-		$(sets).highlight(this.value.toLowerCase());
+		//$(sets).removeHighlight();
+		//$(sets).highlight(this.value.toLowerCase());
 	}
 }
 

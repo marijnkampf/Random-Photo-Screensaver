@@ -754,6 +754,11 @@ namespace RPS {
 //                    MessageBox.Show("changed");
                 }
             }
+            if (this.Visible) {
+                Cursor.Show();
+            } else {
+                Cursor.Hide();
+            }
         }
 
         private void Config_Deactivate(object sender, EventArgs e) {
@@ -763,13 +768,32 @@ namespace RPS {
             }
         }
 
+        public void installUpdate() {
+            if (this.webUpdateCheck.Document != null) {
+                HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
+                if (he != null) {
+                    Process.Start(Convert.ToString(Path.Combine(Application.StartupPath, Constants.DownloadFolder, Path.GetFileName(he.GetAttribute("href")))));
+                    this.screensaver.OnExit();
+                    this.showUpdateInfo("Running installer");
+                    return;
+                }
+            }
+            this.showUpdateInfo("Nothing to install");
+        }
+
         void DownloadFileCompleted(object sender, AsyncCompletedEventArgs e) {
             HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
             string updatePath = Path.Combine(Application.StartupPath, Constants.DownloadFolder, Path.GetFileName(he.GetAttribute("href")));
             if (!this.VerifyMD5(updatePath, he.GetAttribute("data-md5"))) {
                 this.showUpdateInfo("Download " + he.GetAttribute("data-version") + " failed<br/>Please <a href='" + he.GetAttribute("href") + "'>download update manually</a>.");
+                return;
             }
-            this.screensaver.showUpdateInfo("RPS " + he.GetAttribute("data-version") + " downloaded<br/><a class='exit external' target='_blank' href='file://" + updatePath + "'>Click to install now</a>.");
+            if (this.getPersistantString("checkUpdates") == "yes") this.installUpdate();
+            else {
+                string clickOrKey = "Press 'U' key to update";
+                if (this.getPersistant("mouseSensitivity") == "none") clickOrKey = "Click to install now";
+                this.screensaver.showUpdateInfo("RPS " + he.GetAttribute("data-version") + " downloaded<br/><a class='exit external' target='_blank' href='file://" + updatePath + "'>" + clickOrKey + "</a>.");
+            }
         }
 
         bool VerifyMD5(string path, string md5verify) {
@@ -828,7 +852,7 @@ namespace RPS {
         private void timerCheckUpdates_Tick(object sender, EventArgs e) {
             this.timerCheckUpdates.Enabled = false;
             switch (this.getPersistantString("checkUpdates")) {
-                case "yes":
+                case "yes": case "download":
                     this.checkUpdates = true;
                     this.downloadUpdates = true;
                 break;

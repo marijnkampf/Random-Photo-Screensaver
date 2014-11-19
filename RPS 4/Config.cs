@@ -736,7 +736,7 @@ namespace RPS {
         }
 
         private void Config_Shown(object sender, EventArgs e) {
-            this.setInnerHTML("version", Application.ProductVersion.Replace(".0.", " Beta ").Replace(".0", ""));
+            this.setInnerHTML("version", Application.ProductVersion.Replace(".1.", " RC ").Replace(".0.", " Beta ").Replace(".0", ""));
             this.browser.Document.InvokeScript("initFancyTreeFolder");
             this.browser.Document.InvokeScript("initFancyTreeTransitions");
         }

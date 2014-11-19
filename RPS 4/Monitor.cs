@@ -445,7 +445,7 @@ namespace RPS {
 
 
         public void historyAdd(long id) {
-            this.history.Add(Convert.ToInt32(this.currentImage["id"]));
+            this.history.Add(id);
             long max = Convert.ToInt32(this.screensaver.config.getPersistant("maxHistory"));
             if (max > 0) while (this.history.Count() > max) {
                     // Decrease historyPointer first to be on the safe side

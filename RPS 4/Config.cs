@@ -78,7 +78,7 @@ namespace RPS {
         public SQLiteConnection connectToDB() {
             this.dbConnector = new DBConnector(
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Constants.AppFolderName, Constants.PersistantConfigFileName),
-                Constants.SettingsDatabaseSQL,
+                Constants.SettingsDefinition,
                 false
             );
             //return new SQLiteConnection("Data Source=" + path + ";Version=3;");
@@ -277,29 +277,7 @@ namespace RPS {
                     this.persistant["historyOffsetM" + Convert.ToString(i)] = Convert.ToString(this.screensaver.monitors[i].offset);
                 }
             }
-/*
-            HtmlElementCollection hec = this.GetElementsByTagName("input");
-            foreach (HtmlElement e in hec) {
-                switch (e.GetAttribute("type")) {
-                    case "checkbox":
-                        this.persistant[e.GetAttribute("id")] = e.GetAttribute("checked").ToLower();
-                    break;
-                    case "radio":
-                        if (e.GetAttribute("checked").ToLower() == "true") {
-                            this.persistant[e.GetAttribute("name")] = e.GetAttribute("value");
-                        }
-                    break;
-                    default:
-                        this.persistant[e.GetAttribute("id")] = e.GetAttribute("value");
-                    break;
-                }
-            }
-               
-            hec = this.browser.Document.GetElementsByTagName("textarea");
-            foreach (HtmlElement e in hec) {
-                this.persistant[e.GetAttribute("id")] = e.GetAttribute("value");
-            }
-*/
+
             this.connectToDB();
             SQLiteTransaction transaction = null;
             try {
@@ -314,18 +292,9 @@ namespace RPS {
                 insertSQL.ExecuteNonQuery();
             }
             transaction.Commit();
-            //connection.Close();
-            //this.dbConnector.Close();
         }
  
-/*
-        public string getPersistant(string key) {
-            if (!this.persistant.ContainsKey(key)) throw new KeyNotFoundException(key);
-            return Convert.ToString(this.persistant[key]);
-        }*/
-
         public void Message(string Text) {
-//            Debug.WriteLine(this.Parent.ToString());
             MessageBox.Show(Text);
         }
 
@@ -600,7 +569,7 @@ namespace RPS {
         }
 
         public object getPersistant(string key) {
-            if (!this.persistant.ContainsKey(key)) throw new KeyNotFoundException(key);
+            if (this.persistant == null || !this.persistant.ContainsKey(key)) throw new KeyNotFoundException(key);
             return persistant[key];
         }
 
@@ -851,7 +820,16 @@ namespace RPS {
 
         private void timerCheckUpdates_Tick(object sender, EventArgs e) {
             this.timerCheckUpdates.Enabled = false;
-            switch (this.getPersistantString("checkUpdates")) {
+            string update;
+            try {
+                update = this.getPersistantString("checkUpdates");
+            } catch(KeyNotFoundException knfe) {
+                // Try again in a bit
+                this.timerCheckUpdates.Interval *= 2;
+                this.timerCheckUpdates.Enabled = true;
+                return;
+            }
+            switch (update) {
                 case "yes": case "download":
                     this.checkUpdates = true;
                     this.downloadUpdates = true;

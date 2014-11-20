@@ -27,7 +27,7 @@ namespace RPS {
                     Constants.AppFolderName,
                     Constants.DbFileName
                 ),
-                Constants.FileDatabaseSQL
+                Constants.FileNodesDefinition
             );
 
             // Connect to metadata regardless so it can be switched on whilst running
@@ -38,7 +38,7 @@ namespace RPS {
             );
             this.metaDataDbConnector = new DBConnector(
                 mdbPath, 
-                Constants.MetadataSQL, 
+                Constants.MetadataDefinition, 
                 false
             );
 
@@ -98,7 +98,7 @@ namespace RPS {
              * Tested single line statement: SQLiteCommand insertSQL = new SQLiteCommand("INSERT OR IGNORE INTO FileNodes (path, parentpath, created, modified, size) VALUES (@path, @pathHash, @parentPathHash, @created, @modified, @size) ", this.dbConnector.connection);
              *****/
             SQLiteCommand command;
-            command = new SQLiteCommand("SELECT id, path, parentpath, created, modified, size FROM `FileNodes` WHERE path = @path LIMIT 1;", this.dbConnector.connection);
+            command = new SQLiteCommand("SELECT id, created, modified, size FROM `FileNodes` WHERE path = @path LIMIT 1;", this.dbConnector.connection);
             command.Parameters.AddWithValue("@path", fi.FullName);
             SQLiteDataReader reader = command.ExecuteReader();
             DataTable dt = new DataTable();
@@ -115,12 +115,13 @@ namespace RPS {
                     (DateTime)dt.Rows[0]["modified"] < fi.LastWriteTime ||
                     (long)dt.Rows[0]["size"] != fi.Length) 
                 {
-                    command = new SQLiteCommand("UPDATE `FileNodes` SET `created` = @created, `modified` = @modified, `size` = @size, `metainfoindexed` = 0 WHERE `id` = @id", this.dbConnector.connection);
+                    command = new SQLiteCommand("UPDATE `FileNodes` SET `created` = @created, `filename` = @filename, `modified` = @modified, `size` = @size, `metainfoindexed` = 0 WHERE `id` = @id", this.dbConnector.connection);
                     command.Parameters.AddWithValue("@id", (long)dt.Rows[0]["id"]);
                     executeNonQuery = true;
                 }
             } else {
-                command = new SQLiteCommand("INSERT INTO FileNodes (`path`, `parentpath`, `created`, `modified`, `size`) VALUES (@path, @parentpath, @created, @modified, @size) ", this.dbConnector.connection);
+                command = new SQLiteCommand("INSERT INTO FileNodes (`path`, `parentpath`, `filename`, `created`, `modified`, `size`) " +
+                                                           "VALUES (@path,  @parentpath,  @filename,  @created,  @modified,  @size) ", this.dbConnector.connection);
                 command.Parameters.AddWithValue("@path", fi.FullName);
                 // Add trailing slash so we can filter on complete paths ('c:\test\' won't match 'c:\testing\')
                 command.Parameters.AddWithValue("@parentpath", fi.DirectoryName.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar);
@@ -129,6 +130,7 @@ namespace RPS {
             if (executeNonQuery) { 
                 command.Parameters.AddWithValue("@created", fi.CreationTime);
                 command.Parameters.AddWithValue("@modified", fi.LastWriteTime);
+                command.Parameters.AddWithValue("@filename", fi.Name);
                 command.Parameters.AddWithValue("@size", fi.Length);
                 System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
                 sw.Start();
@@ -332,7 +334,7 @@ namespace RPS {
 
         public void toggleMetadataTransaction(bool closeOnly) {
             //try {
-                if (this.metaDataTransaction != null) {
+                if (this.metaDataTransaction != null && this.metaDataTransaction.Connection != null) {
                         this.metaDataTransaction.Commit();
                 }
                 if (!closeOnly) this.metaDataTransaction = this.metaDataDbConnector.connection.BeginTransaction();

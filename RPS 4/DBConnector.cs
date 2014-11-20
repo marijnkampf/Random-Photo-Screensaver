@@ -55,17 +55,17 @@ namespace RPS {
 
     class DBConnector {
         private string filename;
-        private string CreateTableSQL;
+        private DBTableDefinition tableDefinition;
         public SQLiteConnection connection;
         private SQLiteCommand command;
         private bool keepInMemory;
 
 
-        public DBConnector(string filename, string CreateTableSQL) :this(filename, CreateTableSQL, true) { }
+        public DBConnector(string filename, DBTableDefinition tableDefinition) : this(filename, tableDefinition, true) { }
 
-        public DBConnector(string filename, string CreateTableSQL, bool keepInMemory) {
+        public DBConnector(string filename, DBTableDefinition tableDefinition, bool keepInMemory) {
             this.filename = filename;
-            this.CreateTableSQL = CreateTableSQL;
+            this.tableDefinition = tableDefinition;
             this.keepInMemory = keepInMemory;
             if (this.keepInMemory) {
                 this.connection = new SQLiteConnection("Data Source=:memory:;Version=3;");
@@ -110,11 +110,43 @@ namespace RPS {
                 SQLiteConnection.CreateFile(filename);
                 filePersists = new SQLiteConnection("Data Source=" + filename + ";Version=3;");
                 filePersists.Open();
-                SQLiteCommand sqlCommand = new SQLiteCommand(this.CreateTableSQL, filePersists);
+                SQLiteCommand sqlCommand = new SQLiteCommand(this.tableDefinition.CreateTableSQL(), filePersists);
                 sqlCommand.ExecuteNonQuery();
             } else {
                 filePersists = new SQLiteConnection("Data Source=" + filename + ";Version=3;");
                 filePersists.Open();
+
+                // Check all DB columns exists
+
+                SQLiteCommand sqlCommand = new SQLiteCommand("PRAGMA TABLE_INFO(`" + this.tableDefinition.tablename + "`)" , filePersists);
+                SQLiteDataReader sqlReader = sqlCommand.ExecuteReader();
+                DataTable dt = new DataTable();
+                dt.Load(sqlReader);
+                bool createTable = false;
+                foreach(KeyValuePair<string, ColumnInfo> column in this.tableDefinition.columns) {
+                    if (dt.Rows.Count == 0) createTable = true;
+                    else {
+                        DataRow[] found = dt.Select("`name` = '" + column.Key + "'");
+                        if (found == null || found.Length == 0) {
+                            createTable = true;
+                        }
+                    }
+                    if (createTable) {
+                        sqlCommand = new SQLiteCommand(this.tableDefinition.CreateTableSQL(), filePersists);
+                        try {
+                            sqlCommand.ExecuteNonQuery();
+                        } catch (System.Data.SQLite.SQLiteException se) {
+                            if (se.ErrorCode == 5) {
+                                Cursor.Show();
+                                MessageBox.Show("The database file '" + filename + "' is locked" + Environment.NewLine + "Unlock database and try again.", "Database file locked", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                Application.Exit();
+                            }
+                            throw se;
+                        }
+                        return filePersists;
+                    }
+                }
+
             }
             return filePersists;
         }

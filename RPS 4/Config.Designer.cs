@@ -64,7 +64,7 @@
             this.Controls.Add(this.browser);
             this.Name = "Config";
             this.Text = "Configuration Random Photo Screensaver";
-            this.Deactivate += new System.EventHandler(this.Config_Deactivate);            
+            this.Deactivate += new System.EventHandler(this.Config_Deactivate);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Config_FormClosing);
             this.Shown += new System.EventHandler(this.Config_Shown);
             this.VisibleChanged += new System.EventHandler(this.Config_VisibleChanged);

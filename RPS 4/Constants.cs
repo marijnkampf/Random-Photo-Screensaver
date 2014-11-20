@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Data.Linq;
 
 namespace RPS {
     static class Constants {
@@ -42,36 +43,83 @@ namespace RPS {
         //        public readonly string[] imageExtensions = { ".gif", ".png", ".jpeg", ".jpg", ".pcx", ".bmp" };
   //      public readonly string[] movieExtensions = { ".avi", ".wmv", "mp4" };
 
+        public static DBTableDefinition FileNodesDefinition = new DBTableDefinition(
+            "FileNodes",
+            new Dictionary<string, ColumnInfo> {
+                {"id",              new ColumnInfo("INTEGER PRIMARY KEY AUTOINCREMENT", true, true) },
+                {"path",            new ColumnInfo("TEXT UNIQUE", true, true)},
+                {"parentpath",      new ColumnInfo("TEXT", true)},
+                {"filename",        new ColumnInfo("TEXT", true)},
+                {"created",         new ColumnInfo("DATETIME", true)},
+                {"modified",        new ColumnInfo("DATETIME", true)},
+                {"size",            new ColumnInfo("INTEGER", true)},
+                {"metainfoindexed", new ColumnInfo( "INTEGER DEFAULT 0")}
+            }
+        );
+
+       
+/*
+        public static Dictionary<string, string> FileDatabaseColumns = 
+
+/*
         public const string FileDatabaseColumns = @"
 	`id`	            INTEGER PRIMARY KEY AUTOINCREMENT,
 	`path`	            TEXT UNIQUE,
 	`parentpath`	    TEXT,
+	`filename`	        TEXT,
 	`created`	        DATETIME,
 	`modified`	        DATETIME,
 	`size`	            INTEGER,
 	`metainfoindexed`   INTEGER DEFAULT 0
-        ";
-
-        public const string FileDatabaseSQL = @"
+        ";*/
+/*
+        public static string FileDatabaseSQL = @"
 PRAGMA page_size=4096;
-CREATE TABLE `FileNodes` (" + Constants.FileDatabaseColumns + @"
+CREATE TABLE `FileNodes` (" + Constants.DictionaryToSQLColumnDefs(Constants.FileDatabaseColumns) + @"
         );";
-
+        */
         public const string FileDatabaseIndexes = @"
 CREATE UNIQUE INDEX FileNodes_Path ON FileNodes(path);
+CREATE INDEX FileNodes_Parentpath ON FileNodes(parentpath);
+CREATE INDEX FileNodes_Parentpath ON FileNodes(filename);
+CREATE INDEX FileNodes_Parentpath ON FileNodes(size);
 CREATE INDEX FileNodes_Created ON FileNodes(created);
 CREATE INDEX FileNodes_Modified ON FileNodes(modified);
-CREATE INDEX FileNodes_Parentpath ON FileNodes(parentpath);
        ";
 
         public const string MetadataSQL = @"
 PRAGMA page_size=4096;
 CREATE TABLE `Metadata` (
-	`id`	INTEGER NOT NULL,
-	`all`	TEXT,
+	`id`	    INTEGER NOT NULL,
+	`all`	    TEXT,
+	`width`	    INTEGER,
+	`height`    INTEGER,
+	`area`	    INTEGER,
 	PRIMARY KEY(id)
 );
         ";
+
+        public static DBTableDefinition MetadataDefinition = new DBTableDefinition(
+            "Metadata",
+            new Dictionary<string, ColumnInfo> {
+                {"id",              new ColumnInfo("INTEGER PRIMARY KEY") },
+                {"all",             new ColumnInfo("TEXT")},
+                {"width",           new ColumnInfo("TEXT")},
+                {"height",          new ColumnInfo("TEXT")},
+                {"area",            new ColumnInfo("DATETIME")},
+            }
+        );
+
+
+
+        public static DBTableDefinition SettingsDefinition = new DBTableDefinition(
+            "Setting",
+            new Dictionary<string, ColumnInfo> {
+                {"id",              new ColumnInfo("INTEGER PRIMARY KEY AUTOINCREMENT") },
+                {"key",             new ColumnInfo("TEXT UNIQUE")},
+                {"value",           new ColumnInfo("TEXT")},
+            }
+        );
 
         public const string SettingsDatabaseSQL = @"
 PRAGMA page_size=4096;

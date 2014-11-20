@@ -31,14 +31,7 @@ namespace RPS {
                     }
                     this.metadata[key] = kv[1];
                 }
-                    
-
-                //Debug.Assert(kv.Length == 2, "Can not parse line :'" + s + "'");
             }
-/*
-            this.metadata = s.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries)
-                            .Select(part => part.Split(new[] { "\t" }, StringSplitOptions.None))
-                            .ToDictionary(split => split[0], split => split[1]);*/
         }
 
         public Dictionary<string, string> filter(string keyFilter) {

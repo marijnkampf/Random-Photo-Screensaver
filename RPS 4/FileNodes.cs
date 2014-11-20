@@ -64,11 +64,15 @@ namespace RPS {
         }*/
 
         public void setFilterSQL(string sql) {
+            this.config.setPersistant("useFilter", true);
             this.fileDatabase.setFilterSQL(sql);
+            this.showProgress();
         }
 
         public void clearFilter() {
+            this.config.setPersistant("useFilter", false);
             this.fileDatabase.clearFilter();
+            this.showProgress();
         }
 
         public void exifToolWorkerStarted() {
@@ -470,18 +474,17 @@ namespace RPS {
             */
         }
 
-        private void progressChanged(object sender, ProgressChangedEventArgs e) {
+        private string showProgress() {
             string info = "";// = "No files found in folder(s) - Press 'S' key to show configuration screen";
             long nrImagesFiltered = this.fileDatabase.nrImagesFilter();
             long nrImagesInDb = this.fileDatabase.nrImagesInDB();
             if (nrImagesFiltered > 0 || nrImagesInDb > 0) {
-                if (this.screensaver.config.getPersistantBool("useFilter")) {
-                    info += String.Format("DB {0:##,#}, filter {1:##,#} images; ", this.fileDatabase.nrImagesInDB(), this.fileDatabase.nrImagesFilter(), this.nrFiles, this.nrFolders);
-                } else {
-                    info += String.Format("DB {0:##,#} images; ", this.fileDatabase.nrImagesInDB());
-                }
+                info += String.Format("DB {0:##,#} images; ", this.fileDatabase.nrImagesInDB());
             }
-            if (this.nrUnprocessedMetadata >= 0) {
+            if (this.screensaver.config.getPersistantBool("useFilter")) {
+                info += String.Format("filtered {0:##,#} images; ", this.fileDatabase.nrImagesFilter());
+            }
+            if (this.nrUnprocessedMetadata > 0) {
                 info += String.Format(" Metadata queue {0:##,#} files", this.nrUnprocessedMetadata);
             } else {
                 if (this.nrFiles > 0 || this.nrFolders > 0) {
@@ -497,6 +500,11 @@ namespace RPS {
                 // System.ObjectDisposedException: thrown on change screen saver preview
 
             }
+            return info;
+        }
+
+        private void progressChanged(object sender, ProgressChangedEventArgs e) {
+            this.showProgress();
         }
 
         private void runWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
@@ -514,7 +522,8 @@ namespace RPS {
                 if (this.screensaver.fileNodes.fileDatabase.nrImagesFilter() == 0) {
                     this.screensaver.showInfoOnMonitors("No images found in folder(s)\n\ror filter didn't return any results.\n\rPress 'S' key to enter setup", true);
                 }
-                if (this.screensaver.monitors != null) this.screensaver.monitors[0].browser.Document.InvokeScript("dbInfo", new String[] { String.Format("Found {0:##,#} files in {1:##,#} folders ({3:##,#}ms); Metadata queue {2:##,#} files ({4:##,#}ms)", this.nrFiles, this.nrFolders, this.nrUnprocessedMetadata, this.swFileScan.ElapsedMilliseconds, this.swMetadata.ElapsedMilliseconds) });
+                this.showProgress();
+                //if (this.screensaver.monitors != null) this.screensaver.monitors[0].browser.Document.InvokeScript("dbInfo", new String[] { this.getProgress() });
                 //Debug.WriteLine("BackgroundWork done!");
             }
         }

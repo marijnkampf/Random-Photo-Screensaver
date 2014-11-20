@@ -107,6 +107,7 @@
     </EmbeddedResource>
     <Compile Include="Constants.cs" />
     <Compile Include="DBConnector.cs" />
+    <Compile Include="DBTableDefinition.cs" />
     <Compile Include="ExifToolWrapper.cs" />
     <Compile Include="FileDatabase.cs" />
     <Compile Include="FileNodes.cs" />

@@ -136,9 +136,11 @@ namespace RPS {
                 }
             }
             if (!Directory.Exists(Path.GetDirectoryName(wallpaperPath))) {
+                Cursor.Show();
                 if (DialogResult.OK != MessageBox.Show("Create folder '"+Path.GetDirectoryName(wallpaperPath)+"'>\n\nOk: Creates folder for backgrounds\nCancel doesn't change background image.", "Installation folder for background not found!", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation)) {
                     return;
                 }
+                Cursor.Hide();
                 Directory.CreateDirectory(Path.GetDirectoryName(wallpaperPath));
             }
             //try {

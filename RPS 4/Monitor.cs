@@ -300,7 +300,8 @@ namespace RPS {
 
                 if (this.currentImage.Table.Columns.Contains("all")) {
                     rawMetadata = Convert.ToString(this.currentImage["all"]);
-                } else {
+                }
+                if (rawMetadata == null || rawMetadata == "") {
                     rawMetadata = this.screensaver.fileNodes.getMetadataById(Convert.ToInt32(this.currentImage["id"]));
                     if (rawMetadata == null) {
                         try {
@@ -346,29 +347,31 @@ namespace RPS {
                                 }
                             }
                         }
-                        int width = Convert.ToInt32(this.quickMetadata.metadata["image width"]);
-                        int height = Convert.ToInt32(this.quickMetadata.metadata["image height"]);
-                        float imgRatio = (float)width / (float)height;
-                        if (this.screensaver.config.getPersistantBool("stretchPanoramas") && imgRatio >= this.screensaver.desktopRatio) {
-                            Rectangle pano = Constants.FitIntoBounds(new Rectangle(0, 0, width, height), this.screensaver.Desktop, false);
-                            this.imageSettings["pano"] = true;
-                            if (this.id != 0 && this.Bounds.Height != this.screensaver.monitors[0].Bounds.Height) {
-                                this.imageSettings["pano.top"] = (this.Bounds.Height - pano.Height) / 2;//pano.Y - this.Bounds.Y;
-                            } else {
-                                this.imageSettings["pano.top"] = pano.Y - this.Bounds.Y;
-                            }
-                            this.imageSettings["pano.left"] = pano.X - this.Bounds.X;
-                            this.imageSettings["pano.width"] = pano.Width;
-                            this.imageSettings["pano.height"] = pano.Height;
-
-                            if (this.id == 0) {
-                                for (int i = 1; i < this.screensaver.monitors.Length; i++) {
-                                    if (this.screensaver.monitors[i] != null) this.screensaver.monitors[i].trySetNextImage(Convert.ToInt32(this.currentImage["id"]));
+                        if (this.quickMetadata != null) {
+                            int width = Convert.ToInt32(this.quickMetadata.metadata["image width"]);
+                            int height = Convert.ToInt32(this.quickMetadata.metadata["image height"]);
+                            float imgRatio = (float)width / (float)height;
+                            if (this.screensaver.config.getPersistantBool("stretchPanoramas") && imgRatio >= this.screensaver.desktopRatio) {
+                                Rectangle pano = Constants.FitIntoBounds(new Rectangle(0, 0, width, height), this.screensaver.Desktop, false);
+                                this.imageSettings["pano"] = true;
+                                if (this.id != 0 && this.Bounds.Height != this.screensaver.monitors[0].Bounds.Height) {
+                                    this.imageSettings["pano.top"] = (this.Bounds.Height - pano.Height) / 2;//pano.Y - this.Bounds.Y;
+                                } else {
+                                    this.imageSettings["pano.top"] = pano.Y - this.Bounds.Y;
                                 }
-                            }
-                        } else {
-                            for (int i = 0; i < this.screensaver.monitors.Length; i++) {
-                                this.screensaver.monitors[i].panoramaPart = false;
+                                this.imageSettings["pano.left"] = pano.X - this.Bounds.X;
+                                this.imageSettings["pano.width"] = pano.Width;
+                                this.imageSettings["pano.height"] = pano.Height;
+
+                                if (this.id == 0) {
+                                    for (int i = 1; i < this.screensaver.monitors.Length; i++) {
+                                        if (this.screensaver.monitors[i] != null) this.screensaver.monitors[i].trySetNextImage(Convert.ToInt32(this.currentImage["id"]));
+                                    }
+                                }
+                            } else {
+                                for (int i = 0; i < this.screensaver.monitors.Length; i++) {
+                                    this.screensaver.monitors[i].panoramaPart = false;
+                                }
                             }
                         }
                     break;
@@ -520,8 +523,6 @@ namespace RPS {
                     this.currentImage = this.screensaver.fileNodes.getRandomImage();
                     if (this.currentImage != null) {
                         this.historyAdd(Convert.ToInt32(this.currentImage["id"]));
-                        //this.historyPointer += step;
-
                         this.seedImageId = Convert.ToInt32(this.currentImage["id"]);
                         if (this.offset != 0) {
                             this.currentImage = this.screensaver.fileNodes.getImageById(this.seedImageId, this.offset);
@@ -529,7 +530,6 @@ namespace RPS {
                     }
                 }
             } else {
-                //int offset = 1;
                 if (this.panoramaPart) {
                     this.currentImage = this.screensaver.monitors[0].currentImage;
                 } else {

@@ -389,6 +389,16 @@ $(function(){
 		}
 	});
 
+	$("#save").click(function() {
+/*		if (typeof(window.external.safePersistantConfig) === "undefined") {
+			alert("Can't automatically save settings in browser preview mode");
+		} else {*/
+			window.external.safePersistantConfig();
+			beep();
+			//alert("Setting are saved");
+		//}
+	});
+
 	$("#detectUFRaw").click(function() {
 		if (typeof(window.external.jsGetUFRawLocation) === "undefined") {
 			alert("Can't automatically get UFRaw location in browser preview mode");

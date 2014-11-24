@@ -306,11 +306,11 @@ namespace RPS {
          * Called from config.js
          ****/
         public void applyFilter(string filter) {
-            this.screensaver.fileNodes.setFilterSQL(filter);
+            if (this.screensaver.fileNodes != null) this.screensaver.fileNodes.setFilterSQL(filter);
         }
 
         public void clearFilter(string dummy) {
-            this.screensaver.fileNodes.clearFilter();
+            if (this.screensaver.fileNodes != null) this.screensaver.fileNodes.clearFilter();
         }
 
         public bool resetWallpaper() {

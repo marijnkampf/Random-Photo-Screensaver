@@ -492,7 +492,9 @@ namespace RPS {
                 }
             }
             try {
-                this.screensaver.monitors[0].browser.Document.InvokeScript("dbInfo", new String[] { info });
+                for (int i = 0; i < this.screensaver.monitors.Length; i++) {
+                    this.screensaver.monitors[i].browser.Document.InvokeScript("showIndexProgress", new String[] { info });
+                }
                 // TODO: Limit exceptions?
             } catch (Exception ex) {
                 Debug.WriteLine("progressChanged " + ex.Message);

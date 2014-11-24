@@ -569,6 +569,13 @@ function initMonitors(count) {
 					window.external.InvokeScriptOnMonitor(monitor, "toggle", params.join(";"));
 				}
 			break;
+			case "showIndexProgress":
+				var params = [ "#indexprogress", this.checked ];
+				if (typeof(window.external.InvokeScriptOnMonitor) !== "undefined") {
+					window.external.InvokeScriptOnMonitor(monitor, "toggle", params.join(";"));
+				}
+			break;
+
 			case "noClock":
 			case "currentClock":
 			case "elapsedClock":

@@ -82,8 +82,8 @@ html, body {
 	top: 0.25em;
 }
 
-#dbinfo {
-	z-index: 90;
+#indexprogress {
+	z-index: 100;
 	left: 0.5em;
 	bottom: 0.5em;
 }

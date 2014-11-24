@@ -162,8 +162,8 @@ function showMetadata(metadata) {
 	document.getElementById("quickMetadata").innerText = metadata;
 }
 
-function dbInfo(info) {
-	document.getElementById("dbinfo").innerText = info;
+function showIndexProgress(info) {
+	document.getElementById("indexprogress").innerText = info;
 }
 
 function setImageRotation(deg, scale) {

@@ -266,3 +266,7 @@ label {
 .lowIE .lowIEWarning {
 	display: block;
 }
+
+.config #clearFilter, .config #applyFilter {
+	display: none;
+}

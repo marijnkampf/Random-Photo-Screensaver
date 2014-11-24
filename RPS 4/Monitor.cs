@@ -95,6 +95,7 @@ namespace RPS {
             this.InvokeScript("setBackgroundColour", new string[] { Convert.ToString(this.screensaver.config.getPersistant("backgroundColour")) });
             this.InvokeScript("toggle", new string[] { "#quickMetadata", Convert.ToString(this.screensaver.config.getPersistantBool("showQuickMetadataM" + (this.id + 1))) });
             this.InvokeScript("toggle", new string[] { "#filename", Convert.ToString(this.screensaver.config.getPersistantBool("showFilenameM" + (this.id + 1))) });
+            this.InvokeScript("toggle", new string[] { "#indexprogress", Convert.ToString(this.screensaver.config.getPersistantBool("showIndexProgressM" + (this.id + 1))) });
 
             string clockType = this.screensaver.config.getPersistantString("clockM" + (this.id + 1));
             if (clockType == null) clockType = "none";

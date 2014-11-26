@@ -225,6 +225,10 @@ CREATE UNIQUE INDEX `keys` ON `Setting` (`key` ASC);
             return fullPath;
         }
 
+        public static string getNiceVersion() {
+            return Application.ProductVersion.Replace(".1.", " RC ").Replace(".0.", " Beta ").Replace(".0", "");
+        }
+
 /*         	
 1 = Horizontal (normal)
 2 = Mirror horizontal

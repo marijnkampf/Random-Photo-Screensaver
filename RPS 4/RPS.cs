@@ -114,6 +114,10 @@ namespace RPS {
             }
         }
 
+        private void CleanUpOnException(object sender, UnhandledExceptionEventArgs args) {
+            this.fileNodes.OnExitCleanUp();
+        }
+
         private void MonitorsAndConfigReady() {
             if (this.action != Actions.Preview) {
                 for (int i = 0; i < this.monitors.Length; i++) {
@@ -632,10 +636,15 @@ namespace RPS {
             }
         }
 
+        public void resetMouseMove() {
+            this.mouseX = -1;
+            this.mouseY = -1;
+
+        }
+
         public void MouseMove(object sender, MouseEventArgs e) {
             if (this.config.Visible) {
-                this.mouseX = -1;
-                this.mouseY = -1;
+                this.resetMouseMove();
             } else {
                 if (this.mouseX == -1) this.mouseX = e.X;
                 if (this.mouseY == -1) this.mouseY = e.Y;
@@ -704,6 +713,7 @@ namespace RPS {
                 }
             }
             Screensaver screensaver = new Screensaver(action, hwnds);
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(screensaver.CleanUpOnException);
             switch (action) {
                 case Actions.Config:
                     Application.Run(screensaver);

@@ -705,7 +705,7 @@ namespace RPS {
         }
 
         private void Config_Shown(object sender, EventArgs e) {
-            this.setInnerHTML("version", Application.ProductVersion.Replace(".1.", " RC ").Replace(".0.", " Beta ").Replace(".0", ""));
+            this.setInnerHTML("version", Constants.getNiceVersion());
             this.browser.Document.InvokeScript("initFancyTreeFolder");
             this.browser.Document.InvokeScript("initFancyTreeTransitions");
         }
@@ -741,9 +741,14 @@ namespace RPS {
             if (this.webUpdateCheck.Document != null) {
                 HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
                 if (he != null) {
-                    Process.Start(Convert.ToString(Path.Combine(Application.StartupPath, Constants.DownloadFolder, Path.GetFileName(he.GetAttribute("href")))));
-                    this.screensaver.OnExit();
-                    this.showUpdateInfo("Running installer");
+                    try {
+                        Process.Start(Convert.ToString(Path.Combine(Application.StartupPath, Constants.DownloadFolder, Path.GetFileName(he.GetAttribute("href")))));
+                        this.screensaver.OnExit();
+                        this.showUpdateInfo("Running installer");
+                    } catch (System.ComponentModel.Win32Exception we) {
+                        this.screensaver.showInfoOnMonitors("RPS update cancelled" + Environment.NewLine + we.Message, true, true);
+                        this.screensaver.resetMouseMove();
+                    } 
                     return;
                 }
             }
@@ -784,8 +789,8 @@ namespace RPS {
         }
 
         private Uri getUpdateUri() {
-            string param = "";
-            if (this.screensaver.config.getPersistantBool("disableGoAn")) param = "?track=no";
+            string param = "?v=" + Constants.getNiceVersion();
+            if (this.screensaver.config.getPersistantBool("disableGoAn")) param = "&track=no";
             return new Uri(Constants.UpdateCheckURL + param);
         }
 

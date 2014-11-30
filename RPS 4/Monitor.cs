@@ -111,6 +111,7 @@ namespace RPS {
 
                 string classes = "monitor" + (this.id + 1);
                 if (this.screensaver.monitors.Length > 1) classes += " multimonitor";
+                if (this.screensaver.readOnly) classes += " readonly";
                 Config.setBrowserBodyClasses(this.browser, this.screensaver.action, classes);
                 
                 this.browser.Document.GetElementById("identify").InnerText = Convert.ToString(this.id+1);

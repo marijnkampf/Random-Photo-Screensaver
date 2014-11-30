@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Management;
 
 namespace ExifTool
 {
@@ -102,15 +103,15 @@ namespace ExifTool
 
             Status = Statuses.Starting;
 
-            proc = new Process { StartInfo = psi, EnableRaisingEvents = true };
-            proc.OutputDataReceived += OutputDataReceived;
-            proc.Exited += proc_Exited;
-            proc.Start();
+            this.proc = new Process { StartInfo = psi, EnableRaisingEvents = true };
+            this.proc.OutputDataReceived += OutputDataReceived;
+            this.proc.Exited += proc_Exited;
+            this.proc.Start();
 
-            proc.BeginOutputReadLine();
+            this.proc.BeginOutputReadLine();
 
             waitHandle.Reset();
-            proc.StandardInput.WriteLine("-ver\n-execute0000");
+            this.proc.StandardInput.WriteLine("-ver\n-execute0000");
             waitHandle.WaitOne();
 
             Status = Statuses.Ready;
@@ -119,10 +120,10 @@ namespace ExifTool
         //detect if process is killed
         void proc_Exited(object sender, EventArgs e)
         {
-            if(proc != null)
+            if (this.proc != null)
             {
-                proc.Dispose();
-                proc = null;
+                this.proc.Dispose();
+                this.proc = null;
             }
 
             Status = Statuses.Stopped;
@@ -130,9 +131,31 @@ namespace ExifTool
             waitHandle.Set();
         }
 
+        /// <summary>
+        /// Kill a process, and all of its children, grandchildren, etc.
+        /// </summary>
+        /// <param name="pid">Process ID.</param>
+        private static void KillProcessAndChildren(Process p) {
+            KillProcessAndChildren(p.Id);
+        }
+        private static void KillProcessAndChildren(int pid) {
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher
+              ("Select * From Win32_Process Where ParentProcessID=" + pid);
+            ManagementObjectCollection moc = searcher.Get();
+            foreach (ManagementObject mo in moc) {
+                KillProcessAndChildren(Convert.ToInt32(mo["ProcessID"]));
+            }
+            try {
+                Process proc = Process.GetProcessById(pid);
+                proc.Kill();
+            } catch (ArgumentException) {
+                // Process already exited.
+            }
+        }
+
         public void Stop()
         {
-            if (Status == Statuses.Stopped) return;
+            //if (Status == Statuses.Stopped) return;
             if(Status != Statuses.Ready)
                 throw new InvalidOperationException("Process must be ready");
 
@@ -140,28 +163,31 @@ namespace ExifTool
 
             waitHandle.Reset();
             try {
-                proc.StandardInput.WriteLine("-stay_open\nFalse\n");
+                if (this.proc != null) this.proc.StandardInput.WriteLine("-stay_open\nFalse\n");
             } catch (System.ObjectDisposedException ode) {
-
             }
-            if(!waitHandle.WaitOne(2500))
+            Wrapper.KillProcessAndChildren(this.proc);
+            Status = Statuses.Stopped;
+/*            if (!waitHandle.WaitOne(2500))
             {
-                if(proc != null)
+                if (this.proc != null)
                 {
                     //silently swallow an eventual exception
                     try
                     {
-                        proc.Kill();
-                        proc.WaitForExit(2000);
-                        proc.Dispose();
+                        Wrapper.KillProcessAndChildren(this.proc);
+                        //this.proc.CloseMainWindow();
+                        //this.proc.Kill();
+                        this.proc.WaitForExit(2000);
+                        this.proc.Dispose();
                     }
                     catch { }
 
-                    proc = null;
+                    this.proc = null;
                 }
 
                 Status = Statuses.Stopped;
-            }
+            }*/
         }
 
         public string SendCommand(string cmd)
@@ -170,7 +196,7 @@ namespace ExifTool
                 throw new InvalidOperationException("Process must be ready");
 
             waitHandle.Reset();
-            proc.StandardInput.WriteLine("{0}\n-execute{1}", cmd, cmdCnt);
+            this.proc.StandardInput.WriteLine("{0}\n-execute{1}", cmd, cmdCnt);
             waitHandle.WaitOne();
 
             cmdCnt++;

@@ -15,7 +15,7 @@ namespace RPS_Launcher {
         [STAThread]
         static int Main(string[] args) {
             string installOrDownload = "Please download the latest verson from www.abscreensavers.com and try re-installing the screensaver.";
-            string regKey = "HKEY_CURRENT_USER\\Software\\abScreensavers.com\\Random Photo Screensaver";
+            string regKey = "HKEY_LOCAL_MACHINE\\Software\\abScreensavers.com\\Random Photo Screensaver";
             string regName = "installFolder";
             string installDir = (string)Registry.GetValue(regKey, regName, null);
             if (installDir == null) {

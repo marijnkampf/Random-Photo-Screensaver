@@ -270,28 +270,30 @@ namespace RPS {
         }
 
         public void safePersistantConfig() {
-            this.persistant["effects"] = JsonConvert.SerializeObject(this.effects);
-            if (this.screensaver.action != Screensaver.Actions.Config) {
-                for (int i = 0; i < this.screensaver.monitors.Length; i++) {
-                    this.persistant["historyM" + Convert.ToString(i)] = JsonConvert.SerializeObject(this.screensaver.monitors[i].historyLastEntries(Convert.ToInt32(this.getPersistant("rememberLast"))));
-                    this.persistant["historyOffsetM" + Convert.ToString(i)] = Convert.ToString(this.screensaver.monitors[i].offset);
+            if (this.persistant != null) {
+                this.persistant["effects"] = JsonConvert.SerializeObject(this.effects);
+                if (this.screensaver.action != Screensaver.Actions.Config) {
+                    for (int i = 0; i < this.screensaver.monitors.Length; i++) {
+                        this.persistant["historyM" + Convert.ToString(i)] = JsonConvert.SerializeObject(this.screensaver.monitors[i].historyLastEntries(Convert.ToInt32(this.getPersistant("rememberLast"))));
+                        this.persistant["historyOffsetM" + Convert.ToString(i)] = Convert.ToString(this.screensaver.monitors[i].offset);
+                    }
                 }
-            }
 
-            this.connectToDB();
-            SQLiteTransaction transaction = null;
-            try {
-                transaction = this.dbConnector.connection.BeginTransaction();
-            } catch (System.Data.SQLite.SQLiteException se) {
-                this.screensaver.showInfoOnMonitors("Error: " + se.Message, true);
+                this.connectToDB();
+                SQLiteTransaction transaction = null;
+                try {
+                    transaction = this.dbConnector.connection.BeginTransaction(true);
+                } catch (System.Data.SQLite.SQLiteException se) {
+                    this.screensaver.showInfoOnMonitors("Error: " + se.Message, true);
+                }
+                foreach (var p in this.persistant) {
+                    SQLiteCommand insertSQL = new SQLiteCommand("INSERT OR REPLACE INTO Setting (key, value) VALUES (@key, @value);", this.dbConnector.connection);
+                    insertSQL.Parameters.AddWithValue("@key", p.Key);
+                    insertSQL.Parameters.AddWithValue("@value", p.Value);
+                    insertSQL.ExecuteNonQuery();
+                }
+                transaction.Commit();
             }
-            foreach (var p in this.persistant) {
-                SQLiteCommand insertSQL = new SQLiteCommand("INSERT OR REPLACE INTO Setting (key, value) VALUES (@key, @value);", this.dbConnector.connection);
-                insertSQL.Parameters.AddWithValue("@key", p.Key);
-                insertSQL.Parameters.AddWithValue("@value", p.Value);
-                insertSQL.ExecuteNonQuery();
-            }
-            transaction.Commit();
         }
  
         public void Message(string Text) {
@@ -565,6 +567,7 @@ namespace RPS {
                 this.screensaver.showInfoOnMonitors("Invalid configuration key: null", true);
             } else { 
                 this.persistant[key] = value;
+                this.setDomValue(key, Convert.ToString(value));
             }
         }
 
@@ -730,12 +733,13 @@ namespace RPS {
             }
         }
 
-        private void Config_Deactivate(object sender, EventArgs e) {
+/* Removed in version 4 beta 14       
+  private void Config_Deactivate(object sender, EventArgs e) {
             if (this.screensaver.action != Screensaver.Actions.Config) {
                 this.screensaver.configHidden = true;
                 this.Hide();
             }
-        }
+        }*/
 
         public void installUpdate() {
             if (this.webUpdateCheck.Document != null) {

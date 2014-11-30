@@ -14,9 +14,10 @@ using System.Collections;
 namespace RPS {
     public class FileNodes {
         System.ComponentModel.BackgroundWorker backgroundWorker;
-        AutoResetEvent cancelCompleteEvent = new AutoResetEvent(false);
+        //AutoResetEvent cancelCompleteEvent = new AutoResetEvent(false);
 
         bool restartBackgroundWorker = false;
+        bool onExit = false;
         FileDatabase fileDatabase;
         //FileDatabase metaDatabase;
 
@@ -42,7 +43,7 @@ namespace RPS {
         public FileNodes(Config config, Screensaver screensaver) {
             this.config = config;
             this.screensaver = screensaver;
-            this.fileDatabase = new FileDatabase();
+            this.fileDatabase = new FileDatabase(this.screensaver.readOnly);
             //this.fileDatabase.MetadataReadEvent += new MetadataReadEventHandler(metadataShow);
 
             this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
@@ -211,7 +212,8 @@ namespace RPS {
         public string exifToolGetMetadata(string command, long imageId) {
             this.exifToolMainStarted();
             string metadata = this.exifToolMain.SendCommand(command);
-            if (imageId > 0 && metadata != null) this.fileDatabase.addMetadataToDB(imageId, metadata);
+            // Hangs screensaver when database is locked
+            //if (imageId > 0 && metadata != null) this.fileDatabase.addMetadataToDB(imageId, metadata);
             return metadata;
         }
 
@@ -242,12 +244,15 @@ namespace RPS {
                 */
                 if (this.bwCancelled() == true) return;
                 this.fileDatabase.addMetadataToDB(Convert.ToInt32(dr["id"]), meta);
-                this.nrUnprocessedMetadata--;
-
-                if (this.bwCancelled() == true) return;
-
-                dr = this.fileDatabase.nextMetadataLessImage();
-                i++;
+                if (!this.fileDatabase.readOnly) {
+                    this.nrUnprocessedMetadata--;
+                    if (this.bwCancelled() == true) return;
+                    dr = this.fileDatabase.nextMetadataLessImage();
+                    i++;
+                } else {
+                    this.screensaver.showInfoOnMonitors("Database locked, read only");
+                    dr = null;
+                }
             }
             this.fileDatabase.toggleMetadataTransaction(this.bwCancelled());
         }
@@ -443,18 +448,20 @@ namespace RPS {
             System.Diagnostics.Process.GetCurrentProcess().PriorityClass = System.Diagnostics.ProcessPriorityClass.BelowNormal;
             this.bwSender = sender;
             this.bwEvents = e;
-            var folders = stringToListFolders(Convert.ToString(this.config.getPersistant("folders")));
-            this.swFileScan = new System.Diagnostics.Stopwatch();
-            this.swMetadata = new System.Diagnostics.Stopwatch();
-            if (this.purgeNotMatchingParentFolders(folders) > 0) {
-                this.clearFilter();
+            if (!this.screensaver.readOnly) {
+                var folders = stringToListFolders(Convert.ToString(this.config.getPersistant("folders")));
+                this.swFileScan = new System.Diagnostics.Stopwatch();
+                this.swMetadata = new System.Diagnostics.Stopwatch();
+                if (this.purgeNotMatchingParentFolders(folders) > 0) {
+                    this.clearFilter();
+                }
+                this.swFileScan.Start();
+                this.processFolders(folders);
+                this.swFileScan.Stop();
+                this.swMetadata.Start();
+                this.processMetadata();
+                this.swMetadata.Stop();
             }
-            this.swFileScan.Start();
-            this.processFolders(folders);
-            this.swFileScan.Stop();
-            this.swMetadata.Start();
-            this.processMetadata();
-            this.swMetadata.Stop();
 
             if (!this.backgroundWorker.CancellationPending) this.fileDatabase.purgeMetadata();
             //if (Convert.ToDateTime(this.config.setValue("wallpaperLastChange")).Equals(DateTime.Today));
@@ -463,7 +470,7 @@ namespace RPS {
                 if (wallpaper.changeWallpaper()) wallpaper.setWallpaper();
             }
 
-            this.cancelCompleteEvent.Set();
+            //this.cancelCompleteEvent.Set();
 
 /*
             var command = new SQLiteCommand(conn);
@@ -490,6 +497,9 @@ namespace RPS {
                 if (this.nrFiles > 0 || this.nrFolders > 0) {
                     info += String.Format("Scanned {0:##,#} files in {1:##,#} folders", this.nrFiles, this.nrFolders);
                 }
+            }
+            if (this.screensaver.readOnly) {
+                info += " Read Only - RPS is already running";
             }
             try {
                 for (int i = 0; i < this.screensaver.monitors.Length; i++) {
@@ -531,10 +541,14 @@ namespace RPS {
         }
 
         public void OnExitCleanUp() {
-            this.CancelBackgroundWorker();
-            this.cancelCompleteEvent.WaitOne();
-            this.fileDatabase.storePersistant();
-            this.fileDatabase.CloseConnections();
+            if (!this.onExit) {
+                this.onExit = true;
+                this.CancelBackgroundWorker();
+                //this.cancelCompleteEvent.WaitOne();
+                this.fileDatabase.storePersistant();
+                this.fileDatabase.CloseConnections();
+            }
         }
+
     }
 }

@@ -10,7 +10,9 @@ using System.Threading;
 using Microsoft.VisualBasic.FileIO;
 using System.Drawing;
 using Newtonsoft.Json;
-
+using System.Management;
+using Microsoft.Win32;
+using System.Runtime.InteropServices;
 //using System.Windows.Forms.HtmlElement;
 
 namespace RPS {
@@ -33,11 +35,18 @@ namespace RPS {
         public Rectangle Desktop;
         public float desktopRatio;
         public FileNodes fileNodes;
+        public bool readOnly;
 
         public Version version;
 
-        private Screensaver(Actions action, IntPtr[] hwnds) {
+        #region Win32 API functions
+        [DllImport("user32.dll")]
+        public static extern void SwitchToThisWindow(IntPtr hWnd, bool turnon);
+        #endregion
+
+        private Screensaver(Actions action, bool readOnly, IntPtr[] hwnds) {
             this.version = new Version(Application.ProductVersion);
+            this.readOnly = readOnly;
             this.action = action;
             this.hwnds = hwnds;
             this.config = new Config(this);
@@ -128,22 +137,35 @@ namespace RPS {
             }
         }
 
-        private static void singleProcess() {
+        /***
+         * Detect other RPS processes
+         ***/
+        private static bool singleProcess(Actions action) {
             Process currentProcess = Process.GetCurrentProcess();
-            string filename = currentProcess.MainModule.FileName.ToLower();
-            Process[] processes = Process.GetProcessesByName(currentProcess.ProcessName);
-            for (int i = 0; i < processes.Length; i++) {
-                string t = processes[i].MainModule.FileName.ToLower();
-                if (String.Compare(processes[i].MainModule.FileName.ToLower(), filename) == 0) {
-                    if (processes[i].Id != currentProcess.Id) {
-                        if (processes[i].MainWindowHandle == currentProcess.MainWindowHandle) {
-                            if (!processes[i].CloseMainWindow()) {
-                                processes[i].Kill();
+            // Adapted from: http://stackoverflow.com/questions/504208/how-to-read-command-line-arguments-of-another-process-in-c
+            string wmiQuery = string.Format("select Handle, ProcessId, CommandLine from Win32_Process where Name='{0}'", Path.GetFileName(currentProcess.MainModule.FileName));
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher(wmiQuery);
+            ManagementObjectCollection retObjectCollection = searcher.Get();
+            foreach (ManagementObject retObject in retObjectCollection) {
+                if (currentProcess.Id != Convert.ToInt32(retObject["ProcessId"])) {
+                    Console.WriteLine("[{0}]", retObject["CommandLine"] + " " + retObject["ProcessId"] + " ~ " + currentProcess.Id);
+                    // If both self and process as screensaver /s switch to existing and exit
+                    if (!System.Diagnostics.Debugger.IsAttached) {
+                        if (action == Actions.Screensaver && !retObject["CommandLine"].ToString().Contains("/c") && !retObject["CommandLine"].ToString().Contains("/p")) {
+                            try {
+                                Process p = Process.GetProcessById(Convert.ToInt32(retObject["ProcessId"]));
+                                SwitchToThisWindow(p.MainWindowHandle, false);
+                                Environment.Exit(0);
+                            } catch (System.ArgumentException ae) {
+
                             }
                         }
+                        // Make this version read only
+                        return true;
                     }
                 }
-            }
+            }       
+            return false;
         }
 
         private void DoWorkDeleteFile(object sender, DoWorkEventArgs e) {
@@ -312,12 +334,11 @@ namespace RPS {
 		            }
                     switch (KeyCode) {
                         case Keys.Escape:
-                            if (this.configHidden) {
-                                this.configHidden = false;
-                            } else {
+                            if (!this.configHidden) {
                                 this.OnExit();
                             }
-                            break;
+                            this.configHidden = false;
+                        break;
                         case Keys.C:
                             this.showInfoOnMonitors("Calendar probably won' be implemented");
                         break;
@@ -411,6 +432,7 @@ namespace RPS {
                                     switch(Convert.ToString(this.config.getPersistant("clockM" + (i + 1)))) {
                                         case "none":
                                             this.config.setPersistant("currentClockM" + (i + 1), "checked");
+                                            clockType = "current";
                                         break;
                                         case "current":
                                             this.config.setPersistant("elapsedClockM" + (i + 1), "checked");
@@ -418,9 +440,11 @@ namespace RPS {
                                         break;
                                         case "elapsed":
                                             this.config.setPersistant("noClockM" + (i + 1), "checked");
+                                            clockType = "none";
                                             display = "false";
                                         break;
                                     }
+                                    this.config.setPersistant("clockM" + (i + 1), clockType);
                                     this.monitors[i].InvokeScript("setClockType", new string[] { clockType  });
                                     this.monitors[i].InvokeScript("toggle", new string[] { "#clock", display });
                                 }
@@ -678,7 +702,6 @@ namespace RPS {
         /// </summary>
         [STAThread]
         static void Main(string[] args) {
-            Screensaver.singleProcess();
             //MessageBox.Show(String.Join(" ", args));
             IntPtr previewHwnd = IntPtr.Zero;
             IntPtr[] hwnds;
@@ -712,7 +735,9 @@ namespace RPS {
                     break;
                 }
             }
-            Screensaver screensaver = new Screensaver(action, hwnds);
+            bool readOnly = Screensaver.singleProcess(action);
+
+            Screensaver screensaver = new Screensaver(action, readOnly, hwnds);
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(screensaver.CleanUpOnException);
             switch (action) {
                 case Actions.Config:

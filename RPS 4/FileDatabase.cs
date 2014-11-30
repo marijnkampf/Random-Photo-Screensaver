@@ -18,9 +18,11 @@ namespace RPS {
         SQLiteTransaction metaDataTransaction;
         int filterOutOfDate = 0;
         bool useFilter = false;
+        public bool readOnly = false;
         string filterSQL = null;
 
-        public FileDatabase() {
+        public FileDatabase(bool readOnly) {
+            this.readOnly = readOnly;
             this.dbConnector = new DBConnector(
                 Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), 
@@ -97,13 +99,15 @@ namespace RPS {
              * 	        
              * Tested single line statement: SQLiteCommand insertSQL = new SQLiteCommand("INSERT OR IGNORE INTO FileNodes (path, parentpath, created, modified, size) VALUES (@path, @pathHash, @parentPathHash, @created, @modified, @size) ", this.dbConnector.connection);
              *****/
+            if (this.readOnly) return;
+
             SQLiteCommand command;
             command = new SQLiteCommand("SELECT id, created, modified, size FROM `FileNodes` WHERE path = @path LIMIT 1;", this.dbConnector.connection);
             command.Parameters.AddWithValue("@path", fi.FullName);
             SQLiteDataReader reader = command.ExecuteReader();
             DataTable dt = new DataTable();
             //try {
-                dt.Load(reader);
+            dt.Load(reader);
             //} catch (System.InvalidOperationException ioe) {
                 //MessageBox.Show("addFileToDB " + e.Message);
                 // ToDo debug and work out exceptions that can occur here
@@ -238,6 +242,8 @@ namespace RPS {
         }
 
         public int deleteFromDB(long id) {
+            if (this.readOnly) return -1;
+
             string tableName = this.filterReady();
             SQLiteCommand command = new SQLiteCommand("DELETE FROM `FileNodes` WHERE id = @id;", this.dbConnector.connection);
             command.Parameters.AddWithValue("@id", id);
@@ -250,6 +256,8 @@ namespace RPS {
         }
 
         public int purgeMetadata() {
+            if (this.readOnly) return -1;
+
             //string where = "WHERE NOT parentpath LIKE \"" + String.Join("%\" AND NOT parentpath LIKE \"", folders) + "%\"";
             SQLiteCommand command;
             int r = 0;
@@ -275,6 +283,8 @@ namespace RPS {
         }
 
         public int purgeNotMatchingParentFolders(List<string> folders, bool exactMatch) {
+            if (this.readOnly) return -1;
+
             string match = "%";
             if (exactMatch) match = "";
             string where = "WHERE NOT parentpath LIKE \"" + String.Join(match + "\" AND NOT parentpath LIKE \"", folders) + match + "\"";
@@ -287,6 +297,8 @@ namespace RPS {
         }
 
         public void storePersistant() {
+            if (this.readOnly) return;
+
             this.dbConnector.saveDBToFile();
         }
 
@@ -333,29 +345,37 @@ namespace RPS {
         }
 
         public void toggleMetadataTransaction(bool closeOnly) {
-            //try {
-                if (this.metaDataTransaction != null && this.metaDataTransaction.Connection != null) {
-                        this.metaDataTransaction.Commit();
+            try {
+                if (!this.readOnly && this.metaDataTransaction != null && this.metaDataTransaction.Connection != null) {
+                    this.metaDataTransaction.Commit();
                 }
-                if (!closeOnly) this.metaDataTransaction = this.metaDataDbConnector.connection.BeginTransaction();
-            //} catch (Exception e) {
-                //MessageBox.Show("toggleMetadataTransaction " + e.Message);                // System.Data.SQLite.SQLiteException e
-                //return;
-                // System.ArgumentNullException
-                // Ignore failed commits;
-            //}
+                if (!closeOnly) this.metaDataTransaction = this.metaDataDbConnector.connection.BeginTransaction(true);
+            } catch (System.Data.SQLite.SQLiteException se) {
+                if (se.ErrorCode == DBConnector.DatabaseIsLocked) {
+                    this.readOnly = true;
+                }
+            }
         }
 
-        public void addMetadataToDB(long id, string metadata) {
-            SQLiteCommand command = new SQLiteCommand("INSERT OR REPLACE INTO `Metadata` (`id`, `all`) VALUES (@id, @metadata);", this.metaDataDbConnector.connection);
-            command.Parameters.AddWithValue("@id", id);
-            command.Parameters.AddWithValue("@metadata", metadata);
-            command.ExecuteNonQuery();
+        public bool addMetadataToDB(long id, string metadata) {
+            if (this.readOnly) return false;
+            try {
+                SQLiteCommand command = new SQLiteCommand("INSERT OR REPLACE INTO `Metadata` (`id`, `all`) VALUES (@id, @metadata);", this.metaDataDbConnector.connection);
+                command.Parameters.AddWithValue("@id", id);
+                command.Parameters.AddWithValue("@metadata", metadata);
+                command.ExecuteNonQuery();
             
-            command = new SQLiteCommand("UPDATE `FileNodes` SET `metainfoindexed` = 1 WHERE id = @id;", this.dbConnector.connection);
-            command.Parameters.AddWithValue("@id", id);
-            command.ExecuteNonQuery();
-            this.filterOutOfDate+=5;
+                command = new SQLiteCommand("UPDATE `FileNodes` SET `metainfoindexed` = 1 WHERE id = @id;", this.dbConnector.connection);
+                command.Parameters.AddWithValue("@id", id);
+                command.ExecuteNonQuery();
+                this.filterOutOfDate+=5;
+            } catch (System.Data.SQLite.SQLiteException se) {
+                if (se.ErrorCode == DBConnector.DatabaseIsLocked) {
+                    this.readOnly = true;
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

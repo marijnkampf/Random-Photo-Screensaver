@@ -54,6 +54,8 @@ namespace RPS {
     }
 
     class DBConnector {
+        public const int DatabaseIsLocked = 5;
+
         private string filename;
         private DBTableDefinition tableDefinition;
         public SQLiteConnection connection;
@@ -68,7 +70,7 @@ namespace RPS {
             this.tableDefinition = tableDefinition;
             this.keepInMemory = keepInMemory;
             if (this.keepInMemory) {
-                this.connection = new SQLiteConnection("Data Source=:memory:;Version=3;");
+                this.connection = new SQLiteConnection("Data Source=:memory:;Version=3;Connect Timeout=10");
                 this.connection.Open();
                 this.loadDBFromFile();
             } else {

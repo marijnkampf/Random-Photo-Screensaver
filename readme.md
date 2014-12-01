@@ -72,12 +72,22 @@ The following (free) libraries and programs have been used in/ship with RPS4:
     - [Colour picker](http://bgrins.github.io/spectrum/)
 - CSS
 		- [Pure CSS speech bubbles](nicolasgallagher.com/pure-css-speech-bubbles/)
+- Miscellenious
+		- [Waiting image spinners](http://preloaders.net/en/circular)
 
 License
 -------
-To be decided
-(c) 2014 Marijn Kampf all rights reserved
+Copyright (C) 2005-2014 Marijn Kampf <marijn (at) abscreensavers (dot) com>
 
+Random Photo Screensaver is free software (http://www.gnu.org/philosophy/free-sw.html); you can redistribute it and/or modify it under the terms of the GNU General Public License (http://www.gnu.org/licenses/gpl.html) as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
+
+You may use this software on a trial basis free of charge for up to thirty (30) days in order to ascertain its usefulness for your purposes. Beyond that time, you are required to either remit payment (http://www.abscreensavers.com/rps/donation) for its use, or remove it from your computer. 
+
+Alternatively, Random Photo Screensaver is also available with a commercial license, which allows it to be used in closed-source projects. Contact me (http://www.abscreensavers.com/contact) for more information.
+
+Random Photo Screensaver is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+See http://www.abscreensavers.com for more information.
 
 ToDo
 ----

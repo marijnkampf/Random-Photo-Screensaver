@@ -14,13 +14,19 @@ namespace RPS_Launcher {
         /// </summary>
         [STAThread]
         static int Main(string[] args) {
+            const string HKLM = "HKEY_LOCAL_MACHINE\\";
+            const string HKCU = "HKEY_LOCAL_USER\\";
             string installOrDownload = "Please download the latest verson from www.abscreensavers.com and try re-installing the screensaver.";
-            string regKey = "HKEY_LOCAL_MACHINE\\Software\\abScreensavers.com\\Random Photo Screensaver";
+            string regSubKey = "Software\\abScreensavers.com\\Random Photo Screensaver";
             string regName = "installFolder";
-            string installDir = (string)Registry.GetValue(regKey, regName, null);
+            string installDir = (string)Registry.GetValue(HKLM + regSubKey, regName, null);
             if (installDir == null) {
-                MessageBox.Show("No registry entry found for Random Photo Screensaver." + Environment.NewLine +
-                    "(Missing key: " + regKey + "\\" + regName + ")" + Environment.NewLine + Environment.NewLine +
+                installDir = (string)Registry.GetValue(HKCU + regSubKey, regName, null);
+            }
+            if (installDir == null) {
+                MessageBox.Show("No registry entries found for Random Photo Screensaver." + Environment.NewLine +
+                    "(Missing key: " + HKLM + regSubKey + "\\" + regName + Environment.NewLine + 
+                    "or " + HKCU + regSubKey + "\\" + regName + ")" + Environment.NewLine + Environment.NewLine +
                     installOrDownload, "No Registry Entry Found",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);

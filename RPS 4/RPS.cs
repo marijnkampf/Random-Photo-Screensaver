@@ -26,6 +26,10 @@ namespace RPS {
         private System.Windows.Forms.Keys previousKey;
         public bool configHidden = false;
 
+        #if (DEBUG)
+            public List<string> debugLog;
+        #endif
+
         public int currentMonitor = CM_ALL;
 
         public enum Actions { Config, Preview, Screensaver, Slideshow, Test };
@@ -45,6 +49,10 @@ namespace RPS {
         #endregion
 
         private Screensaver(Actions action, bool readOnly, IntPtr[] hwnds) {
+            #if (DEBUG)
+                this.debugLog = new List<string>();
+            #endif
+            
             this.version = new Version(Application.ProductVersion);
             this.readOnly = readOnly;
             this.action = action;
@@ -55,12 +63,18 @@ namespace RPS {
 //            this.config.browser.OnMouseMove += new System.Windows.Forms.MouseEventHandler(this.MouseMove);
 
             this.config.browser.Navigate(new Uri(Constants.getDataFolder(Constants.ConfigHtmlFile)));
-            this.config.browser.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.ConfigDocumentCompleted);
+            this.config.browser.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.config.ConfigDocumentCompleted);
             if (this.action == Actions.Config) this.config.Show();
             // Wait for config document to load to complete initialisation
         }
 
-        private void ConfigDocumentCompleted(object sender, System.Windows.Forms.WebBrowserDocumentCompletedEventArgs e) {
+//        private void ConfigDocumentCompleted(object sender, System.Windows.Forms.WebBrowserDocumentCompletedEventArgs e) {
+        public void initializeMonitors() {
+            #if (DEBUG)
+            this.debugLog.Add("initializeMonitors");
+            #endif
+
+            //MessageBox.Show("ConfigDocumentCompleted:" + this.action.ToString());
             if (this.action != Actions.Config) {
                 // Complete initialisation when config.html is loaded.
                 if (!this.configInitialised && this.config.browser.Url.Segments.Last().Equals(Constants.ConfigHtmlFile)) {
@@ -128,6 +142,10 @@ namespace RPS {
         }
 
         private void MonitorsAndConfigReady() {
+            #if (DEBUG)
+                this.debugLog.Add("MonitorsAndConfigReady");
+            #endif
+
             if (this.action != Actions.Preview) {
                 for (int i = 0; i < this.monitors.Length; i++) {
                     if (this.config.hasPersistantKey("historyM" + Convert.ToString(i)) && this.config.hasPersistantKey("historyOffsetM" + Convert.ToString(i))) {
@@ -313,6 +331,15 @@ namespace RPS {
                                 }
                             }
                         break;
+                        #if (DEBUG)
+                        case Keys.F12:
+                            string log = "";
+                            foreach(string s in this.debugLog) {
+                                log += s + Environment.NewLine;
+                            }
+                            MessageBox.Show(log, "Debug log:");
+                        break;
+                        #endif
                         case Keys.S:
                             if (this.config != Form.ActiveForm) {
                                 this.config.Activate();

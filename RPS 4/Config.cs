@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Security.Permissions;
@@ -67,6 +68,10 @@ namespace RPS {
 
         public Config(Screensaver screensaver) {
             this.screensaver = screensaver;
+            #if (DEBUG)
+                this.screensaver.debugLog.Add("Config(screensaver)");
+            #endif
+
             this.InitializeComponent();
             this.browser.ObjectForScripting = this;
             this.browser.AllowWebBrowserDrop = false;
@@ -162,6 +167,10 @@ namespace RPS {
         }
 
         public void loadPersistantConfig(int nrMonitors) {
+            #if (DEBUG)
+                this.screensaver.debugLog.Add("loadPersistantConfig(" + nrMonitors + ")");
+            #endif
+
             this.browser.Document.InvokeScript("initMonitors", new string[] { Convert.ToString(Screen.AllScreens.Length) });
             //SQLiteConnection connection = 
             this.connectToDB();
@@ -263,6 +272,10 @@ namespace RPS {
 
             this.browser.Document.InvokeScript("persistantConfigLoaded", new string[] { Convert.ToString(Screen.AllScreens.Length) });
 
+            #if (DEBUG)
+                        this.screensaver.debugLog.Add("InvokeScript('persistantConfigLoaded')");
+            #endif
+
             if (this.screensaver.action == Screensaver.Actions.Preview && this.screensaver.monitors != null) {
                 this.screensaver.monitors[0].defaultShowHide();
             }
@@ -327,6 +340,10 @@ namespace RPS {
          * if (typeof(window.external.getInitialFoldersJSON) !== "undefined") in JavaScript
          ****/
         public string getInitialFoldersJSON(bool dumdum) {
+            #if (DEBUG)
+                this.screensaver.debugLog.Add("getInitialFoldersJSON");
+            #endif
+
             List<jsonFolder> folders = new List<jsonFolder>();
             //MessageBox.Show("getInitialFoldersJSON()");
             //            folders.Add(new jsonFolder());
@@ -389,6 +406,10 @@ namespace RPS {
             }
 
             if (this.persistant == null || this.getPersistant("folders") == null) {
+                #if (DEBUG)
+                    this.screensaver.debugLog.Add("if (this.persistant == null || this.getPersistant('folders') == null)");
+                #endif
+
                 this.loadPersistantConfig();
             }
 
@@ -690,7 +711,11 @@ namespace RPS {
         }
 
         
-        public void Config_FormClosing(object sender, FormClosingEventArgs e) {            
+        public void Config_FormClosing(object sender, FormClosingEventArgs e) {
+            #if (DEBUG)
+                        this.screensaver.debugLog.Add("Config_FormClosing");
+            #endif
+        
             if (screensaver.action == Screensaver.Actions.Config) {
                 this.safePersistantConfig();
                 Application.Exit();
@@ -707,13 +732,22 @@ namespace RPS {
             } 
         }
 
-        private void Config_Shown(object sender, EventArgs e) {
+        public void ConfigDocumentCompleted(object sender, System.Windows.Forms.WebBrowserDocumentCompletedEventArgs e) {
+            #if (DEBUG)
+                        this.screensaver.debugLog.Add("ConfigDocumentCompleted");
+            #endif
+            this.screensaver.initializeMonitors();
             this.setInnerHTML("version", Constants.getNiceVersion());
             this.browser.Document.InvokeScript("initFancyTreeFolder");
             this.browser.Document.InvokeScript("initFancyTreeTransitions");
+            this.browser.Document.InvokeScript("hideWaiting");
         }
 
         private void Config_VisibleChanged(object sender, EventArgs e) {
+            #if (DEBUG)
+                this.screensaver.debugLog.Add("Config_VisibleChanged");
+            #endif
+
             if (this.Visible && this.screensaver.action != Screensaver.Actions.Config) {
                 // Showing
                 this.folderChanged = Convert.ToString(this.getPersistant("folders"));

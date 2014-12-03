@@ -72,8 +72,9 @@ The following (free) libraries and programs have been used in/ship with RPS4:
     - [Colour picker](http://bgrins.github.io/spectrum/)
 - CSS
 		- [Pure CSS speech bubbles](nicolasgallagher.com/pure-css-speech-bubbles/)
-- Miscellenious
+- Miscellaneous
 		- [Waiting image spinners](http://preloaders.net/en/circular)
+		- [Windows icons converted with iconverticons](http://iconverticons.com/online/)
 
 License
 -------

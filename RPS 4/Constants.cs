@@ -183,6 +183,10 @@ CREATE UNIQUE INDEX `keys` ON `Setting` (`key` ASC);
             return true;
         }
 
+        public static string getUpdateFolder() {
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Constants.AppFolderName, Constants.DownloadFolder);
+        }
+
         public static string getDataFolder(string filename) {
             /* 1. user folder (C:\Users\[user name]\AppData\Local\Random Photo Screensaver)
              * 2. executable folder

@@ -60,6 +60,8 @@ namespace RPS {
         private bool checkUpdates = false;
         private bool downloadUpdates = false;
         private bool newVersionAvailable = false;
+
+        private Stopwatch downloadProgress = new Stopwatch();
         //private bool installUpdates = false;
 
         //public WebBrowser browser;
@@ -736,18 +738,25 @@ namespace RPS {
             #if (DEBUG)
                         this.screensaver.debugLog.Add("ConfigDocumentCompleted");
             #endif
-            this.screensaver.initializeMonitors();
-            this.setInnerHTML("version", Constants.getNiceVersion());
-            this.browser.Document.InvokeScript("initFancyTreeFolder");
-            this.browser.Document.InvokeScript("initFancyTreeTransitions");
-            this.browser.Document.InvokeScript("hideWaiting");
+
+            if (this.screensaver.action == Screensaver.Actions.Wallpaper) {
+                this.screensaver.initForScreensaverAndWallpaper();
+                Wallpaper wallpaper = new Wallpaper(this.screensaver);
+                wallpaper.setWallpaper();
+                Application.Exit();
+            } else { 
+                this.screensaver.initializeMonitors();
+                this.setInnerHTML("version", Constants.getNiceVersion());
+                this.browser.Document.InvokeScript("initFancyTreeFolder");
+                this.browser.Document.InvokeScript("initFancyTreeTransitions");
+                this.browser.Document.InvokeScript("hideWaiting");
+            }
         }
 
         private void Config_VisibleChanged(object sender, EventArgs e) {
             #if (DEBUG)
                 this.screensaver.debugLog.Add("Config_VisibleChanged");
             #endif
-
             if (this.Visible && this.screensaver.action != Screensaver.Actions.Config) {
                 // Showing
                 this.folderChanged = Convert.ToString(this.getPersistant("folders"));
@@ -775,16 +784,31 @@ namespace RPS {
             }
         }*/
 
+        public string updateFilename() {
+            if (this.webUpdateCheck.Document != null) {
+                HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
+                if (he != null) {
+                    return Convert.ToString(Path.Combine(Constants.getUpdateFolder(), Path.GetFileName(he.GetAttribute("href"))));
+                }
+            }
+            return null;
+        }
+
         public void installUpdate() {
             if (this.webUpdateCheck.Document != null) {
                 HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
                 if (he != null) {
                     try {
-                        Process.Start(Convert.ToString(Path.Combine(Application.StartupPath, Constants.DownloadFolder, Path.GetFileName(he.GetAttribute("href")))));
+                        Process.Start(Convert.ToString(Path.Combine(Constants.getUpdateFolder(), Path.GetFileName(he.GetAttribute("href")))));
                         this.screensaver.OnExit();
                         this.showUpdateInfo("Running installer");
                     } catch (System.ComponentModel.Win32Exception we) {
                         this.screensaver.showInfoOnMonitors("RPS update cancelled" + Environment.NewLine + we.Message, true, true);
+
+                        string clickOrKey = "Press 'U' key to update";
+                        if (this.getPersistant("mouseSensitivity") == "none" || this.screensaver.action == Screensaver.Actions.Config) clickOrKey = "Click to install now";
+                        this.screensaver.showUpdateInfo("RPS " + he.GetAttribute("data-version") + " downloaded<br/><a class='exit external' target='_blank' href='file://" + Path.Combine(Constants.getUpdateFolder(), Path.GetFileName(he.GetAttribute("href"))) + "'>" + clickOrKey + "</a>.");
+
                         this.screensaver.resetMouseMove();
                     } 
                     return;
@@ -793,9 +817,22 @@ namespace RPS {
             this.showUpdateInfo("Nothing to install");
         }
 
+        private void DownloadProgress(object sender, DownloadProgressChangedEventArgs e) {
+            if (!this.downloadProgress.IsRunning) this.downloadProgress.Start();
+            if (this.downloadProgress.ElapsedMilliseconds > 500) { 
+                if (this.screensaver.action == Screensaver.Actions.Config) {
+                    //this.downloadProgressIndicator(e.ProgressPercentage);
+                } else {
+                    this.screensaver.monitors[0].downloadProgressIndicator(e.ProgressPercentage);
+                }
+                this.downloadProgress.Reset();
+            }
+        }
+
         void DownloadFileCompleted(object sender, AsyncCompletedEventArgs e) {
+            //WebBrowser wbCheckUpdate = sender as WebBrowser;
             HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
-            string updatePath = Path.Combine(Application.StartupPath, Constants.DownloadFolder, Path.GetFileName(he.GetAttribute("href")));
+            string updatePath = Path.Combine(Constants.getUpdateFolder(), Path.GetFileName(he.GetAttribute("href")));
             if (!this.VerifyMD5(updatePath, he.GetAttribute("data-md5"))) {
                 this.showUpdateInfo("Download " + he.GetAttribute("data-version") + " failed<br/>Please <a href='" + he.GetAttribute("href") + "'>download update manually</a>.");
                 return;
@@ -803,12 +840,13 @@ namespace RPS {
             if (this.getPersistantString("checkUpdates") == "yes") this.installUpdate();
             else {
                 string clickOrKey = "Press 'U' key to update";
-                if (this.getPersistant("mouseSensitivity") == "none") clickOrKey = "Click to install now";
+                if (this.getPersistant("mouseSensitivity") == "none" || this.screensaver.action == Screensaver.Actions.Config) clickOrKey = "Click to install now";
                 this.screensaver.showUpdateInfo("RPS " + he.GetAttribute("data-version") + " downloaded<br/><a class='exit external' target='_blank' href='file://" + updatePath + "'>" + clickOrKey + "</a>.");
             }
         }
 
         bool VerifyMD5(string path, string md5verify) {
+            if (!File.Exists(path)) return false;
             using (var md5 = MD5.Create()) {
                 using (var stream = File.OpenRead(path)) {
                     return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", string.Empty).ToLower() == md5verify.ToLower();
@@ -820,10 +858,12 @@ namespace RPS {
 
         }
 
-        private void showUpdateInfo(string info) {
+        public void showUpdateInfo(string info) {
             HtmlElement he = this.browser.Document.GetElementById("update");
             he.InnerHtml = info.Replace("<br/>", " ");
-            this.screensaver.showUpdateInfo(info);
+            if (this.screensaver.action != Screensaver.Actions.Config) {
+                this.screensaver.showUpdateInfo(info);
+            }
         }
 
         private Uri getUpdateUri() {
@@ -832,7 +872,7 @@ namespace RPS {
             return new Uri(Constants.UpdateCheckURL + param);
         }
 
-
+        
         private void webUpdateCheck_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
             if (this.webUpdateCheck.Url.Equals(this.getUpdateUri())) {
                 HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
@@ -842,12 +882,13 @@ namespace RPS {
 
                     if (this.newVersionAvailable) {
                         if (this.downloadUpdates) {
-                            string updatePath = Path.Combine(Application.StartupPath, Constants.DownloadFolder, Path.GetFileName(he.GetAttribute("href")));
+                            string updatePath = Path.Combine(Constants.getUpdateFolder(), Path.GetFileName(he.GetAttribute("href")));
                             if (!File.Exists(updatePath) || !this.VerifyMD5(updatePath, he.GetAttribute("data-md5"))) {
-                                this.showUpdateInfo("Downloading update: " + update.ToString());
-                                Directory.CreateDirectory(Path.Combine(Application.StartupPath, Constants.DownloadFolder));
+                                this.showUpdateInfo("<div class='downloadProgress'><div class='downloadLabel'>Downloading update: " + update.ToString() + "</div><div class='downloadProgress' style='width: 0%'></div>");
+                                Directory.CreateDirectory(Path.GetDirectoryName(updatePath));//.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Constants.DownloadFolder));
                                 WebClient client = new WebClient();
                                 client.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadFileCompleted);
+                                client.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadProgress);
                                 client.DownloadFileAsync(new Uri(he.GetAttribute("href")), updatePath);
                                 return;
                             } else {
@@ -860,31 +901,74 @@ namespace RPS {
                 }
             }
         }
-
+        
         private void timerCheckUpdates_Tick(object sender, EventArgs e) {
             this.timerCheckUpdates.Enabled = false;
-            string update;
-            try {
-                update = this.getPersistantString("checkUpdates");
-            } catch(KeyNotFoundException knfe) {
-                // Try again in a bit
-                this.timerCheckUpdates.Interval *= 2;
-                this.timerCheckUpdates.Enabled = true;
-                return;
+            if (this.screensaver.action != Screensaver.Actions.Preview) {
+                string update;
+                try {
+                    update = this.getPersistantString("checkUpdates");
+                } catch (KeyNotFoundException knfe) {
+                    // Try again in a bit
+                    this.timerCheckUpdates.Interval *= 2;
+                    this.timerCheckUpdates.Enabled = true;
+                    return;
+                }
+                switch (update) {
+                    case "yes":
+                    case "download":
+                        this.checkUpdates = true;
+                        this.downloadUpdates = true;
+                        break;
+                    case "notify":
+                        this.checkUpdates = true;
+                        break;
+                }
+                if (this.checkUpdates) {
+                    //bgwCheckUpdate.DoWork();
+                    //bgwCheckUpdate.RunWorkerAsync();
+                    this.webUpdateCheck.Url = this.getUpdateUri();
+                }
             }
-            switch (update) {
-                case "yes": case "download":
-                    this.checkUpdates = true;
-                    this.downloadUpdates = true;
-                break;
-                case "notify":
-                    this.checkUpdates = true;
-                break;
-            }
-            if (this.checkUpdates) {
-                this.webUpdateCheck.Url = this.getUpdateUri();
-            }
-
         }
+        /*
+        [STAThread]
+        private void bgwCheckUpdate_DoWork(object sender, DoWorkEventArgs e) {
+            var wbCheckUpdate = new WebBrowser();
+            wbCheckUpdate.ScriptErrorsSuppressed = true;
+            wbCheckUpdate.Visible = false;
+            wbCheckUpdate.DocumentCompleted += wbCheckUpdate_DocumentCompleted;
+            wbCheckUpdate.Url = this.getUpdateUri();
+        }
+
+        void wbCheckUpdate_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
+            WebBrowser wbCheckUpdate = sender as WebBrowser;
+            if (wbCheckUpdate.Url.Equals(this.getUpdateUri())) {
+                HtmlElement he = wbCheckUpdate.Document.GetElementById("download");
+                if (he != null) {
+                    Version update = new Version(he.GetAttribute("data-version"));
+                    this.newVersionAvailable = (this.screensaver.version.CompareTo(update) < 0);
+
+                    if (this.newVersionAvailable) {
+                        if (this.downloadUpdates) {
+                            string updatePath = Path.Combine(Constants.getUpdateFolder(), Path.GetFileName(he.GetAttribute("href")));
+                            if (!File.Exists(updatePath) || !this.VerifyMD5(updatePath, he.GetAttribute("data-md5"))) {
+                                this.showUpdateInfo("<div class='downloadProgress'><div class='downloadLabel'>Downloading update: " + update.ToString() + "</div><div class='downloadProgress' style='width: 0%'></div>");
+                                Directory.CreateDirectory(Path.GetDirectoryName(updatePath));//.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Constants.DownloadFolder));
+                                WebClient client = new WebClient();
+                                client.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadFileCompleted);
+                                client.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadProgress);
+                                client.DownloadFileAsync(new Uri(he.GetAttribute("href")), updatePath);
+                                return;
+                            } else {
+                                this.DownloadFileCompleted(this, null);
+                            }
+                        } else {
+                            this.showUpdateInfo("Update available<br/><a href='" + he.GetAttribute("href") + "'>Download RPS " + he.GetAttribute("data-version-text") + "</a>");
+                        }
+                    }
+                }
+            }
+        }*/
     }
 }

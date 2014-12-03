@@ -32,7 +32,7 @@ namespace RPS {
 
         public int currentMonitor = CM_ALL;
 
-        public enum Actions { Config, Preview, Screensaver, Slideshow, Test };
+        public enum Actions { Config, Preview, Screensaver, Slideshow, Test, Wallpaper };
         public Actions action;
         public Config config;
         public Monitor[] monitors;
@@ -42,6 +42,8 @@ namespace RPS {
         public bool readOnly;
 
         public Version version;
+
+        private System.Windows.Forms.Timer mouseMoveTimer;
 
         #region Win32 API functions
         [DllImport("user32.dll")]
@@ -65,7 +67,40 @@ namespace RPS {
             this.config.browser.Navigate(new Uri(Constants.getDataFolder(Constants.ConfigHtmlFile)));
             this.config.browser.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.config.ConfigDocumentCompleted);
             if (this.action == Actions.Config) this.config.Show();
+            else {
+                if (this.action != Actions.Wallpaper) {
+                    this.mouseMoveTimer = new System.Windows.Forms.Timer();
+                    this.mouseMoveTimer.Interval = 1500;
+                    this.mouseMoveTimer.Tick += mouseMoveTimer_Tick;
+                }
+            }
             // Wait for config document to load to complete initialisation
+        }
+
+        // Return the number of monitors pre initialising monitors array
+        public int getNrMonitors() {
+            int nrMonitors = 1;
+            if (this.action == Actions.Test || this.action == Actions.Preview) {
+                nrMonitors = hwnds.Length;
+            } else {
+                nrMonitors = Screen.AllScreens.Length;
+            }
+            return nrMonitors;
+        }
+
+        public void initForScreensaverAndWallpaper() {
+            int nrMonitors = this.getNrMonitors();
+            // Avoid double loading config from DB
+            if (!config.persistantLoaded()) {
+                this.config.loadPersistantConfig(nrMonitors);
+            }
+            this.configInitialised = true;
+            this.fileNodes = new FileNodes(this.config, this);
+            if (this.config.getPersistantBool("useFilter")) {
+                this.fileNodes.setFilterSQL(this.config.getPersistantString("filter"));
+            }
+            this.Desktop = Constants.getDesktopBounds();
+            this.desktopRatio = Desktop.Width / Desktop.Height;
         }
 
 //        private void ConfigDocumentCompleted(object sender, System.Windows.Forms.WebBrowserDocumentCompletedEventArgs e) {
@@ -75,29 +110,11 @@ namespace RPS {
             #endif
 
             //MessageBox.Show("ConfigDocumentCompleted:" + this.action.ToString());
-            if (this.action != Actions.Config) {
+            if (this.action != Actions.Config && this.action != Actions.Wallpaper) {
                 // Complete initialisation when config.html is loaded.
                 if (!this.configInitialised && this.config.browser.Url.Segments.Last().Equals(Constants.ConfigHtmlFile)) {
-                    int nrMonitors = 1;
-                    if (this.action == Actions.Test || this.action == Actions.Preview) {
-                        nrMonitors = hwnds.Length;
-                    } else {
-                        nrMonitors = Screen.AllScreens.Length;
-                    }
-                    // Avoid double loading config from DB
-                    if (!config.persistantLoaded()) {
-                        this.config.loadPersistantConfig(nrMonitors);
-                    }
-                    this.configInitialised = true;
-
-                    fileNodes = new FileNodes(this.config, this);
-
+                    this.initForScreensaverAndWallpaper();
                     System.Drawing.Color backgroundColour = System.Drawing.ColorTranslator.FromHtml(this.config.getPersistantString("backgroundColour"));
-
-                    if (this.config.getPersistantBool("useFilter")) {
-                        this.fileNodes.setFilterSQL(this.config.getPersistantString("filter"));
-                    }
-
                     int i = 0;
                     if (this.action == Actions.Test || this.action == Actions.Preview) {
                         int start = 0;
@@ -130,8 +147,6 @@ namespace RPS {
                             i++;
                         }
                     }
-                    this.Desktop = Constants.getDesktopBounds();
-                    this.desktopRatio = Desktop.Width / Desktop.Height;
                     this.MonitorsAndConfigReady();
                 }
             }
@@ -217,15 +232,23 @@ namespace RPS {
         }
 
         public void showUpdateInfo(string info) {
-            this.monitors[0].showUpdateInfo(info);
+            if (this.action == Actions.Config) {
+                this.config.showUpdateInfo(info);
+            } else {
+                this.monitors[0].showUpdateInfo(info);
+            }
         }
 
 
         public void showInfoOnMonitors(string info, bool highPriority, bool fade) {
-            for (int i = 0; i < this.monitors.Length; i++) {
-                if ((this.currentMonitor == CM_ALL) || (this.currentMonitor == i)) {
-                    this.monitors[i].showInfoOnMonitor(info, highPriority, fade);
-                    //this.monitors[i].browser.Document.InvokeScript("showInfo", new String[] { info });
+            if (this.action == Actions.Config) {
+                this.config.showUpdateInfo(info);
+            } else {
+                for (int i = 0; i < this.monitors.Length; i++) {
+                    if ((this.currentMonitor == CM_ALL) || (this.currentMonitor == i)) {
+                        this.monitors[i].showInfoOnMonitor(info, highPriority, fade);
+                        //this.monitors[i].browser.Document.InvokeScript("showInfo", new String[] { info });
+                    }
                 }
             }
         }
@@ -478,7 +501,11 @@ namespace RPS {
                             }
                         break;
                         case Keys.U:
-                            this.config.installUpdate();
+                            string updateFilename = this.config.updateFilename();
+                            if (File.Exists(updateFilename)) {
+                                Process.Start("explorer.exe", "/e,/select," + updateFilename);
+                            }
+                            //this.config.installUpdate();
                         break;
                         case Keys.W:
                             string[] paths = new string[this.monitors.Length];
@@ -606,33 +633,23 @@ namespace RPS {
                     this.previousKey = e.KeyCode;
                 }
             } 
-            //Debug.Write(sender.ToString() + " " + e.KeyCode);
         }
 
         public void OnExit() {
-            /***
-             * ToDo: Store value for monitor 0 rather than last monitor
-             ***/
             Cursor.Show();
-            this.fileNodes.CancelBackgroundWorker();
-            this.config.setPersistant("sequentialStartImageId", this.fileNodes.currentSequentialSeedId.ToString());
-            string imageIds = "";
-            for(int i = 0; i < this.monitors.Length; i++) {
-                imageIds += this.monitors[i].imageId() + ";";
+            if (this.fileNodes != null) {
+                this.fileNodes.CancelBackgroundWorker();
+                this.config.setPersistant("sequentialStartImageId", this.fileNodes.currentSequentialSeedId.ToString());
             }
-            //this.config.setValue("randomStartImages", imageIds);            
             this.config.safePersistantConfig();
             if (this.fileNodes != null) this.fileNodes.OnExitCleanUp();
             // Manually call config close to ensure it will not cancel the close.
             this.applicationClosing = true;
             Application.Exit();
-//            Application.Q
-            //Exit();
         }
 
         private void OnFormClosed(object sender, EventArgs e) {
             this.OnExit();
-            //ExitThread();
         }
 
         class MouseMessageFilter : IMessageFilter {
@@ -697,6 +714,12 @@ namespace RPS {
             if (this.config.Visible) {
                 this.resetMouseMove();
             } else {
+                if (this.mouseX != e.X && this.mouseY != e.Y && this.mouseX != -1 && this.mouseY != -1) {
+                    Cursor.Show();
+                    this.mouseMoveTimer.Stop();
+                    this.mouseMoveTimer.Start();
+                    this.mouseMoveTimer.Enabled = true;
+                }
                 if (this.mouseX == -1) this.mouseX = e.X;
                 if (this.mouseY == -1) this.mouseY = e.Y;
                 int sensitivity = 0;
@@ -723,6 +746,13 @@ namespace RPS {
                 this.mouseY = e.Y;
             }
         }
+
+        void mouseMoveTimer_Tick(object sender, EventArgs e) {
+            Cursor.Hide();
+            this.mouseMoveTimer.Enabled = false;
+        }
+
+
    
         /// <summary>
         /// The main entry point for the application.
@@ -760,6 +790,21 @@ namespace RPS {
                         }
                         //previewHwnd = new IntPtr(long.Parse(arg2));
                     break;
+                    case 'o':
+                        string setting = "0";
+                        string value = args[0].Trim("-/\\".ToCharArray());
+                        if (string.Compare(value, "on", true) == 0) setting = "1";
+                        string oldValue = "on";
+                        if (Convert.ToString(Registry.GetValue("HKEY_CURRENT_USER\\Control Panel\\Desktop", "ScreenSaveActive", null)) == "0") oldValue = "off";
+                        Registry.SetValue("HKEY_CURRENT_USER\\Control Panel\\Desktop", "ScreenSaveActive", setting);
+                        MessageBox.Show("Your screensaver has been truned " + value + "." + Environment.NewLine + "(It was " + oldValue + ")", "Random Photo Screensaver", MessageBoxButtons.OK, MessageBoxIcon.Information );
+                        Application.Exit();
+                        return;
+                    break;
+                    case 'w':
+                        action = Actions.Wallpaper;
+                    break;
+
                 }
             }
             bool readOnly = Screensaver.singleProcess(action);

@@ -152,6 +152,16 @@ html, body {
     padding: 15px;
 }
 
+.downloadLabel {
+	width: 200px;
+}
+
+.downloadProgress {
+	background-color: linear-gradient(#0e44e0, #4109ff) repeat scroll 0 0 rgba(0, 0, 0, 0);
+}
+
+
+
 
 #clock {
 	font-size: 5em;

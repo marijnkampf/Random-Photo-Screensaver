@@ -89,6 +89,10 @@ function setVisibility(id, visibility) {
 	}
 }
 
+function downloadProgressIndicator(progress)  {
+	$('.downloadProgress').width(progress + "%");
+}
+
 function toggle(id, visibility) {
 	if (visibility == undefined) {
 			$(id).toggle();

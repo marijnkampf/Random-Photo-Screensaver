@@ -24,9 +24,11 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Config));
             this.browser = new System.Windows.Forms.WebBrowser();
             this.webUpdateCheck = new System.Windows.Forms.WebBrowser();
             this.timerCheckUpdates = new System.Windows.Forms.Timer(this.components);
+//            this.bgwCheckUpdate = new System.ComponentModel.BackgroundWorker();
             this.SuspendLayout();
             // 
             // browser
@@ -52,7 +54,7 @@
             // timerCheckUpdates
             // 
             this.timerCheckUpdates.Enabled = true;
-            this.timerCheckUpdates.Interval = 10000;
+            this.timerCheckUpdates.Interval = 5000;
             this.timerCheckUpdates.Tick += new System.EventHandler(this.timerCheckUpdates_Tick);
             // 
             // Config
@@ -62,10 +64,10 @@
             this.ClientSize = new System.Drawing.Size(837, 537);
             this.Controls.Add(this.webUpdateCheck);
             this.Controls.Add(this.browser);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Config";
             this.Text = "Configuration Random Photo Screensaver";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Config_FormClosing);
-            this.Shown += new System.EventHandler(this.Config_Shown);
             this.VisibleChanged += new System.EventHandler(this.Config_VisibleChanged);
             this.ResumeLayout(false);
 
@@ -76,8 +78,6 @@
         public System.Windows.Forms.WebBrowser browser;
         private System.Windows.Forms.WebBrowser webUpdateCheck;
         private System.Windows.Forms.Timer timerCheckUpdates;
-
-
-
+//        private System.ComponentModel.BackgroundWorker bgwCheckUpdate;
     }
 }

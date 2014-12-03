@@ -46,14 +46,16 @@ namespace RPS {
             this.fileDatabase = new FileDatabase(this.screensaver.readOnly);
             //this.fileDatabase.MetadataReadEvent += new MetadataReadEventHandler(metadataShow);
 
-            this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
-            this.backgroundWorker.WorkerReportsProgress = true;
-            this.backgroundWorker.WorkerSupportsCancellation = true;
-            this.backgroundWorker.DoWork += new DoWorkEventHandler(DoWorkImageFolder);
-            this.backgroundWorker.ProgressChanged += new ProgressChangedEventHandler(progressChanged);
-            this.backgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(runWorkerCompleted);
+            if (screensaver.action != Screensaver.Actions.Wallpaper) {
+                this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
+                this.backgroundWorker.WorkerReportsProgress = true;
+                this.backgroundWorker.WorkerSupportsCancellation = true;
+                this.backgroundWorker.DoWork += new DoWorkEventHandler(DoWorkImageFolder);
+                this.backgroundWorker.ProgressChanged += new ProgressChangedEventHandler(progressChanged);
+                this.backgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(runWorkerCompleted);
 
-            this.backgroundWorker.RunWorkerAsync();
+                this.backgroundWorker.RunWorkerAsync();
+            }
         }
         /*
         void metadataShow(ImageMetadataStatus imageMetadata) {
@@ -110,12 +112,14 @@ namespace RPS {
         }
 
         public void restartBackgroundWorkerImageFolder() {
-            if (this.backgroundWorker.IsBusy) {
-                this.restartBackgroundWorker = true;
-                this.backgroundWorker.CancelAsync();
-            } else {
-                this.restartBackgroundWorker = false;
-                this.backgroundWorker.RunWorkerAsync();
+            if (this.backgroundWorker != null) {
+                if (this.backgroundWorker.IsBusy) {
+                    this.restartBackgroundWorker = true;
+                    this.backgroundWorker.CancelAsync();
+                } else {
+                    this.restartBackgroundWorker = false;
+                    this.backgroundWorker.RunWorkerAsync();
+                }
             }
         }
 

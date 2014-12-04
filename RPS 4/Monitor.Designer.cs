@@ -53,7 +53,7 @@ namespace RPS {
             this.ControlBox = false;
             this.Controls.Add(this.browser);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            //this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Name = "Monitor";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;

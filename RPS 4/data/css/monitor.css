@@ -157,7 +157,8 @@ html, body {
 }
 
 .downloadProgress {
-	background-color: linear-gradient(#0e44e0, #4109ff) repeat scroll 0 0 rgba(0, 0, 0, 0);
+	width: 0%;
+	background: linear-gradient(#20ad46, #6da72f) repeat scroll 0 0 rgba(0, 0, 0, 0);
 }
 
 

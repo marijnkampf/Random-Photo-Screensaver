@@ -815,13 +815,14 @@ namespace RPS {
 
         private void DownloadProgress(object sender, DownloadProgressChangedEventArgs e) {
             if (!this.downloadProgress.IsRunning) this.downloadProgress.Start();
-            if (this.downloadProgress.ElapsedMilliseconds > 500) { 
+            if (this.downloadProgress.ElapsedMilliseconds > 250) { 
                 if (this.screensaver.action == Screensaver.Actions.Config) {
                     //this.downloadProgressIndicator(e.ProgressPercentage);
                 } else {
                     this.screensaver.monitors[0].downloadProgressIndicator(e.ProgressPercentage);
                 }
                 this.downloadProgress.Reset();
+                this.downloadProgress.Start();
             }
         }
 

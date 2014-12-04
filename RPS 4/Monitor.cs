@@ -18,7 +18,6 @@ using Newtonsoft.Json;
 namespace RPS {
     [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
     [System.Runtime.InteropServices.ComVisibleAttribute(true)]
-
     public partial class Monitor : Form {
         static Random rnd = new Random();
         private int id;
@@ -368,12 +367,14 @@ namespace RPS {
                                 this.imageSettings["pano.left"] = pano.X - this.Bounds.X;
                                 this.imageSettings["pano.width"] = pano.Width;
                                 this.imageSettings["pano.height"] = pano.Height;
-
+/*
                                 if (this.id == 0) {
                                     for (int i = 1; i < this.screensaver.monitors.Length; i++) {
-                                        if (this.screensaver.monitors[i] != null) this.screensaver.monitors[i].trySetNextImage(Convert.ToInt32(this.currentImage["id"]));
+                                        if (this.screensaver.monitors[i] != null)
+                                            //this.screensaver.monitors[i].trySetNextImage(this.history[this.historyPointer]);                                            
+                                            this.screensaver.monitors[i].trySetNextImage(Convert.ToInt32(this.currentImage["id"]));
                                     }
-                                }
+                                }*/
                             } else {
                                 for (int i = 0; i < this.screensaver.monitors.Length; i++) {
                                     this.screensaver.monitors[i].panoramaPart = false;
@@ -440,15 +441,18 @@ namespace RPS {
 
         public DataRow offsetImage(int i) {
             if (this.screensaver.config.getOrder() == Config.Order.Random) {
-                this.offset += i;
-                //this.seedImage = this.currentImage;
-                this.currentImage = this.screensaver.fileNodes.getImageById(Convert.ToInt32(this.seedImageId), this.offset);
+                if (this.id == 0 || !this.isMonitor0PanoramaImage(true)) {
+                    this.offset += i;
+                    //this.seedImage = this.currentImage;
+                    this.currentImage = this.screensaver.fileNodes.getImageById(Convert.ToInt32(this.seedImageId), this.offset);
+                }
                 this.readMetadataImage();
                 return this.currentImage;
             } else {
                 // this.readMetadataImage() called in methods below;
-                if (i > 0) return this.nextImage();
-                else return this.previousImage();
+                if (i > 0) return this.nextImage(1, false);
+                // ToDo check for panoramaShown bugs
+                else return this.previousImage(1, false);
             }
         }
 
@@ -474,75 +478,100 @@ namespace RPS {
             start = this.historyPointer - count +1;
             if (start < 0) start = 0;
             if (this.history.Count < start + count) count = this.history.Count - start;
+            if (count < 0) return new List<long>();
             return this.history.GetRange(start, count);
         }
+/*
+        public int getPanoramaOffset() {
+            return getPanoramaOffset(false);
+        }
 
-        public DataRow previousImage() {
+        public int getPanoramaOffset(bool isInitial) {
+            if (this.id > 0 && this.screensaver.monitors[0].imageSettings != null && Convert.ToBoolean(this.screensaver.monitors[0].imageSettings["pano"])) {
+                //if (!isInitial) return 0;//
+                return this.screensaver.monitors[0].offset;
+                //else return this.screensaver.monitors[0].offset*-1;
+                //return 0;
+                //this.showInfoOnMonitor("Panorama not stretched as offset not 0<br/>Offset monitor 1: " + this.screensaver.monitors[0].offset + "; Offset monitor " + (this.id + 1) + ": " + this.offset);
+            }
+            return this.offset;
+        }
+        */
+/*        public DataRow previousImage() {
             return this.previousImage(1);
+        }*/
+
+        public bool isMonitor0PanoramaImage(bool setAsCurrent) {
+            if (this.screensaver.monitors[0].imageSettings != null && Convert.ToBoolean(this.screensaver.monitors[0].imageSettings["pano"])) {
+                this.panoramaPart = true;
+                if (setAsCurrent) this.currentImage = this.screensaver.monitors[0].currentImage;
+                return true;
+            }
+            return false;
         }
 
         /**
          * Note step parameter for prevoiusImage is always positive unlike offset which indicates direction.
          **/
-        public DataRow previousImage(int step) {
+        public DataRow previousImage(int step, bool panoramaShownPreviously) {
             if (this.screensaver.config.getOrder() == Config.Order.Random) {
-                this.historyPointer -= step;
-                if (this.historyPointer < 0 || this.history.Count < this.historyPointer) {
-                    this.historyPointer = 0;
-                    this.showInfoOnMonitor("You've reached the first image");
+                if (this.id == 0 || this.id > 0 && !panoramaShownPreviously) {
+                    this.historyPointer -= step;
+                    if (this.historyPointer < 0 || this.history.Count < this.historyPointer) {
+                        this.historyPointer = 0;
+                        this.showInfoOnMonitor("You've reached the first image");
+                    }
+                    long imageId = -1;
+                    if (this.history.Count > 0)
+                        imageId = this.history[this.historyPointer];
+                    this.currentImage = this.screensaver.fileNodes.getImageById(imageId, this.offset);
+                    this.seedImageId = imageId;
                 }
-                long imageId = -1;
-                if (this.history.Count > 0) 
-                    imageId = this.history[this.historyPointer];
-                this.currentImage = this.screensaver.fileNodes.getImageById(imageId, this.offset);
-                this.seedImageId = imageId;
+                isMonitor0PanoramaImage(true);
             } else {
-                int offset = 1;
-                // For first monitor skip back to photo on first monitor, than select going forward.
-                if (this.screensaver.currentMonitor == Screensaver.CM_ALL && this.id == 0) {
-                    offset = this.screensaver.monitors.Length*(step+1)*-1+1;
-                }
-                if (this.screensaver.currentMonitor == this.id) {
-                    offset = -1;
-                }
+                if (this.id == 0) {
+                    // Previous navigation is flawwed only possible fix is keep record of which images shown
+                    // If panorama found, there is no way to tell whether it was shown on screen 2 only or across screens 1 + 2
 
-                this.currentImage = this.screensaver.fileNodes.getSequentialImage(this.id, offset);
+                    // Optimised panoramas 
+                    //this.currentImage = this.screensaver.fileNodes.getSequentialImage(Convert.ToInt32(this.currentImage["id"]), (step * -1));
+                    // Optimised for displaying regular images (skips some panoramas)
+                    this.currentImage = this.screensaver.fileNodes.getSequentialImage(Convert.ToInt32(this.currentImage["id"]), (step + this.screensaver.monitors.Length - 1) * -1);
+                } else {
+                    if (!isMonitor0PanoramaImage(true)) {
+                        this.currentImage = this.screensaver.fileNodes.getSequentialImage(1);
+                    }
+                }
             }
-            if (!fileExistsOnDisk(this.currentImage)) return this.previousImage();
+            if (!fileExistsOnDisk(this.currentImage)) return this.previousImage(1, panoramaShownPreviously);
             this.readMetadataImage();
             return this.currentImage;
         }
 
-        public DataRow nextImage() {
-            return this.nextImage(1);
-        }
-
-        public DataRow nextImage(int step) {
-            if (this.screensaver.fileNodes == null) return null;  
-            if (this.screensaver.config.getOrder() == Config.Order.Random) {
-                this.historyPointer += step;
-                if (this.historyPointer < this.history.Count()) {
-                    this.currentImage = this.screensaver.fileNodes.getImageById(this.history[this.historyPointer], this.offset);
-                    this.seedImageId = Convert.ToInt32(this.currentImage["id"]);
-                } else {
-                    this.historyPointer = this.history.Count();
-                    this.currentImage = this.screensaver.fileNodes.getRandomImage();
-                    if (this.currentImage != null) {
-                        this.historyAdd(Convert.ToInt32(this.currentImage["id"]));
+        public DataRow nextImage(int step, bool panoramaShownPreviously) {
+            if (this.id == 0 || !this.isMonitor0PanoramaImage(true)) {
+                if (this.screensaver.fileNodes == null) return null;
+                if (this.screensaver.config.getOrder() == Config.Order.Random) {
+                    this.historyPointer += step;
+                    if (this.historyPointer < this.history.Count()) {
+                        this.currentImage = this.screensaver.fileNodes.getImageById(this.history[this.historyPointer], this.offset);
                         this.seedImageId = Convert.ToInt32(this.currentImage["id"]);
-                        if (this.offset != 0) {
-                            this.currentImage = this.screensaver.fileNodes.getImageById(this.seedImageId, this.offset);
+                    } else {
+                        this.historyPointer = this.history.Count();
+                        this.currentImage = this.screensaver.fileNodes.getRandomImage();
+                        if (this.currentImage != null) {
+                            this.historyAdd(Convert.ToInt32(this.currentImage["id"]));
+                            this.seedImageId = Convert.ToInt32(this.currentImage["id"]);
+                            if (this.offset != 0) {
+                                this.currentImage = this.screensaver.fileNodes.getImageById(this.seedImageId, this.offset);
+                            }
                         }
                     }
-                }
-            } else {
-                if (this.panoramaPart) {
-                    this.currentImage = this.screensaver.monitors[0].currentImage;
                 } else {
-                    this.currentImage = this.screensaver.fileNodes.getSequentialImage(this.id, step);
+                    this.currentImage = this.screensaver.fileNodes.getSequentialImage(step);
                 }
+                if (!fileExistsOnDisk(this.currentImage)) return this.nextImage(step, panoramaShownPreviously);
             }
-            if (!fileExistsOnDisk(this.currentImage)) return this.nextImage();
             this.readMetadataImage();
             return this.currentImage;
         }
@@ -599,7 +628,8 @@ namespace RPS {
         }
 
         public void timer_Tick(object sender, EventArgs e) {
-            this.nextImage();
+            bool panoramaShownPreviously = this.isMonitor0PanoramaImage(true);
+            this.nextImage(1, panoramaShownPreviously);
             if (this.currentImage == null || Convert.ToString(this.currentImage["path"]) == "") {
                 this.timer.Interval *= 2;
                 if (this.screensaver.config.persistantLoaded() && this.timer.Interval > Convert.ToInt32(this.screensaver.config.getPersistant("timeout")) * 1000) {
@@ -612,7 +642,7 @@ namespace RPS {
                     for (int i = 1; i < this.screensaver.monitors.Length; i++) {
                         if (this.screensaver.currentMonitor == Screensaver.CM_ALL || this.screensaver.currentMonitor == i) {
                             this.screensaver.monitors[i].timer.Stop();
-                            this.screensaver.monitors[i].nextImage();
+                            this.screensaver.monitors[i].nextImage(1, panoramaShownPreviously);
                             this.screensaver.monitors[i].showImage(true);
                         }
                     }

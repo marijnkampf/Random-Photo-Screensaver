@@ -367,13 +367,22 @@ namespace RPS {
             return null;
         }*/
 
-        public DataRow getSequentialImage(int monitor, int offset) {
+/*        public DataRow getSequentialImageFromId(int monitor, int offset) {
+
+        }*/
+
+
+        public DataRow getSequentialImage(int offset) {
+            return this.getSequentialImage(this.currentSequentialSeedId, offset);
+        }
+
+        public DataRow getSequentialImage(long seedId, int offset) {
             DataRow currentImage = null;
 
             string sortByColumn = this.screensaver.config.getPersistantString("sortBy");
             SortOrder sortDirection = new SortOrder(this.screensaver.config.getPersistantString("sortDirection"));
 
-            if (this.currentSequentialSeedId == -1) {
+            if (seedId == -1) {
                 try {
                     long imageId;
                     imageId = Convert.ToInt32(this.config.getPersistant("sequentialStartImageId"));
@@ -383,7 +392,7 @@ namespace RPS {
                     currentImage = this.fileDatabase.getFirstImage(sortByColumn, sortDirection);
                 }
             } else {
-                currentImage = fileDatabase.getImageById(this.currentSequentialSeedId, offset, sortByColumn, sortDirection);
+                currentImage = fileDatabase.getImageById(seedId, offset, sortByColumn, sortDirection);
             }
             if (currentImage != null) {
                 this.currentSequentialSeedId = Convert.ToInt32(currentImage["id"]);

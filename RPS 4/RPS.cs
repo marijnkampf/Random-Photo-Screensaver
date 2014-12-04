@@ -164,7 +164,11 @@ namespace RPS {
             if (this.action != Actions.Preview) {
                 for (int i = 0; i < this.monitors.Length; i++) {
                     if (this.config.hasPersistantKey("historyM" + Convert.ToString(i)) && this.config.hasPersistantKey("historyOffsetM" + Convert.ToString(i))) {
-                        this.monitors[i].setHistory(JsonConvert.DeserializeObject<List<long>>((string)this.config.getPersistant("historyM" + Convert.ToString(i))), Convert.ToInt32((string)this.config.getPersistant("historyOffsetM" + Convert.ToString(i))));
+                        try {
+                            this.monitors[i].setHistory(JsonConvert.DeserializeObject<List<long>>((string)this.config.getPersistant("historyM" + Convert.ToString(i))), Convert.ToInt32((string)this.config.getPersistant("historyOffsetM" + Convert.ToString(i))));
+                        } catch (Newtonsoft.Json.JsonSerializationException e) {
+                            // Ignore old format
+                        }
                     }
                 }
             }
@@ -294,15 +298,16 @@ namespace RPS {
 
         public void actionNext(int step) {
             this.stopTimers();
+            bool panoramaShownPreviously = this.monitors[0].isMonitor0PanoramaImage(false);
             for (int i = 0; i < this.monitors.Length; i++) {
+                int firstStep = step;
                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                     this.monitors[i].timer.Stop();
                     string s = "";
                     if (step > 1) s = " x " + step;
                     this.monitors[i].showInfoOnMonitor(">>" + s);
-                    this.monitors[i].nextImage(step);
+                    this.monitors[i].nextImage(step, panoramaShownPreviously);
                     this.monitors[i].showImage(this.config.getPersistantBool("useTransitionsOnInput"));
-                    //this.monitors[i].startTimer();
                 }
             }
             this.startTimers();
@@ -310,6 +315,7 @@ namespace RPS {
 
         public void actionPrevious(int step) {
             this.stopTimers();
+            bool panoramaShownPreviously = this.monitors[0].isMonitor0PanoramaImage(false);
             for (int i = 0; i < this.monitors.Length; i++) {
                 //for (int i = (this.monitors.Length - 1); i >= 0 ; i--) {
                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
@@ -318,9 +324,8 @@ namespace RPS {
                     string s = "";
                     if (step > 1) s = " x " + step;
                     this.monitors[i].showInfoOnMonitor("<<" + s);
-                    this.monitors[i].previousImage(step);
+                    this.monitors[i].previousImage(step, panoramaShownPreviously);
                     this.monitors[i].showImage(this.config.getPersistantBool("useTransitionsOnInput"));
-                    //this.monitors[i].startTimer();
                 }
             }
             this.startTimers();
@@ -522,6 +527,7 @@ namespace RPS {
                             this.currentMonitor = CM_ALL;
                             for (int i = 0; i < this.monitors.Length; i++) {
                                 this.monitors[i].browser.Document.InvokeScript("identify");
+                                this.monitors[i].showInfoOnMonitor("Offset (" + this.monitors[i].offset + ")");
                             }
                             break;
                         case Keys.D1:case Keys.D2:case Keys.D3:
@@ -531,6 +537,7 @@ namespace RPS {
                             if (monitorId < this.monitors.Length) {
                                 this.currentMonitor = monitorId;
                                 this.monitors[monitorId].browser.Document.InvokeScript("identify");
+                                this.monitors[monitorId].showInfoOnMonitor("Offset (" + this.monitors[monitorId].offset + ")");
                             }
                         break;
                         case Keys.NumPad4: case Keys.Left:

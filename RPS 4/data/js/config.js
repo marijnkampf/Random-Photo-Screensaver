@@ -614,6 +614,10 @@ function initMonitors(count) {
 			spin: function( event, ui ) { settingChanged(this); },
 			change: function( event, ui ) { settingChanged(this); },
   });
+
+	$( "#rememberLast" ).spinner({
+			min: 0
+	});
 }
 
 window.onload = function() {

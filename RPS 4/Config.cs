@@ -515,15 +515,7 @@ namespace RPS {
         }
 
         public void InputChanged(string id, string value) {
-            this.setPersistant(id, value);
-            /*            switch (type.ToLower()) {
-                            case "checkbox":
-                                this.setPersistant(id, this.getDomCheckboxValue(id));
-                            break;
-                            default:
-                                this.setPersistant(id, this.getDomValue(id));
-                            break;
-                        }*/
+            this.setPersistant(id, value, false);
         }
 
         public string InvokeScriptOnMonitor(int monitor, string script, string parameters) {
@@ -586,11 +578,15 @@ namespace RPS {
         }
 
         public void setPersistant(string key, object value) {
+            this.setPersistant(key, value, true);
+        }
+
+        public void setPersistant(string key, object value, bool updateDom) {
             if (key == null) {
                 this.screensaver.showInfoOnMonitors("Invalid configuration key: null", true);
             } else { 
                 this.persistant[key] = value;
-                this.setDomValue(key, Convert.ToString(value));
+                if (updateDom) this.setDomValue(key, Convert.ToString(value));
             }
         }
 

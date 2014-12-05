@@ -75,6 +75,8 @@ The following (free) libraries and programs have been used in/ship with RPS4:
 - Miscellaneous
 		- [Waiting image spinners](http://preloaders.net/en/circular)
 		- [Windows icons converted with iconverticons](http://iconverticons.com/online/)
+- [NSIS installer](http://nsis.sourceforge.net/Main_Page)
+	- [StdUtils NSIS](http://muldersoft.com/docs/stdutils_readme.html#e5717960)
 
 License
 -------

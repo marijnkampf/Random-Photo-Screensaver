@@ -70,10 +70,6 @@ namespace RPS {
 
         public Config(Screensaver screensaver) {
             this.screensaver = screensaver;
-            #if (DEBUG)
-                this.screensaver.debugLog.Add("Config(screensaver)");
-            #endif
-
             this.InitializeComponent();
             this.browser.ObjectForScripting = this;
             this.browser.AllowWebBrowserDrop = false;
@@ -274,10 +270,6 @@ namespace RPS {
 
             this.browser.Document.InvokeScript("persistantConfigLoaded", new string[] { Convert.ToString(Screen.AllScreens.Length) });
 
-            #if (DEBUG)
-                        this.screensaver.debugLog.Add("InvokeScript('persistantConfigLoaded')");
-            #endif
-
             if (this.screensaver.action == Screensaver.Actions.Preview && this.screensaver.monitors != null) {
                 this.screensaver.monitors[0].defaultShowHide();
             }
@@ -323,11 +315,23 @@ namespace RPS {
          * Called from config.js
          ****/
         public void applyFilter(string filter) {
-            if (this.screensaver.fileNodes != null) this.screensaver.fileNodes.setFilterSQL(filter);
+            if (this.screensaver.fileNodes != null) {
+                try { 
+                    this.screensaver.fileNodes.setFilterSQL(filter);
+                } catch (System.Data.SQLite.SQLiteException e) {
+                    this.clearFilter();
+                    this.setDomValue("useFilter", "false");
+                    MessageBox.Show(e.Message + Environment.NewLine + "Correct fault and re-apply filter", "Filter fault", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
-        public void clearFilter(string dummy) {
+        public void clearFilter() {
             if (this.screensaver.fileNodes != null) this.screensaver.fileNodes.clearFilter();
+        }
+
+        public void clearFilter(string jsDummy) {
+            this.clearFilter();
         }
 
         public bool resetWallpaper() {
@@ -342,10 +346,6 @@ namespace RPS {
          * if (typeof(window.external.getInitialFoldersJSON) !== "undefined") in JavaScript
          ****/
         public string getInitialFoldersJSON(bool dumdum) {
-            #if (DEBUG)
-                this.screensaver.debugLog.Add("getInitialFoldersJSON");
-            #endif
-
             List<jsonFolder> folders = new List<jsonFolder>();
             //MessageBox.Show("getInitialFoldersJSON()");
             //            folders.Add(new jsonFolder());
@@ -385,6 +385,7 @@ namespace RPS {
             computer.expanded = true;
             folders.Add(computer);
             DriveInfo[] info = DriveInfo.GetDrives();
+
             foreach (DriveInfo di in info) {
                 string drive = "(" + di.Name.Replace("\\", "") + ")";
                 jsonFolder f = new jsonFolder(drive);
@@ -408,10 +409,6 @@ namespace RPS {
             }
 
             if (this.persistant == null || this.getPersistant("folders") == null) {
-                #if (DEBUG)
-                    this.screensaver.debugLog.Add("if (this.persistant == null || this.getPersistant('folders') == null)");
-                #endif
-
                 this.loadPersistantConfig();
             }
 
@@ -464,11 +461,12 @@ namespace RPS {
                 }
             }
             return JsonConvert.SerializeObject(folders);
+
         }
 
         public List<jsonFolder> getFolder(string folder) {
             List<jsonFolder> children = new List<jsonFolder>();
-            //folder = folder.Replace("computer\\", "");
+            if (!Directory.Exists(folder)) return children;
             string[] dirs = Directory.GetDirectories(folder);
             foreach (string dir in dirs) {
                 try {
@@ -710,10 +708,6 @@ namespace RPS {
 
         
         public void Config_FormClosing(object sender, FormClosingEventArgs e) {
-            #if (DEBUG)
-                        this.screensaver.debugLog.Add("Config_FormClosing");
-            #endif
-        
             if (screensaver.action == Screensaver.Actions.Config) {
                 this.safePersistantConfig();
                 Application.Exit();
@@ -731,10 +725,6 @@ namespace RPS {
         }
 
         public void ConfigDocumentCompleted(object sender, System.Windows.Forms.WebBrowserDocumentCompletedEventArgs e) {
-            #if (DEBUG)
-                        this.screensaver.debugLog.Add("ConfigDocumentCompleted");
-            #endif
-
             if (this.screensaver.action == Screensaver.Actions.Wallpaper) {
                 this.screensaver.initForScreensaverAndWallpaper();
                 Wallpaper wallpaper = new Wallpaper(this.screensaver);
@@ -750,9 +740,6 @@ namespace RPS {
         }
 
         private void Config_VisibleChanged(object sender, EventArgs e) {
-            #if (DEBUG)
-                this.screensaver.debugLog.Add("Config_VisibleChanged");
-            #endif
             if (this.Visible && this.screensaver.action != Screensaver.Actions.Config) {
                 // Showing
                 this.folderChanged = Convert.ToString(this.getPersistant("folders"));

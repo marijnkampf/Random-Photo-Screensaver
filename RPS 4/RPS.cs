@@ -7,16 +7,21 @@ using System.Linq;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading;
+using System.Security.Principal;
 using Microsoft.VisualBasic.FileIO;
 using System.Drawing;
 using Newtonsoft.Json;
 using System.Management;
 using Microsoft.Win32;
 using System.Runtime.InteropServices;
+using System.Text;
 //using System.Windows.Forms.HtmlElement;
 
 namespace RPS {
     public class Screensaver : ApplicationContext {
+        [DllImport("kernel32.dll")]
+        static extern int GetShortPathName(string longPath, StringBuilder buffer, int bufferSize);
+
         private int mouseX = -1, mouseY = -1;
         public static int CM_ALL = -1;
 
@@ -106,7 +111,7 @@ namespace RPS {
 //        private void ConfigDocumentCompleted(object sender, System.Windows.Forms.WebBrowserDocumentCompletedEventArgs e) {
         public void initializeMonitors() {
             #if (DEBUG)
-            this.debugLog.Add("initializeMonitors");
+                this.debugLog.Add("initializeMonitors");
             #endif
 
             //MessageBox.Show("ConfigDocumentCompleted:" + this.action.ToString());
@@ -157,10 +162,6 @@ namespace RPS {
         }
 
         private void MonitorsAndConfigReady() {
-            #if (DEBUG)
-                this.debugLog.Add("MonitorsAndConfigReady");
-            #endif
-
             if (this.action != Actions.Preview) {
                 for (int i = 0; i < this.monitors.Length; i++) {
                     if (this.config.hasPersistantKey("historyM" + Convert.ToString(i)) && this.config.hasPersistantKey("historyOffsetM" + Convert.ToString(i))) {
@@ -203,6 +204,15 @@ namespace RPS {
                 }
             }       
             return false;
+        }
+
+        private static void setAsCurrentScreensaver(string path) {
+            if (File.Exists(path)) {
+                StringBuilder buffer = new StringBuilder(512);
+                GetShortPathName(path, buffer, buffer.Capacity);
+                Registry.SetValue("HKEY_CURRENT_USER\\Control Panel\\Desktop", "SCRNSAVE.EXE", Convert.ToString(buffer));
+                Registry.SetValue("HKEY_CURRENT_USER\\Control Panel\\Desktop", "ScreenSaveActive", 1);
+            }
         }
 
         private void DoWorkDeleteFile(object sender, DoWorkEventArgs e) {
@@ -336,6 +346,23 @@ namespace RPS {
             if (e.Control) return 25;
             if (e.Alt) return 100;
             return 1;
+        }
+
+        /// <summary>
+        /// The function checks whether the current process is run as administrator.
+        /// In other words, it dictates whether the primary access token of the 
+        /// process belongs to user account that is a member of the local 
+        /// Administrators group and it is elevated.
+        /// </summary>
+        /// <returns>
+        /// Returns true if the primary access token of the process belongs to user 
+        /// account that is a member of the local Administrators group and it is 
+        /// elevated. Returns false if the token does not.
+        /// </returns>
+        static bool IsRunAsAdmin() {
+            WindowsIdentity id = WindowsIdentity.GetCurrent();
+            WindowsPrincipal principal = new WindowsPrincipal(id);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
 
         public void PreviewKeyDown(object sender, PreviewKeyDownEventArgs e) {
@@ -783,6 +810,21 @@ namespace RPS {
                     arg2 = args[1];
                 }
                 switch (arg1[1]) {
+                    case 'a':
+                        string path="";
+                        for (int i = 1; i < args.Length; i++) path += args[i] + " ";
+                        path = path.Trim();
+                        //MessageBox.Show(path);
+                        Screensaver.setAsCurrentScreensaver(path);
+                        /*
+                        MessageBox.Show("IsAdmin: " + Convert.ToString(Screensaver.IsRunAsAdmin()) + Environment.NewLine + Path.Combine(
+                            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), 
+                            Constants.AppFolderName,
+                            Constants.DataFolder));*/
+//                        MessageBox.Show("IsAdmin: " + Convert.ToString(Screensaver.IsRunAsAdmin()));
+                        Application.Exit();
+                        return;
+                    break;
                     case 'c':
                         action = Actions.Config;
                     break;

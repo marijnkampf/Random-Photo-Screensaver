@@ -150,6 +150,7 @@ namespace ExifTool
                 proc.Kill();
             } catch (ArgumentException) {
                 // Process already exited.
+            } catch (System.ComponentModel.Win32Exception) {                
             }
         }
 

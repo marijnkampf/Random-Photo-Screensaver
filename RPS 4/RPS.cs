@@ -82,6 +82,27 @@ namespace RPS {
             // Wait for config document to load to complete initialisation
         }
 
+        public void appendDebugFile(int monitor, string log) {
+            if (this.config.getPersistantBool("debugLog")) {
+                string path = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    Constants.AppFolderName,
+                    "debug_" + DateTime.Now.ToString("yyyyMMdd") + ".txt"
+                );
+                StreamWriter sw;
+                try {
+                    if (!File.Exists(path)) {
+                        sw = File.CreateText(path);
+                        sw.WriteLine("Date/time\t(monitor)\tLog");
+                    } else sw = File.AppendText(path);
+                    sw.WriteLine(DateTime.Now.ToString("yyyyMMddhhmmss") + "\t" + Convert.ToString(monitor+1) + "\t" + log);
+                    sw.Flush();
+                } catch (Exception e) {
+                    this.monitors[monitor].showInfoOnMonitor("Error writing to debug log." + Environment.NewLine + e.Message);
+                }
+            }
+        }
+
         // Return the number of monitors pre initialising monitors array
         public int getNrMonitors() {
             int nrMonitors = 1;
@@ -598,6 +619,13 @@ namespace RPS {
                                 }
                             }
                             this.startTimers();
+                        break;
+                        case Keys.F12:
+                            for (int i = 0; i < this.monitors.Length; i++) {
+                                if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
+                                    this.monitors[i].saveDebug();
+                                }
+                            }
                         break;
                         case Keys.OemOpenBrackets:
                         case Keys.OemCloseBrackets: 

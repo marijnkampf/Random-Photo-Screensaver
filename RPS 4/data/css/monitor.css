@@ -28,6 +28,16 @@ embed {
 	height: 100%;
 }
 
+.fit2height {
+	height: 100%;
+	max-width: none !important;
+}
+
+.fit2width {
+	width: 100%;
+	max-height: none !important;
+}
+
 .pano.image {
 	max-width: none;
 	max-height: none;

@@ -193,20 +193,19 @@ namespace RPS {
             }
             return null;
         }
-
+/*
         public void showMetadataOnMonitor(string metadata) {
             this.quickMetadata = new MetadataTemplate(metadata, Convert.ToString(this.screensaver.config.getPersistant("quickMetadata")));
             string md = this.quickMetadata.fillTemplate();
             if (md != null || md != "") {
                 if (this.browser.InvokeRequired) {
-                    
                     this.browser.Document.InvokeScript("showMetadata", new String[] { Convert.ToString(md) });
                 } else {
                     this.browser.Document.InvokeScript("showMetadata", new String[] { Convert.ToString(md) });
                 }
                 
             }
-        }
+        }*/
 
         public Object InvokeScript(string script, string[] parameters) {
             return this.browser.Document.InvokeScript(script, parameters);
@@ -276,21 +275,23 @@ namespace RPS {
         }
 
         public float resizeRatioRotate90(int rotate) {
-            int width = Convert.ToInt32(this.quickMetadata.metadata["image width"]);
-            int height = Convert.ToInt32(this.quickMetadata.metadata["image height"]);
+            if (this.quickMetadata != null) {
+                int width = Convert.ToInt32(this.quickMetadata.metadata["image width"]);
+                int height = Convert.ToInt32(this.quickMetadata.metadata["image height"]);
 
-            this.imageSettings["resizeRatio"] = 1;
-            if (rotate == 90 || rotate == 270) {
-                // Internet Explorer fits image into boundaries before rotating
-                // Swap width, height values
-                // Determine size ratio between un-rotated and rotated image
-                if (width > this.Bounds.Width || height > this.Bounds.Height) {
-                    Rectangle newR = Constants.FitIntoBounds(new Rectangle(this.Bounds.Location, new Size(width, height)), this.Bounds, false);
-                    Rectangle oldR = Constants.FitIntoBounds(new Rectangle(this.Bounds.Location, new Size(height, width)), this.Bounds, false);
-                    this.imageSettings["resizeRatio"] = (float)oldR.Height / newR.Width;
+                this.imageSettings["resizeRatio"] = 1;
+                if (rotate == 90 || rotate == 270) {
+                    // Internet Explorer fits image into boundaries before rotating
+                    // Swap width, height values
+                    // Determine size ratio between un-rotated and rotated image
+                    if (width > this.Bounds.Width || height > this.Bounds.Height) {
+                        Rectangle newR = Constants.FitIntoBounds(new Rectangle(this.Bounds.Location, new Size(width, height)), this.Bounds, false, false);
+                        Rectangle oldR = Constants.FitIntoBounds(new Rectangle(this.Bounds.Location, new Size(height, width)), this.Bounds, false, false);
+                        this.imageSettings["resizeRatio"] = (float)oldR.Height / newR.Width;
+                    }
+                    this.quickMetadata.metadata["image width"] = Convert.ToString(width);
+                    this.quickMetadata.metadata["image height"] = Convert.ToString(height);
                 }
-                this.quickMetadata.metadata["image width"] = Convert.ToString(width);
-                this.quickMetadata.metadata["image height"] = Convert.ToString(height);
             }
             return Convert.ToInt32(this.imageSettings["resizeRatio"]);
         }
@@ -317,7 +318,7 @@ namespace RPS {
                     }
                 }
                 if (rawMetadata != null && rawMetadata != "") {
-                    this.quickMetadata = new MetadataTemplate(rawMetadata, Convert.ToString(this.screensaver.config.getPersistant("quickMetadata")));
+                    this.quickMetadata = new MetadataTemplate(rawMetadata, this.screensaver.config.getPersistantString("quickMetadata"));
                     this.imageSettings["metadata"] = this.quickMetadata.fillTemplate();
                 }
                 this.imageSettings["mediatype"] = "image";
@@ -356,25 +357,35 @@ namespace RPS {
                             int width = Convert.ToInt32(this.quickMetadata.metadata["image width"]);
                             int height = Convert.ToInt32(this.quickMetadata.metadata["image height"]);
                             float imgRatio = (float)width / (float)height;
+                            this.imageSettings["width"] = width;
+                            this.imageSettings["height"] = height;
+                            this.imageSettings["ratio"] = imgRatio;
+
+                            if (imgRatio > (float)this.Bounds.Width / (float)this.Bounds.Height) {
+                                this.imageSettings["fitToWidth"] = true;
+                            } else {
+                                this.imageSettings["fitToWidth"] = false;
+                            }
+                            if (Convert.ToString(this.screensaver.config.getPersistant("fitTo")) == "cover") {
+                               this.imageSettings["fitToWidth"] = !Convert.ToBoolean(this.imageSettings["fitToWidth"]);
+                            }
+
+                            this.imageSettings["ignoreFit"] = (!this.screensaver.config.getPersistantBool("stretchSmallImages") && width < this.Bounds.Width && height < this.Bounds.Height);
+
                             if (this.screensaver.config.getPersistantBool("stretchPanoramas") && imgRatio >= this.screensaver.desktopRatio) {
-                                Rectangle pano = Constants.FitIntoBounds(new Rectangle(0, 0, width, height), this.screensaver.Desktop, false);
-                                this.imageSettings["pano"] = true;
-                                if (this.id != 0 && this.Bounds.Height != this.screensaver.monitors[0].Bounds.Height) {
-                                    this.imageSettings["pano.top"] = (this.Bounds.Height - pano.Height) / 2;//pano.Y - this.Bounds.Y;
-                                } else {
-                                    this.imageSettings["pano.top"] = pano.Y - this.Bounds.Y;
-                                }
-                                this.imageSettings["pano.left"] = pano.X - this.Bounds.X;
-                                this.imageSettings["pano.width"] = pano.Width;
-                                this.imageSettings["pano.height"] = pano.Height;
-/*
-                                if (this.id == 0) {
-                                    for (int i = 1; i < this.screensaver.monitors.Length; i++) {
-                                        if (this.screensaver.monitors[i] != null)
-                                            //this.screensaver.monitors[i].trySetNextImage(this.history[this.historyPointer]);                                            
-                                            this.screensaver.monitors[i].trySetNextImage(Convert.ToInt32(this.currentImage["id"]));
+                                if (this.screensaver.config.getPersistantBool("stretchSmallImages") || width > this.Bounds.Width || height > this.Bounds.Height) {
+                                    this.imageSettings["pano"] = true;
+                                    Rectangle pano;
+                                    pano = Constants.FitIntoBounds(new Rectangle(0, 0, width, height), this.screensaver.Desktop, this.screensaver.config.getPersistantBool("stretchSmallImages"), this.screensaver.config.getPersistantString("fitTo") == "cover");
+                                    if (this.id != 0 && this.Bounds.Height != this.screensaver.monitors[0].Bounds.Height) {
+                                        this.imageSettings["pano.top"] = (this.Bounds.Height - pano.Height) / 2;//pano.Y - this.Bounds.Y;
+                                    } else {
+                                        this.imageSettings["pano.top"] = pano.Y - this.Bounds.Y;
                                     }
-                                }*/
+                                    this.imageSettings["pano.width"] = pano.Width;
+                                    this.imageSettings["pano.left"] = pano.X - this.Bounds.X;
+                                    this.imageSettings["pano.height"] = pano.Height;
+                                }
                             } else {
                                 for (int i = 0; i < this.screensaver.monitors.Length; i++) {
                                     this.screensaver.monitors[i].panoramaPart = false;
@@ -383,10 +394,10 @@ namespace RPS {
                         }
                     break;
                     case "object": case "video":
-                    this.imageSettings["stretchSmallVideos"] = this.screensaver.config.getPersistantBool("stretchSmallVideos");
-                    this.imageSettings["showcontrols"] = this.screensaver.config.getPersistantBool("showControls");
-                    this.imageSettings["loop"] = this.screensaver.config.getPersistantBool("videosLoop");
-                    this.imageSettings["mute"] = this.screensaver.config.getPersistantBool("videosMute");
+                        this.imageSettings["stretchSmallVideos"] = this.screensaver.config.getPersistantBool("stretchSmallVideos");
+                        this.imageSettings["showcontrols"] = this.screensaver.config.getPersistantBool("showControls");
+                        this.imageSettings["loop"] = this.screensaver.config.getPersistantBool("videosLoop");
+                        this.imageSettings["mute"] = this.screensaver.config.getPersistantBool("videosMute");
                     break;
                 }
             }
@@ -423,6 +434,12 @@ namespace RPS {
                     this.showInfoOnMonitor(e.Message, true);
                 }
             }
+        }
+
+        public void saveDebug() {
+            string path = this.browser.Url.LocalPath.Replace(Constants.MonitorHtmlFile, "_M" + (this.id + 1) + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".html");
+            File.WriteAllText(path, this.browser.Document.GetElementsByTagName("HTML")[0].OuterHtml);
+            this.info = this.showInfoOnMonitor("HTML exported to " + path, false, false);
         }
 
         /**
@@ -572,6 +589,7 @@ namespace RPS {
                 }
                 if (!fileExistsOnDisk(this.currentImage)) return this.nextImage(step, panoramaShownPreviously);
             }
+            this.screensaver.appendDebugFile(this.id, Convert.ToString(this.currentImage["path"]));
             this.readMetadataImage();
             return this.currentImage;
         }

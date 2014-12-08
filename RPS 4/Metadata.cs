@@ -72,8 +72,8 @@ namespace RPS {
                         //tagCode += metaKey;
                         tagPos = tagMatch.Index + tagMatch.Length;
                     }
-                    tagCode += groupMatch.Value.Substring(tagPos, groupMatch.Value.Length-tagPos-2);
-                    
+                    tagCode += groupMatch.Value.Substring(tagPos, groupMatch.Value.Length - tagPos - 2);
+
                     // Get keys, 
                     // perform match on keys
                     // loop 

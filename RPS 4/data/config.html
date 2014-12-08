@@ -161,6 +161,13 @@
 				<h2 id="images">Images</h2>
 				<div class="set checkboxGroup">
 					<input type="checkbox" id="stretchSmallImages"/> <label for="stretchSmallImages">Stretch small images</label>
+				</div>
+				<div id="fitTo" class="radioGroupHorizontal"><label>Fit images to</label>
+					<input type="radio" id="fitToContain" name="fitTo" value="contain" checked /> <label for="fitToContain" title="Scale image so it fits entirely on the display (background visible)">contain (?)</label>
+					<input type="radio" id="fitToCover" name="fitTo" value="cover"/> <label for="fitToCover" title="Scale image so that it covers the entiry display (no background visisble)">cover (?)</label>
+				</div>
+				<div class="clear"></div>
+				<div class="set checkboxGroup">
 					<input type="checkbox" id="exifRotate" checked/> <label for="exifRotate">Rotate image based on EXIF orientation (if available)</label>
 					<span class="multiOnly"><input type="checkbox" id="stretchPanoramas" checked /> <label for="stretchPanoramas" title="Panoramas are only stretched to higher numbered monitors">Stretch panoramas accross multiple monitors</label></span>
 				</div>
@@ -261,7 +268,7 @@
 
 			<div class="set checkboxGroup">
 				<h3>Image rotation</h3>
-				<input type="checkbox" id="saveExifOnRotation"/> <label for="saveExifOnRotation">Save Orientation to Exif in file</label>
+				<input type="checkbox" id="saveExifOnRotation" checked/> <label for="saveExifOnRotation">Save Orientation to Exif in file</label>
 				<input type="checkbox" id="backupExifOnRotation" checked/> <label for="backupExifOnRotation">Backup before rotation (filename.bak)</label>
 				<div class="note">Use following keys to rotate images(s)<br/>
 					[ rotate image 270&deg; CW<br/>
@@ -393,6 +400,11 @@
 				</div>
 				<input type="checkbox" id="disableGoAn"/> <label for="disableGoAn" title="Disable tracking of update page">Don't track downloads with Google Analytics</label>
 				<div class="keywords">previous old</div>
+			</div>
+			<div class="set advanced checkboxGroup">
+				<h3>Debug</h3>
+				<input type="checkbox" id="debugLog"/> <label for="debugLog" title="Keep debug log of files loaded. Stored in 'C:\Users\[user name]\AppData\Local\Random Photo Screensaver\debug_#date#.txt'">Debug log</label>
+				<div class="keywords">debugging</div>
 			</div>
 		</div>
 		<h3><div class="button" id="save" title="Setting are either applied instantly or when you close the config window. They are automatically saved when you exit the screensaver.">Save</div></h3>

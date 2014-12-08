@@ -125,7 +125,7 @@ namespace RPS {
                         g.FillRectangle(fill, bounds);
                         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                         g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g.DrawImage(image, Constants.FitIntoBounds(Rectangle.Round(image.GetBounds(ref units)), bounds, this.screensaver.config.getPersistantBool("wallpaperStretchSmall")));
+                        g.DrawImage(image, Constants.FitIntoBounds(Rectangle.Round(image.GetBounds(ref units)), bounds, this.screensaver.config.getPersistantBool("wallpaperStretchSmall"), this.screensaver.config.getPersistantString("fitTo") == "cover"));
                         if (this.screensaver.config.getPersistantBool("wallpaperFilenames")) {
                             // ToDo: Get font settings from config.html
                             Font font = new Font("Arial", 10);

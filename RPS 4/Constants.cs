@@ -140,7 +140,7 @@ CREATE UNIQUE INDEX `keys` ON `Setting` (`key` ASC);
             return r;
         }
 
-        public static Rectangle FitIntoBounds(Rectangle image, Rectangle boundingBox, bool stretchSmall) {
+        public static Rectangle FitIntoBounds(Rectangle image, Rectangle boundingBox, bool stretchSmall, bool cover) {
             Rectangle r = boundingBox;
             double rw, rh;
             rw = (double)boundingBox.Width / (double)image.Width;
@@ -149,12 +149,22 @@ CREATE UNIQUE INDEX `keys` ON `Setting` (`key` ASC);
                 r.Width = image.Width;
                 r.Height = image.Height;
             } else {
-                if (rw < rh) {
-                    r.Width = (int)Math.Round((double)image.Width * rw);
-                    r.Height = (int)Math.Round((double)image.Height * rw);
+                if (cover) {
+                    if ((double)boundingBox.Width / (double)boundingBox.Height < (double)image.Width / (double)image.Height) {                        
+                        r.Width = (int)Math.Round((double)image.Width * rh);
+                        r.Height = (int)Math.Round((double)image.Height * rh);
+                    } else {
+                        r.Width = (int)Math.Round((double)image.Width * rw);
+                        r.Height = (int)Math.Round((double)image.Height * rw);
+                    }
                 } else {
-                    r.Width = (int)Math.Round((double)image.Width * rh);
-                    r.Height = (int)Math.Round((double)image.Height * rh);
+                    if (rw < rh) {
+                        r.Width = (int)Math.Round((double)image.Width * rw);
+                        r.Height = (int)Math.Round((double)image.Height * rw);
+                    } else {
+                        r.Width = (int)Math.Round((double)image.Width * rh);
+                        r.Height = (int)Math.Round((double)image.Height * rh);
+                    }
                 }
             }
             r.X = boundingBox.X + (int)(boundingBox.Width - r.Width) / 2;

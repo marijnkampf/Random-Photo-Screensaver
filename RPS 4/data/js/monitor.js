@@ -10,12 +10,22 @@ if (typeof(window.external.RunningFromRPS)=== "undefined") {
 			"settings":{"animated": "true", "mediatype": "image"}
 		},
 		{
+			"source": "file://F:\\tests\\stretch\\FZ004390-403 View of moat and tower.jpg",
+			"metadata": "no meta",
+			"settings":{"animated": "true", "mediatype": "image", "stretch": true}
+		},
+		{
+			"source": "file://F:\\tests\\panorama\\SX20484-94 Panorama inner court Harlech Castle.jpg",
+			"settings":{"pano.left":-1920,"pano.width":3360,"resizeRatio":1,"pano.top":81,"stretchSmallImages":true,"mediatype":"image","pano.height":738,"metadata":" pano.top:81 pano.left:-1920 pano.width:3360 pano.height:738","pano":true,"effect":null,"animated":"true"}
+		},
+		{
 			"source": "file://F:\\tests\\panorama\\9227-9230 Wide view of the castle.jpg",
 			"settings":{"metadata": "no meta","animated": "true", "mediatype": "image"}
 		},
 		{
-			"source": "file://F:\\photos\\Wales 2003\\Bath\\movies\\MVI_2312.AVI",
-			"settings":'{"metadata": "no meta","animated": "true", "mediatype": "video","stretchSmallVideos":"false"}'
+			"source": "file://F:\\tests\\panorama\\7517-7522 View.jpg",
+			//"settings":{"metadata": "no meta","animated": "true", "mediatype": "image", "pano": true, "pano.top": 119, "pano.left": 0, "pano.width": 3360, "pano.height":842 }
+			"settings":{"metadata": "no meta","animated": "true", "mediatype": "image", "pano": true, "pano.top": 29, "pano.left": -1920, "pano.width": 3360, "pano.height":842 }
 		},
 		{
 			"source": "file://F:\\photos\\Wales 2003\\Brecon Beacons\\thumbs\\1942.jpg",
@@ -206,6 +216,7 @@ function getVideoObjectElement(source, settings) {
 }
 
 function showImage(source, displayPath, settings) {
+	//prompt("settings", settings);
 	if (typeof settings == "string") settings = JSON.parse(settings);
 
 	var html = '';
@@ -218,6 +229,7 @@ function showImage(source, displayPath, settings) {
 
 	switch(settings.mediatype) {
 		case "image":
+			if (settings.stretchSmallImages) stretch = true;
 			style = '';
 			classes = '';
 			if ((settings.exifRotate != undefined && settings.exifRotate != 0) || (settings.resizeRatio != undefined && settings.resizeRatio != 1)) {
@@ -226,6 +238,7 @@ function showImage(source, displayPath, settings) {
 				style='transform:rotate(' + settings.exifRotate + 'deg) scale(' + settings.resizeRatio + ');';
 			}
 			if (settings["pano"] != undefined && settings["pano"] == true) {
+				stretch = false;
 				classes += 'pano ';
 				style +=
 					'width: ' + settings["pano.width"] + 'px;'+
@@ -233,14 +246,23 @@ function showImage(source, displayPath, settings) {
 					'left: ' + settings["pano.left"] + 'px;'+
 					'top: ' + settings["pano.top"] + 'px;'
 				;
-
+			} else {
+				//if (stretch) {
+					if (!settings["ignoreFit"]) {
+						classes += "fit2";
+						if (settings["fitToWidth"]) classes += "width";
+						else classes += "height";
+						classes += " ";
+					}
+				//}
 			}
+			//prompt("style:", style);
 			html = '<img ';
 			if (style != '') html += 'style="' + style + '"';
 			html += 'class="image ' + classes +'media" src="' + source + '"/>';
 			//alert(html);
 			//window.clipboardData.setData("Text", html);
-			if (settings.stretchSmallImages) stretch = true;
+
 		break;
 		case "video":
 			html = '<video class="video media" src="' + source + '" onerror="useBackupVideoSolution()" autoplay';
@@ -254,19 +276,17 @@ function showImage(source, displayPath, settings) {
 			html = getVideoObjectElement(source, settings);
 		break;
 	}
-
 	card = $("<div class='card stretch'>" + html + "</div>").hide();
 	$("#rolodex").append(card);
 	if (settings.animated == "true" && settings.effect != undefined) card.show(JSON.parse(settings.effect));
 	else card.show("fade", 250);
-	if (stretch) {
-		$(".media").objectFit('contain');
-	}
+
 	while($("#rolodex .card").length > 2) {
 		first = $("#rolodex .card").first();
 		first.hide();
 		first.remove();
 	}
+
 	if ($("#rolodex .card").length > 1) {
 		first = $("#rolodex .card").first();
 		if ($(first.get(0).childNodes[0]).hasClass("video")) {

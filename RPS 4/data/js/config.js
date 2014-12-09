@@ -251,8 +251,8 @@ function updateExcludedFolders() {
 }
 
 function applyFilter() {
-	if (typeof(window.external.applyFilter) !== "undefined") {
-		return window.external.applyFilter($("#filter").val());
+	if (typeof(window.external.jsApplyFilter) !== "undefined") {
+		return window.external.jsApplyFilter($("#filter").val());
 	} else {
 		return alert("Can't apply '" + $("#filter").val() + "' filter in preview browser mode");
 	}
@@ -260,8 +260,8 @@ function applyFilter() {
 
 function clearFilter() {
 //	$("#useFilter").attr("checked", false);
-	if (typeof(window.external.clearFilter) !== "undefined") {
-		return window.external.clearFilter("dummy");
+	if (typeof(window.external.jsClearFilter) !== "undefined") {
+		return window.external.jsClearFilter("dummy");
 	} else {
 		return alert("Can't clear filter in preview browser mode");
 	}

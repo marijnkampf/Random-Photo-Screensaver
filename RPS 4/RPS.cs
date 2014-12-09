@@ -89,14 +89,8 @@ namespace RPS {
                     Constants.AppFolderName,
                     "debug_" + DateTime.Now.ToString("yyyyMMdd") + ".txt"
                 );
-                StreamWriter sw;
                 try {
-                    if (!File.Exists(path)) {
-                        sw = File.CreateText(path);
-                        sw.WriteLine("Date/time\t(monitor)\tLog");
-                    } else sw = File.AppendText(path);
-                    sw.WriteLine(DateTime.Now.ToString("yyyyMMddhhmmss") + "\t" + Convert.ToString(monitor+1) + "\t" + log);
-                    sw.Flush();
+                    File.AppendAllText(path, DateTime.Now.ToString("yyyyMMddhhmmss") + "\t" + Convert.ToString(monitor + 1) + "\t" + log + Environment.NewLine);
                 } catch (Exception e) {
                     this.monitors[monitor].showInfoOnMonitor("Error writing to debug log." + Environment.NewLine + e.Message);
                 }

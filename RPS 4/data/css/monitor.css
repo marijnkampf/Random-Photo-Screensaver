@@ -28,14 +28,28 @@ embed {
 	height: 100%;
 }
 
-.fit2height {
-	height: 100%;
+.cover2height {
+	height: 100%;	
 	max-width: none !important;
 }
 
-.fit2width {
+.cover2width {
 	width: 100%;
 	max-height: none !important;
+}
+
+.imageShadow {
+	box-shadow: 0px 0px 15px 10px rgba(50, 50, 50, 0.75);
+}
+
+.contain2height {
+	width: 100%;
+	max-height: none !important;
+}
+
+.contain2width {
+	height: 100%;
+	max-width: none !important;
 }
 
 .pano.image {

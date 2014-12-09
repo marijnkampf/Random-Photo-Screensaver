@@ -314,7 +314,7 @@ namespace RPS {
         /****
          * Called from config.js
          ****/
-        public void applyFilter(string filter) {
+        public void jsApplyFilter(string filter) {
             if (this.screensaver.fileNodes != null) {
                 try { 
                     this.screensaver.fileNodes.setFilterSQL(filter);
@@ -326,12 +326,13 @@ namespace RPS {
             }
         }
 
-        public void clearFilter() {
-            if (this.screensaver.fileNodes != null) this.screensaver.fileNodes.clearFilter();
+        public void jsClearFilter(string jsDummy) {
+            this.clearFilter();
+            this.setDomValue("useFilter", "false");
         }
 
-        public void clearFilter(string jsDummy) {
-            this.clearFilter();
+        public void clearFilter() {
+            if (this.screensaver.fileNodes != null) this.screensaver.fileNodes.clearFilter();
         }
 
         public bool resetWallpaper() {

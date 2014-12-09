@@ -263,7 +263,8 @@ namespace RPS {
                             File.Delete(Convert.ToString(this.imageSettings["rawCached"]));
                         } else {
                             // Update metadata in DB
-                            this.screensaver.fileNodes.exifToolGetMetadata(Convert.ToString(this.currentImage["path"]) + Constants.ExifToolMetadataOptions, Convert.ToInt32(this.currentImage["id"]));
+                            string meta = this.screensaver.fileNodes.exifToolGetMetadata(Convert.ToString(this.currentImage["path"]) + Constants.ExifToolMetadataOptions, Convert.ToInt32(this.currentImage["id"]));
+                            this.screensaver.fileNodes.addMetadataToDB(Convert.ToInt32(this.currentImage["id"]), meta);
                         }
                     } catch (Exception e) {
                         this.showInfoOnMonitor(e.Message, true);
@@ -275,11 +276,11 @@ namespace RPS {
         }
 
         public float resizeRatioRotate90(int rotate) {
-            if (this.quickMetadata != null) {
+            this.imageSettings["resizeRatio"] = 1;
+            if (this.quickMetadata != null && this.quickMetadata.metadata.ContainsKey("image width") && this.quickMetadata.metadata.ContainsKey("image height")) {
                 int width = Convert.ToInt32(this.quickMetadata.metadata["image width"]);
                 int height = Convert.ToInt32(this.quickMetadata.metadata["image height"]);
 
-                this.imageSettings["resizeRatio"] = 1;
                 if (rotate == 90 || rotate == 270) {
                     // Internet Explorer fits image into boundaries before rotating
                     // Swap width, height values
@@ -287,10 +288,13 @@ namespace RPS {
                     if (width > this.Bounds.Width || height > this.Bounds.Height) {
                         Rectangle newR = Constants.FitIntoBounds(new Rectangle(this.Bounds.Location, new Size(width, height)), this.Bounds, false, false);
                         Rectangle oldR = Constants.FitIntoBounds(new Rectangle(this.Bounds.Location, new Size(height, width)), this.Bounds, false, false);
-                        this.imageSettings["resizeRatio"] = (float)oldR.Height / newR.Width;
+                        Rectangle coverR = Constants.FitIntoBounds(new Rectangle(this.Bounds.Location, new Size(width, height)), this.Bounds, false, true);
+                        this.imageSettings["resizeRatioCover"] = (float)coverR.Width / oldR.Height;
+                        if (this.screensaver.config.getPersistantString("fitTo") == "cover") this.imageSettings["resizeRatio"] = this.imageSettings["resizeRatioCover"];
+                        else this.imageSettings["resizeRatio"] = (float)oldR.Height / newR.Width;
                     }
-                    this.quickMetadata.metadata["image width"] = Convert.ToString(width);
-                    this.quickMetadata.metadata["image height"] = Convert.ToString(height);
+                    this.quickMetadata.metadata["image width"] = Convert.ToString(height);
+                    this.quickMetadata.metadata["image height"] = Convert.ToString(width);
                 }
             }
             return Convert.ToInt32(this.imageSettings["resizeRatio"]);
@@ -353,38 +357,45 @@ namespace RPS {
                                 }
                             }
                         }
-                        if (this.quickMetadata != null) {
+                        if (this.quickMetadata != null && this.quickMetadata.metadata.ContainsKey("image width") && this.quickMetadata.metadata.ContainsKey("image height")) {
                             int width = Convert.ToInt32(this.quickMetadata.metadata["image width"]);
                             int height = Convert.ToInt32(this.quickMetadata.metadata["image height"]);
                             float imgRatio = (float)width / (float)height;
                             this.imageSettings["width"] = width;
                             this.imageSettings["height"] = height;
                             this.imageSettings["ratio"] = imgRatio;
+                            this.imageSettings["backgroundImage"] = this.screensaver.config.getPersistantBool("backgroundImage");
+                            this.imageSettings["imageShadow"] = this.screensaver.config.getPersistantBool("imageShadow");
+                            this.imageSettings["fitTo"] = this.screensaver.config.getPersistantString("fitTo");
 
-                            if (imgRatio > (float)this.Bounds.Width / (float)this.Bounds.Height) {
-                                this.imageSettings["fitToWidth"] = true;
+                            if ((double)this.Bounds.Width / (double)this.Bounds.Height < (double)width / (double)height) {
+                                this.imageSettings["fitToDimension"] = "height";
                             } else {
-                                this.imageSettings["fitToWidth"] = false;
-                            }
-                            if (Convert.ToString(this.screensaver.config.getPersistant("fitTo")) == "cover") {
-                               this.imageSettings["fitToWidth"] = !Convert.ToBoolean(this.imageSettings["fitToWidth"]);
+                                this.imageSettings["fitToDimension"] = "width";
                             }
 
                             this.imageSettings["ignoreFit"] = (!this.screensaver.config.getPersistantBool("stretchSmallImages") && width < this.Bounds.Width && height < this.Bounds.Height);
 
                             if (this.screensaver.config.getPersistantBool("stretchPanoramas") && imgRatio >= this.screensaver.desktopRatio) {
                                 if (this.screensaver.config.getPersistantBool("stretchSmallImages") || width > this.Bounds.Width || height > this.Bounds.Height) {
+                                    //this.imageSettings["fitToDimension"] = "width";
                                     this.imageSettings["pano"] = true;
-                                    Rectangle pano;
+                                    Rectangle pano, cover;
                                     pano = Constants.FitIntoBounds(new Rectangle(0, 0, width, height), this.screensaver.Desktop, this.screensaver.config.getPersistantBool("stretchSmallImages"), this.screensaver.config.getPersistantString("fitTo") == "cover");
+                                    cover = Constants.FitIntoBounds(new Rectangle(0, 0, width, height), this.screensaver.Desktop, this.screensaver.config.getPersistantBool("stretchSmallImages"), true);
                                     if (this.id != 0 && this.Bounds.Height != this.screensaver.monitors[0].Bounds.Height) {
-                                        this.imageSettings["pano.top"] = (this.Bounds.Height - pano.Height) / 2;//pano.Y - this.Bounds.Y;
+                                        this.imageSettings["pano.top"] = (this.Bounds.Height - pano.Height) / 2;
+                                        this.imageSettings["pano.cover.top"] = (this.Bounds.Height - cover.Height) / 2;
                                     } else {
                                         this.imageSettings["pano.top"] = pano.Y - this.Bounds.Y;
+                                        this.imageSettings["pano.cover.top"] = cover.Y - this.Bounds.Y;
                                     }
                                     this.imageSettings["pano.width"] = pano.Width;
                                     this.imageSettings["pano.left"] = pano.X - this.Bounds.X;
                                     this.imageSettings["pano.height"] = pano.Height;
+                                    this.imageSettings["pano.cover.width"] = cover.Width;
+                                    this.imageSettings["pano.cover.left"] = cover.X - this.Bounds.X;
+                                    this.imageSettings["pano.cover.height"] = cover.Height;
                                 }
                             } else {
                                 for (int i = 0; i < this.screensaver.monitors.Length; i++) {

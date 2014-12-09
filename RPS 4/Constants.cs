@@ -9,6 +9,7 @@ using System.Data.Linq;
 
 namespace RPS {
     static class Constants {
+        public const int DebugFileLogSize = 10;
         public const string DataFolder = "data";
         public const string RawCacheFolder = "rawCache.rps";
         public const string devDataFolder = "../../data";

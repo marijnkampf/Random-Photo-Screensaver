@@ -221,6 +221,10 @@ namespace RPS {
             return metadata;
         }
 
+        public bool addMetadataToDB(long imageId, string meta) {
+            return this.fileDatabase.addMetadataToDB(imageId, meta);
+        }
+
         public void processMetadata() {
             this.nrUnprocessedMetadata = this.fileDatabase.nrMetadataImagesToProcess();
             DataRow dr;

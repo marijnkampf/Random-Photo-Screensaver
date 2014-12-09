@@ -230,39 +230,52 @@ function showImage(source, displayPath, settings) {
 	switch(settings.mediatype) {
 		case "image":
 			if (settings.stretchSmallImages) stretch = true;
-			style = '';
-			classes = '';
+			mainStyle = '';
+			mainClasses = '';
+			coverStyle = '';
+			coverClasses = '';
 			if ((settings.exifRotate != undefined && settings.exifRotate != 0) || (settings.resizeRatio != undefined && settings.resizeRatio != 1)) {
 				if (settings.exifRotate == undefined) settings.exifRotate = 0;
 				if (settings.resizeRatio == undefined) settings.resizeRatio = 1;
-				style='transform:rotate(' + settings.exifRotate + 'deg) scale(' + settings.resizeRatio + ');';
+				if (settings.resizeRatioCover == undefined) settings.resizeRatioCover = 1;
+				if (!settings["ignoreFit"]) {
+					mainStyle='transform:rotate(' + settings.exifRotate + 'deg) scale(' + settings.resizeRatio + ');';
+				}
+				coverStyle='transform:rotate(' + settings.exifRotate + 'deg) scale(' + settings.resizeRatioCover + ');';
 			}
 			if (settings["pano"] != undefined && settings["pano"] == true) {
 				stretch = false;
-				classes += 'pano ';
-				style +=
-					'width: ' + settings["pano.width"] + 'px;'+
-					'height: ' + settings["pano.height"] + 'px;'+
-					'left: ' + settings["pano.left"] + 'px;'+
-					'top: ' + settings["pano.top"] + 'px;'
-				;
-			} else {
-				//if (stretch) {
-					if (!settings["ignoreFit"]) {
-						classes += "fit2";
-						if (settings["fitToWidth"]) classes += "width";
-						else classes += "height";
-						classes += " ";
-					}
-				//}
+				mainClasses += 'pano ';
+				coverClasses += 'pano ';
+				mainStyle +=  'width: ' + settings["pano.width"] + 'px;'+
+											'height: ' + settings["pano.height"] + 'px;'+
+											'left: ' + settings["pano.left"] + 'px;'+
+											'top: ' + settings["pano.top"] + 'px;'
+				coverStyle += 'width: ' + settings["pano.cover.width"] + 'px;'+
+											'height: ' + settings["pano.cover.height"] + 'px;'+
+											'left: ' + settings["pano.cover.left"] + 'px;'+
+											'top: ' + settings["pano.cover.top"] + 'px;'
 			}
-			//prompt("style:", style);
-			html = '<img ';
-			if (style != '') html += 'style="' + style + '"';
-			html += 'class="image ' + classes +'media" src="' + source + '"/>';
-			//alert(html);
-			//window.clipboardData.setData("Text", html);
-
+			if (settings["imageShadow"]) {
+				mainClasses += 'imageShadow ';
+			}
+			if (!settings["ignoreFit"]) {
+				mainClasses += settings["fitTo"] + "2" + settings["fitToDimension"];
+				mainClasses += " ";
+			}
+			coverClasses += "cover2" + settings["fitToDimension"];
+			coverClasses += " ";
+			html = '';
+			// Background image covering entire screen (don't show for cover image)
+			if (settings["backgroundImage"] && settings["fitTo"] != "cover") {
+				html += '<img ';
+				if (coverStyle != '') html += 'style="' + coverStyle + '"';
+				html += 'class="image blur ' + coverClasses + 'media" src="file://' + source + '"/>';
+			}
+			// Main image
+			html += '<img ';
+			if (mainStyle != '') html += 'style="' + mainStyle + '"';
+			html += 'class="image front ' + mainClasses +'media" src="file://' + source + '"/>';
 		break;
 		case "video":
 			html = '<video class="video media" src="' + source + '" onerror="useBackupVideoSolution()" autoplay';

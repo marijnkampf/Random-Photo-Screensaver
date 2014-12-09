@@ -28,7 +28,6 @@
             this.browser = new System.Windows.Forms.WebBrowser();
             this.webUpdateCheck = new System.Windows.Forms.WebBrowser();
             this.timerCheckUpdates = new System.Windows.Forms.Timer(this.components);
-//            this.bgwCheckUpdate = new System.ComponentModel.BackgroundWorker();
             this.SuspendLayout();
             // 
             // browser
@@ -54,7 +53,7 @@
             // timerCheckUpdates
             // 
             this.timerCheckUpdates.Enabled = true;
-            this.timerCheckUpdates.Interval = 5000;
+            this.timerCheckUpdates.Interval = 10000;
             this.timerCheckUpdates.Tick += new System.EventHandler(this.timerCheckUpdates_Tick);
             // 
             // Config

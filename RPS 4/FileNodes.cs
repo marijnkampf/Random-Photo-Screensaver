@@ -137,13 +137,16 @@ namespace RPS {
                     bool ignoreHiddenFiles;
                     bool ignoreHiddenFolders;
                     bool excludeSubfolders;
+                    List<string> excludedSubfolders;
                     string rawExtensions = null;
+                    
 
                     try {
                         //he = this.config.getElementById("imageExtensions");
                         allowedExtensions = this.config.getPersistantString("imageExtensions").ToLower() + " " + this.config.getPersistantString("videoExtensions").ToLower();
                         ignoreHiddenFiles = this.config.getPersistantBool("ignoreHiddenFiles");
                         ignoreHiddenFolders = this.config.getPersistantBool("ignoreHiddenFolders");
+                        excludedSubfolders = Utils.stringToList(Convert.ToString(this.config.getPersistant("excludedSubfolders")).ToLower());
                         excludeSubfolders = this.config.getPersistantBool("excludeAllSubfolders");
 
                         if (this.config.getPersistantBool("rawUseConverter")) {
@@ -197,8 +200,10 @@ namespace RPS {
                             FileAttributes fa = File.GetAttributes(subfolder);
                             // Ignore hidden folders if option checked
                             if (!ignoreHiddenFolders || (ignoreHiddenFolders && (fa & FileAttributes.Hidden) != FileAttributes.Hidden)) {
-                                i++;
-                                folders.Add(subfolder);
+                                if (excludedSubfolders.IndexOf(Path.GetFileName(subfolder)) == -1) {
+                                    i++;
+                                    folders.Add(subfolder);
+                                }
                             }
                             if ((i % 100 == 0) && (this.bwCancelled() == true)) break;
                         }
@@ -434,20 +439,12 @@ namespace RPS {
             return this.fileDatabase.deleteFromDB(id);
         }
 
-        public List<string> stringToListFolders(string f) {
-            string[] ff = new string[] { };
-            if (f != null && f.Length > 0) {
-                ff = f.Split(new string[] { ";", System.Environment.NewLine, "\n" }, StringSplitOptions.None);
-            }
-            return new List<string>(ff);
-        }
-
         public int purgeNotMatchingParentFolders(string folders) {
-            return this.purgeNotMatchingParentFolders(stringToListFolders(folders));
+            return this.purgeNotMatchingParentFolders(Utils.stringToList(folders));
         }
 
         public int purgeNotMatchingParentFolders(List<string> folders) {
-            return this.fileDatabase.purgeNotMatchingParentFolders(folders, this.screensaver.config.getPersistantBool("excludeAllSubfolders"));
+            return this.fileDatabase.purgeNotMatchingParentFolders(folders, this.screensaver.config.getPersistantBool("excludeAllSubfolders"), Utils.stringToList(this.screensaver.config.getPersistantString("excludedSubfolders")));
         }
 /*
         public void addIdToMetadataQueue(long monitorId, DataRow image) {
@@ -466,7 +463,7 @@ namespace RPS {
             this.bwSender = sender;
             this.bwEvents = e;
             if (!this.screensaver.readOnly) {
-                var folders = stringToListFolders(Convert.ToString(this.config.getPersistant("folders")));
+                var folders = Utils.stringToList(Convert.ToString(this.config.getPersistant("folders")));
                 this.swFileScan = new System.Diagnostics.Stopwatch();
                 this.swMetadata = new System.Diagnostics.Stopwatch();
                 if (this.purgeNotMatchingParentFolders(folders) > 0) {

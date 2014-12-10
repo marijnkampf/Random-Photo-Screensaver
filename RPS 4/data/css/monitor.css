@@ -28,6 +28,10 @@ embed {
 	height: 100%;
 }
 
+.background {
+	opacity: 0.5;
+}
+
 .cover2height {
 	height: 100%;	
 	max-width: none !important;

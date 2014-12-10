@@ -193,7 +193,7 @@ namespace RPS {
                 DataTable dt = new DataTable();
                 dt.Load(reader);
                 sw.Stop();
-                Debug.WriteLine(DBConnector.ToReadableString(command) + " in " + sw.ElapsedMilliseconds + "ms");
+                //Debug.WriteLine(DBConnector.ToReadableString(command) + " in " + sw.ElapsedMilliseconds + "ms");
                 if (dt.Rows.Count >= 1) {
                     return dt.Rows[0];
                 } 

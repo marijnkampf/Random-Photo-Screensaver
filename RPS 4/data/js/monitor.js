@@ -1,50 +1,66 @@
 /**
- * Some test files for offline testing (Use Internet Explorer 8+, latest IE recommended)
+ * Define some test files for offline testing (Use Internet Explorer 8+, latest IE recommended)
  **/
 if (typeof(window.external.RunningFromRPS)=== "undefined") {
 	var i = 0;
 	var a = new Array(
 		{
-			"source": "file://F:\\photos\\Wales 2003\\Angel\\thumbs\\2787 Angel In The Making.jpg",
-			"metadata": "no meta",
+			"source": "F:\\photos\\Wales 2003\\Angel\\thumbs\\2787 Angel In The Making.jpg",
 			"settings":{"animated": "true", "mediatype": "image"}
 		},
 		{
-			"source": "file://F:\\tests\\stretch\\FZ004390-403 View of moat and tower.jpg",
+			"source": "F:\\tests\\panorama\\SX20484-94 Panorama inner court Harlech Castle.jpg",
+			"settings":{"stretchSmallImages":true,"mediatype":"image","width":2736,"imageShadow":true,"animated":"true","effect":'{"effect":"fade",  "duration":1000}',"ratio":0.75,"fitToDimension":"width","height":3648,"ignoreFit":false,"resizeRatio":1,"metadata":"1/640 | 4.0 | 80 | 5.0 mm | 2.9 MB","backgroundImage":true,"fitTo":"contain"}
+		},
+		{
+			"source": "F:\\photos\\2012\\20121117 Sunset over sea and cliffs by Llantwit Major\\SX25198 Reflection of sun and clouds on Llanwit Major beach.jpg",
 			"metadata": "no meta",
-			"settings":{"animated": "true", "mediatype": "image", "stretch": true}
+			"settings":{
+				"stretchSmallImages":true,
+				"mediatype":"image",
+				"width":2736,
+				"imageShadow":true,
+				"animated":"true",
+				"effect":'{"effect":"slide", "direction":"down", "duration":1000}',
+				"ratio":0.75,
+				"fitToDimension":"width",
+				"height":3648,
+				"ignoreFit":false,
+				"resizeRatio":1,
+				"metadata":"1/640 | 4.0 | 80 | 5.0 mm | 2.9 MB",
+				"backgroundImage":true,"fitTo":"contain"
+			}
 		},
 		{
-			"source": "file://F:\\tests\\panorama\\SX20484-94 Panorama inner court Harlech Castle.jpg",
-			"settings":{"pano.left":-1920,"pano.width":3360,"resizeRatio":1,"pano.top":81,"stretchSmallImages":true,"mediatype":"image","pano.height":738,"metadata":" pano.top:81 pano.left:-1920 pano.width:3360 pano.height:738","pano":true,"effect":null,"animated":"true"}
+			"source": "F:\\tests\\stretch\\FZ004390-403 View of moat and tower.jpg",
+			"settings":{"animated": "true", "mediatype": "image", "stretch": true, "stretchSmallImages":false, "backgroundImage": true, "imageShadow": true		}
 		},
 		{
-			"source": "file://F:\\tests\\panorama\\9227-9230 Wide view of the castle.jpg",
+			"source": "F:\\tests\\panorama\\9227-9230 Wide view of the castle.jpg",
 			"settings":{"metadata": "no meta","animated": "true", "mediatype": "image"}
 		},
 		{
-			"source": "file://F:\\tests\\panorama\\7517-7522 View.jpg",
-			//"settings":{"metadata": "no meta","animated": "true", "mediatype": "image", "pano": true, "pano.top": 119, "pano.left": 0, "pano.width": 3360, "pano.height":842 }
+			"source": "F:\\tests\\panorama\\7517-7522 View.jpg",
 			"settings":{"metadata": "no meta","animated": "true", "mediatype": "image", "pano": true, "pano.top": 29, "pano.left": -1920, "pano.width": 3360, "pano.height":842 }
 		},
 		{
-			"source": "file://F:\\photos\\Wales 2003\\Brecon Beacons\\thumbs\\1942.jpg",
+			"source": "F:\\photos\\Wales 2003\\Brecon Beacons\\thumbs\\1942.jpg",
 			"settings":'{"metadata": "no meta","animated": "true", "mediatype": "image"}'
 		},
 		{
-			"source": "file://F:\\photos\\Wales 2003\\Angel\\2788 Angel.jpg",
+			"source": "F:\\photos\\Wales 2003\\Angel\\2788 Angel.jpg",
 			"settings":'{"metadata": "no meta","animated": "true", "mediatype": "image"}'
 		},
 		{
-			"source": "file://F:\\photos\\2014\\20140201 Reel Big Fish and Less Than Jake\\20140201_212242 Reel Big Fish - Nirvana.mp4",
+			"source": "F:\\photos\\2014\\20140201 Reel Big Fish and Less Than Jake\\20140201_212242 Reel Big Fish - Nirvana.mp4",
 			"settings":'{"metadata": "no meta","animated": "true", "mediatype": "video"}'
 		},
 		{
-			"source": "file://F:\\photos\\Wales 2003\\Angel\\thumbs\\2789 Angel Halo.jpg",
+			"source": "F:\\photos\\Wales 2003\\Angel\\thumbs\\2789 Angel Halo.jpg",
 			"settings":'{"metadata": "no meta","animated": "true", "mediatype": "image"}'
 		},
 		{
-			"source": "file://F:\\photos\\Wales 2003\\Angel\\thumbs\\2788 Angel.jpg",
+			"source": "F:\\photos\\Wales 2003\\Angel\\thumbs\\2788 Angel.jpg",
 			"settings":'{"metadata": "no meta","animated": "true", "mediatype": "image"}'
 		}
 	);
@@ -52,9 +68,7 @@ if (typeof(window.external.RunningFromRPS)=== "undefined") {
 	window.onclick = function() {
 		i++;
 		if (i >= a.length) i = 0;
-		//console.log(a[i]["source"]);
 		showImage(a[i]["source"], a[i]["source"], a[i]["settings"]);
-		//identify();
 	}
 }
 
@@ -270,7 +284,7 @@ function showImage(source, displayPath, settings) {
 			if (settings["backgroundImage"] && settings["fitTo"] != "cover") {
 				html += '<img ';
 				if (coverStyle != '') html += 'style="' + coverStyle + '"';
-				html += 'class="image blur ' + coverClasses + 'media" src="file://' + source + '"/>';
+				html += 'class="image background ' + coverClasses + 'media" src="file://' + source + '"/>';
 			}
 			// Main image
 			html += '<img ';
@@ -291,43 +305,45 @@ function showImage(source, displayPath, settings) {
 	}
 	card = $("<div class='card stretch'>" + html + "</div>").hide();
 	$("#rolodex").append(card);
-	if (settings.animated == "true" && settings.effect != undefined) card.show(JSON.parse(settings.effect));
-	else card.show("fade", 250);
+	// ToDo: Wait for images to finish rendering before start show
+	$("#rolodex").waitForImages().done(function(source, settings) {
+		if (settings.animated == "true" && settings.effect != undefined) card.show(JSON.parse(settings.effect));
+		else card.show("fade", 250);
 
-	while($("#rolodex .card").length > 2) {
-		first = $("#rolodex .card").first();
-		first.hide();
-		first.remove();
-	}
+		while($("#rolodex .card").length > 2) {
+			first = $("#rolodex .card").first();
+			first.hide();
+			first.remove();
+		}
 
-	if ($("#rolodex .card").length > 1) {
-		first = $("#rolodex .card").first();
-		if ($(first.get(0).childNodes[0]).hasClass("video")) {
-			if(typeof first.get(0).childNodes[0].pause === 'function') {
+		if ($("#rolodex .card").length > 1) {
+			first = $("#rolodex .card").first();
+			if ($(first.get(0).childNodes[0]).hasClass("video")) {
+				if(typeof first.get(0).childNodes[0].pause === 'function') {
+					first.get(0).childNodes[0].pause();
+				}
+				if ($(first.get(0).childNodes[0]).hasClass("object")) first.remove();
+			}
+			if ($(first.get(0).childNodes[0]).hasClass("object")) {
+				var player = document.getElementById("mediaPlayer");
+				try {
+					player.PlayState = 0;
+					player.controls.stop();
+				} catch(e) {
+
+				}
 				first.get(0).childNodes[0].pause();
+				$(first.get(0)).hide()
 			}
-			if ($(first.get(0).childNodes[0]).hasClass("object")) first.remove();
 		}
-		if ($(first.get(0).childNodes[0]).hasClass("object")) {
-			var player = document.getElementById("mediaPlayer");
-			try {
-				player.PlayState = 0;
-				player.controls.stop();
-			} catch(e) {
 
-			}
-			first.get(0).childNodes[0].pause();
-			$(first.get(0)).hide()
+		document.getElementById("filename").innerText = displayPath;
+		document.getElementById("quickMetadata").innerText = settings["metadata"];
+
+		if (settings["pano"] != undefined && settings["pano"] == true) {
+	//				window.prompt("Copy to clipboard: Ctrl+C, Enter", html);
 		}
-	}
-
-	document.getElementById("filename").innerText = displayPath;
-	document.getElementById("quickMetadata").innerText = settings["metadata"];
-
-	if (settings["pano"] != undefined && settings["pano"] == true) {
-//				window.prompt("Copy to clipboard: Ctrl+C, Enter", html);
-	}
-
+	}(source, settings));
 }
 
 function resize() {

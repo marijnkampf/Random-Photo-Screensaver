@@ -82,7 +82,7 @@ namespace RPS {
                 }
                 command.ExecuteNonQuery();
                 sw.Stop();
-                Debug.WriteLine("Applying filter: " + DBConnector.ToReadableString(command) + sw.ElapsedMilliseconds + "ms");
+                //Debug.WriteLine("Applying filter: " + DBConnector.ToReadableString(command) + sw.ElapsedMilliseconds + "ms");
 
                 this.filterOutOfDate = 0;
             }
@@ -140,7 +140,7 @@ namespace RPS {
                 sw.Start();
                 command.ExecuteNonQuery();
                 sw.Stop();
-                Debug.WriteLine(DBConnector.ToReadableString(command) + " " + sw.ElapsedMilliseconds + "ms");
+                //Debug.WriteLine(DBConnector.ToReadableString(command) + " " + sw.ElapsedMilliseconds + "ms");
                 this.filterOutOfDate++;
             }
         }
@@ -282,16 +282,20 @@ namespace RPS {
             return r;
         }
 
-        public int purgeNotMatchingParentFolders(List<string> folders, bool exactMatch) {
+        public int purgeNotMatchingParentFolders(List<string> folders, bool exactMatchFolders, List<string> excludedSubfolders) {
             if (this.readOnly) return -1;
 
             string match = "%";
-            if (exactMatch) match = "";
+            if (exactMatchFolders) match = "";
             string where = "WHERE NOT parentpath LIKE \"" + String.Join(match + "\" AND NOT parentpath LIKE \"", folders) + match + "\"";
+            if (excludedSubfolders.Count > 0) {
+                where += " OR parentpath LIKE \"%\\" + String.Join("%\" OR parentpath LIKE \"%\\", excludedSubfolders) + "\\%\"";
+            }
             SQLiteCommand command;
             int r = 0;
 
             command = new SQLiteCommand("DELETE FROM `FileNodes` " + where + ";", this.dbConnector.connection);
+            Debug.WriteLine(command.CommandText);
             r += command.ExecuteNonQuery();
             return r;
         }

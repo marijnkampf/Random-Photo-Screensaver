@@ -43,6 +43,8 @@ namespace RPS {
 
         public enum Order { Random = 1, Sequential = 0 };
 
+        private bool configInitialised = false;
+
         private Dictionary<string, object> persistant;
         DBConnector dbConnector;
         //SQLiteConnection connection;
@@ -51,6 +53,7 @@ namespace RPS {
         //private FolderBrowserDialog folderBrowserDialog1;
 
         private string folderChanged = null;
+        private string excludedSubfoldersChanged = null;
         private bool excludeAllSubfolders;
 
         public long maxMonitorDimension = 0;
@@ -86,6 +89,11 @@ namespace RPS {
             );
             //return new SQLiteConnection("Data Source=" + path + ";Version=3;");
             return this.dbConnector.connection;
+        }
+
+        public void saveDebug() {
+            string path = this.browser.Url.LocalPath.Replace(Constants.ConfigHtmlFile, "_C_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".html");
+            File.WriteAllText(path, this.browser.Document.GetElementsByTagName("HTML")[0].OuterHtml);
         }
 
         public string jsFileBrowserDialog(string filename, string filter) {
@@ -260,8 +268,12 @@ namespace RPS {
             }
 
             hec = this.browser.Document.GetElementsByTagName("textarea");
-            foreach (HtmlElement e in hec) if (this.persistant.ContainsKey(e.GetAttribute("id"))) {
-                e.SetAttribute("value", Convert.ToString(this.persistant[e.GetAttribute("id")]));
+            foreach (HtmlElement e in hec) {
+                if (this.persistant.ContainsKey(e.GetAttribute("id"))) {
+                    e.SetAttribute("value", Convert.ToString(this.persistant[e.GetAttribute("id")]));
+                } else {
+                    this.persistant[e.GetAttribute("id")] = this.getDomValue(e.GetAttribute("id"));
+                }
             }
 
             string classes= null;
@@ -731,12 +743,15 @@ namespace RPS {
                 Wallpaper wallpaper = new Wallpaper(this.screensaver);
                 wallpaper.setWallpaper();
                 Application.Exit();
-            } else { 
+            } else {
                 this.screensaver.initializeMonitors();
-                this.setInnerHTML("version", Constants.getNiceVersion());
-                this.browser.Document.InvokeScript("initFancyTreeFolder");
-                this.browser.Document.InvokeScript("initFancyTreeTransitions");
-                this.browser.Document.InvokeScript("hideWaiting");
+                if (!this.configInitialised) {
+                    this.setInnerHTML("version", Constants.getNiceVersion());
+                    this.browser.Document.InvokeScript("initFancyTreeFolder");
+                    this.browser.Document.InvokeScript("initFancyTreeTransitions");
+                    this.browser.Document.InvokeScript("hideWaiting");
+                    this.configInitialised = true;
+                }
             }
         }
 
@@ -744,10 +759,11 @@ namespace RPS {
             if (this.Visible && this.screensaver.action != Screensaver.Actions.Config) {
                 // Showing
                 this.folderChanged = Convert.ToString(this.getPersistant("folders"));
+                this.excludedSubfoldersChanged = Convert.ToString(this.getPersistant("excludedSubfolders"));
                 this.excludeAllSubfolders = this.getPersistantBool("excludeAllSubfolders");
             } else if (this.screensaver.action != Screensaver.Actions.Config) {
                 // Hiding
-                if (this.folderChanged != this.getPersistant("folders") || this.excludeAllSubfolders != this.getPersistantBool("excludeAllSubfolders")) {
+                if (this.folderChanged != this.getPersistant("folders") || this.excludedSubfoldersChanged != this.getPersistant("excludedSubfolders") || this.excludeAllSubfolders != this.getPersistantBool("excludeAllSubfolders")) {
                     //this.screensaver.fileNodes.purgeNotMatchingParentFolders(this.getPersistant("folders"));
                     this.screensaver.fileNodes.restartBackgroundWorkerImageFolder();
 //                    MessageBox.Show("changed");
@@ -759,14 +775,6 @@ namespace RPS {
                 Cursor.Hide();
             }
         }
-
-/* Removed in version 4 beta 14       
-  private void Config_Deactivate(object sender, EventArgs e) {
-            if (this.screensaver.action != Screensaver.Actions.Config) {
-                this.screensaver.configHidden = true;
-                this.Hide();
-            }
-        }*/
 
         public string updateFilename() {
             if (this.webUpdateCheck.Document != null) {

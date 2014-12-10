@@ -47,7 +47,7 @@ namespace RPS {
         public string fillTemplate(string template) {
             string output = "";
             if (template != null) this.template = template;
-            Debug.WriteLine(this.template);
+            //Debug.WriteLine(this.template);
             if (this.metadata.Count > 0) {
                 int pos = 0;
                 Regex rxGroups = new Regex("<#[^#]*#>", RegexOptions.Compiled);

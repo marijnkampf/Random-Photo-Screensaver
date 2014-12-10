@@ -600,8 +600,10 @@ namespace RPS {
                 }
                 if (!fileExistsOnDisk(this.currentImage)) return this.nextImage(step, panoramaShownPreviously);
             }
-            this.screensaver.appendDebugFile(this.id, Convert.ToString(this.currentImage["path"]));
-            this.readMetadataImage();
+            if (this.currentImage != null) { 
+                this.screensaver.appendDebugFile(this.id, Convert.ToString(this.currentImage["path"]));
+                this.readMetadataImage();
+            }
             return this.currentImage;
         }
 

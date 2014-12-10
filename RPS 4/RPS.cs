@@ -201,7 +201,7 @@ namespace RPS {
             ManagementObjectCollection retObjectCollection = searcher.Get();
             foreach (ManagementObject retObject in retObjectCollection) {
                 if (currentProcess.Id != Convert.ToInt32(retObject["ProcessId"])) {
-                    Console.WriteLine("[{0}]", retObject["CommandLine"] + " " + retObject["ProcessId"] + " ~ " + currentProcess.Id);
+                    //Console.WriteLine("[{0}]", retObject["CommandLine"] + " " + retObject["ProcessId"] + " ~ " + currentProcess.Id);
                     // If both self and process as screensaver /s switch to existing and exit
                     if (!System.Diagnostics.Debugger.IsAttached) {
                         if (action == Actions.Screensaver && !retObject["CommandLine"].ToString().Contains("/c") && !retObject["CommandLine"].ToString().Contains("/p")) {
@@ -332,7 +332,14 @@ namespace RPS {
                     if (step > 1) s = " x " + step;
                     this.monitors[i].showInfoOnMonitor(">>" + s);
                     this.monitors[i].nextImage(step, panoramaShownPreviously);
-                    this.monitors[i].showImage(this.config.getPersistantBool("useTransitionsOnInput"));
+                    /*if (Utils.hasKeyMessage()) {
+                        Console.WriteLine("Skip:" + i + " " + this.monitors[i].currentImage["path"]);
+                        Console.Beep();
+                        //this.monitors[i].showInfoOnMonitor(">>>" + s);
+                    } else {
+                        Console.WriteLine("Show:" + i + " " + this.monitors[i].currentImage["path"]);*/
+                        this.monitors[i].showImage(this.config.getPersistantBool("useTransitionsOnInput"));
+                    //}
                 }
             }
             this.startTimers();
@@ -385,7 +392,9 @@ namespace RPS {
             // Ignore repeated keys
             if (this.previousKey == e.KeyCode) {
                 this.previousKey = 0;
+                Console.WriteLine("PreviousKey:" + e.KeyCode.ToString());
             } else {
+                Console.WriteLine("Key:" + e.KeyCode.ToString());
                 if (this.config.Visible) {
                     switch (e.KeyCode) {
                         case Keys.Escape:
@@ -403,7 +412,8 @@ namespace RPS {
                         break;
                         #if (DEBUG)
                         case Keys.F12:
-                            string log = "";
+                            this.config.saveDebug();   
+                            string log = "HTML saved";
                             foreach(string s in this.debugLog) {
                                 log += s + Environment.NewLine;
                             }

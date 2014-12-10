@@ -9,8 +9,8 @@
  * Released under the MIT license
  * https://github.com/mar10/fancytree/wiki/LicenseInfo
  *
- * @version 2.4.1
- * @date 2014-09-23T19:33
+ * @version 2.6.0
+ * @date 2014-11-29T08:33
  */
 
 ;(function($, window, document, undefined) {
@@ -20,7 +20,12 @@
 /* *****************************************************************************
  * Private functions and variables
  */
-var _assert = $.ui.fancytree.assert;
+function _assert(cond, msg){
+	msg = msg || "";
+	if(!cond){
+		$.error("Assertion failed " + msg);
+	}
+}
 
 function insertSiblingAfter(referenceNode, newNode) {
 	referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
@@ -130,7 +135,7 @@ $.ui.fancytree.registerExtension({
 //    },
 	nodeRemoveChildMarkup: function(ctx) {
 		var node = ctx.node;
-//		DT.debug("nodeRemoveChildMarkup()", node.toString());
+//		node.debug("nodeRemoveChildMarkup()");
 		node.visit(function(n){
 			if(n.tr){
 				$(n.tr).remove();
@@ -140,7 +145,7 @@ $.ui.fancytree.registerExtension({
 	},
 	nodeRemoveMarkup: function(ctx) {
 		var node = ctx.node;
-//		DT.debug("nodeRemoveMarkup()", node.toString());
+//		node.debug("nodeRemoveMarkup()");
 		if(node.tr){
 			$(node.tr).remove();
 			node.tr = null;

@@ -45,6 +45,7 @@ namespace RPS_Launcher {
             if (files.Count > 0) {
                 Process p = Process.Start(Convert.ToString(files[0]), String.Join(" ", args));
                 p.WaitForExit();
+                // Check for updated version
             } else {
                 MessageBox.Show("No Random Photo Screensaver executable found in:" + Environment.NewLine +
                     "(" + installDir + ")" + Environment.NewLine + Environment.NewLine +

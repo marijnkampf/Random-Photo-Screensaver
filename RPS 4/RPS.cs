@@ -27,6 +27,7 @@ namespace RPS {
 
         private bool configInitialised = false;
         public bool applicationClosing = false;
+        public bool clipboardReady = false;
         private IntPtr[] hwnds;
         private System.Windows.Forms.Keys previousKey;
         public bool configHidden = false;
@@ -446,8 +447,27 @@ namespace RPS {
                             }
                             this.configHidden = false;
                         break;
+                        case Keys.A:
+                        case Keys.B:
+                            Process.Start("http://www.abscreensavers.com");
+                        break;
                         case Keys.C:
-                            this.showInfoOnMonitors("Calendar probably won' be implemented");
+                            //this.showInfoOnMonitors("Calendar probably won' be implemented.");
+                            string c;
+                            if (this.clipboardReady) c = Clipboard.GetText();
+                            else c = "";
+                            for (int i = 0; i < this.monitors.Length; i++) {
+                                if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
+                                    if (this.monitors[i].imagePath() != null) {
+                                        c += this.monitors[i].imagePath() + Environment.NewLine;
+                                        this.monitors[i].showInfoOnMonitor("Image path added to clipboard");
+                                    }
+                                }
+                            }
+                            if (c != "") {
+                                Clipboard.SetText(c);
+                                this.clipboardReady = true;
+                            }
                         break;
                         case Keys.E:
                             for (int i = 0; i < this.monitors.Length; i++) {

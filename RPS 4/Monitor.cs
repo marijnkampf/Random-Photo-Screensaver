@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Collections;
 using Newtonsoft.Json;
+using System.Security.Principal;
 
 namespace RPS {
     [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
@@ -432,6 +433,10 @@ namespace RPS {
                             this.imageSettings["rawCached"] = e.Result;
                         }
                         //metadata += " " + this.imageSettings["exifRotate"] + " " + this.Bounds.ToString();
+/*                        this.imageSettings["metadata"] = 
+                            WindowsIdentity.GetCurrent().Name + Environment.NewLine +
+                            Environment.UserName + Environment.NewLine +
+                            this.imageSettings["metadata"];*/
                         //this.showInfoOnMonitor(this.info, false, true);
                         this.browser.Document.InvokeScript("showImage", new Object[] { e.Result, Convert.ToString(this.currentImage["path"]), JsonConvert.SerializeObject(this.imageSettings) });
                     };

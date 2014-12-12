@@ -48,7 +48,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>app.ico</ApplicationIcon>
+    <ApplicationIcon>rps4.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>RPS_Launcher.Program</StartupObject>
@@ -86,7 +86,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="app.ico" />
+    <Content Include="rps4.ico" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">

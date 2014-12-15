@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Runtime.InteropServices; 
+using System.Runtime.InteropServices;
+using Microsoft.Win32.TaskScheduler;
+using System.Security.Cryptography;
+using System.IO;
 
 namespace RPS {
     class Utils {
@@ -49,6 +52,36 @@ namespace RPS {
             }
             return new List<string>(ff);
         }
+
+        public static bool RunTaskScheduler(string taskName, string path) {
+            return Utils.RunTaskScheduler(taskName, path, null);
+        }
+
+        public static bool RunTaskScheduler(string taskName, string path, string arguments) {
+            try {
+                using (TaskService ts = new TaskService()) {
+                    TaskDefinition td = ts.NewTask();
+                    td.Actions.Add(new ExecAction(path, arguments, null));
+                    ts.RootFolder.RegisterTaskDefinition(taskName, td);
+                    Microsoft.Win32.TaskScheduler.Task t = ts.FindTask(taskName);
+                    if (t != null) t.Run();
+                    ts.RootFolder.DeleteTask(taskName);
+                }
+            } catch (Exception e) {
+                return false;
+            }
+            return true;
+        }
+
+        public static bool VerifyMD5(string path, string md5verify) {
+            if (!File.Exists(path)) return false;
+            using (var md5 = MD5.Create()) {
+                using (var stream = File.OpenRead(path)) {
+                    return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", string.Empty).ToLower() == md5verify.ToLower();
+                }
+            }
+        }
+
 
 
     }

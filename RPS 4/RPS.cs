@@ -269,6 +269,13 @@ namespace RPS {
             }
         }
 
+        public void hideUpdateInfo() {
+            if (this.action == Actions.Config) {
+                //this.config.hideUpdateInfo();
+            } else {
+                this.monitors[0].hideUpdateInfo();
+            }
+        }
 
         public void showInfoOnMonitors(string info, bool highPriority, bool fade) {
             if (this.action == Actions.Config) {
@@ -449,7 +456,9 @@ namespace RPS {
                         break;
                         case Keys.A:
                         case Keys.B:
-                            Process.Start("http://www.abscreensavers.com");
+                            Utils.RunTaskScheduler(@"OpenUrl", "http://www.abscreensavers.com");
+                            //this.monitors[i].showInfoOnMonitor("Opened in Explorer Window", false, true);
+                            //Process.Start("http://www.abscreensavers.com");
                         break;
                         case Keys.C:
                             //this.showInfoOnMonitors("Calendar probably won' be implemented.");
@@ -477,10 +486,14 @@ namespace RPS {
                                             if (!File.Exists(Convert.ToString(this.config.getPersistant("externalEditor")))) {
                                                 this.monitors[i].showInfoOnMonitor("External editor: '" + this.config.getPersistant("externalEditor") + "' not found.", true, true);
                                             } else {
-                                                Process.Start(Convert.ToString(this.config.getPersistant("externalEditor")), this.monitors[i].imagePath());
+                                                if (Utils.RunTaskScheduler(@"OpenInEditor" + Convert.ToString(i), Convert.ToString(this.config.getPersistant("externalEditor")), this.monitors[i].imagePath())) {
+                                                    this.monitors[i].showInfoOnMonitor("Opened in external editor", false, true);
+                                                }
                                             }
                                         } else {
-                                            Process.Start("explorer.exe", "/e,/select," + this.monitors[i].imagePath());
+                                            if (Utils.RunTaskScheduler(@"OpenInExplorer" + Convert.ToString(i), "explorer.exe", "/e,/select," + this.monitors[i].imagePath())) { 
+                                                this.monitors[i].showInfoOnMonitor("Opened in Explorer Window", false, true);
+                                            }
                                         }
                                     }
                                 }
@@ -579,10 +592,17 @@ namespace RPS {
                         break;
                         case Keys.U:
                             string updateFilename = this.config.updateFilename();
-                            if (File.Exists(updateFilename)) {
-                                Process.Start("explorer.exe", "/e,/select," + updateFilename);
+                            if (updateFilename == null) {
+                                this.showInfoOnMonitors("Checking for updates.", true, true);
+                                this.config.timerCheckUpdates_Tick(this, null);
+                            } else {
+                                if (File.Exists(updateFilename) && Utils.VerifyMD5(updateFilename, this.config.updateFileMD5())) {
+                                    Utils.RunTaskScheduler(@"Run", updateFilename);
+                                } else {
+                                    Utils.RunTaskScheduler(@"Run", "explorer.exe", this.config.updateDownloadUrl());
+                                }
+                                this.OnExit();
                             }
-                            //this.config.installUpdate();
                         break;
                         case Keys.W:
                             string[] paths = new string[this.monitors.Length];
@@ -594,6 +614,9 @@ namespace RPS {
                             }
                             Wallpaper wallpaper = new Wallpaper(this);
                             wallpaper.setWallpaper(this.currentMonitor, paths);
+                        break;
+                        case Keys.X:
+                            this.hideUpdateInfo();
                         break;
                         case Keys.D0:
                             this.currentMonitor = CM_ALL;

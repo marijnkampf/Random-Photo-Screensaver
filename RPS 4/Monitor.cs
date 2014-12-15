@@ -177,6 +177,10 @@ namespace RPS {
             this.browser.Document.InvokeScript("downloadProgressIndicator", new String[] { Convert.ToString(i) });
         }
 
+        public void hideUpdateInfo() {
+            this.browser.Document.InvokeScript("hideUpdateInfo", new String[] { });
+        }
+
         public void showUpdateInfo(string info) {
             this.browser.Document.InvokeScript("showUpdateInfo", new String[] { info });
         }

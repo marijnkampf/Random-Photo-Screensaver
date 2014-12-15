@@ -186,6 +186,12 @@ function showUpdateInfo(info) {
 	return true;
 }
 
+function hideUpdateInfo(info) {
+	$("#updateinfo").hide("blind", "direction:down");
+	return true;
+}
+
+
 function showMetadata(metadata) {
 	document.getElementById("quickMetadata").innerText = metadata;
 }

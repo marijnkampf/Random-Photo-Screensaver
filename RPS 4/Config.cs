@@ -21,7 +21,6 @@ using System.Collections;
 using Newtonsoft.Json;
 using Microsoft.Win32;
 using System.Net;
-using System.Security.Cryptography;
 /***
  * 
  * TODO: Reflect changes made in config.html into this.persistant!!!
@@ -184,10 +183,7 @@ namespace RPS {
 
             DataContext context = new DataContext(this.dbConnector.connection);
             var items = context.GetTable<Setting>();
-            //MessageBox.Show("gettable");
-            //var items = context.GetTable(typeof(Setting));
             foreach(Setting item in items) {
-//                MessageBox.Show("item" + item.Key + " " + item.Value);
                 this.persistant.Add(item.Key, item.Value);
             }
             if (!this.persistant.ContainsKey("folders") || this.persistant["folders"] == null || this.getPersistantString("folders").Trim().Length == 0) { 
@@ -786,12 +782,33 @@ namespace RPS {
             return null;
         }
 
+        public string updateDownloadUrl() {
+            if (this.webUpdateCheck.Document != null) {
+                HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
+                if (he != null) {
+                    return he.GetAttribute("href");
+                }
+            }
+            return null;
+        }
+
+        public string updateFileMD5() {
+            if (this.webUpdateCheck.Document != null) {
+                HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
+                if (he != null) {
+                    return Convert.ToString(he.GetAttribute("data-md5"));
+                }
+            }
+            return null;
+        }
+        
+
         public void installUpdate() {
             if (this.webUpdateCheck.Document != null) {
                 HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
                 if (he != null) {
                     try {
-                        Process.Start(Convert.ToString(Path.Combine(Constants.getUpdateFolder(), Path.GetFileName(he.GetAttribute("href")))));
+                        Utils.RunTaskScheduler(@"RunRPSUpdate", Convert.ToString(Path.Combine(Constants.getUpdateFolder(), Path.GetFileName(he.GetAttribute("href")))), null);
                         this.screensaver.OnExit();
                         this.showUpdateInfo("Running installer");
                     } catch (System.ComponentModel.Win32Exception we) {
@@ -826,8 +843,9 @@ namespace RPS {
             //WebBrowser wbCheckUpdate = sender as WebBrowser;
             HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
             string updatePath = Path.Combine(Constants.getUpdateFolder(), Path.GetFileName(he.GetAttribute("href")));
-            if (!this.VerifyMD5(updatePath, he.GetAttribute("data-md5"))) {
-                this.showUpdateInfo("Download " + he.GetAttribute("data-version") + " failed<br/>Please <a href='" + he.GetAttribute("href") + "'>download update manually</a>.");
+            if (!Utils.VerifyMD5(updatePath, he.GetAttribute("data-md5"))) {
+                // <a href='" + he.GetAttribute("href") + "'>
+                this.showUpdateInfo("Download " + he.GetAttribute("data-version") + " failed<br/>Please U key to start download manually.");
                 return;
             }
             if (this.getPersistantString("checkUpdates") == "yes") this.installUpdate();
@@ -836,15 +854,6 @@ namespace RPS {
                 if (this.getPersistant("mouseSensitivity") == "none" || this.screensaver.action == Screensaver.Actions.Config) clickOrKey = "Click to install now";
                 this.screensaver.showUpdateInfo("RPS " + he.GetAttribute("data-version") + " downloaded<br/><a class='exit external' target='_blank' href='file://" + updatePath + "'>" + clickOrKey + "</a>.");
             }
-        }
-
-        bool VerifyMD5(string path, string md5verify) {
-            if (!File.Exists(path)) return false;
-            using (var md5 = MD5.Create()) {
-                using (var stream = File.OpenRead(path)) {
-                    return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", string.Empty).ToLower() == md5verify.ToLower();
-                }
-            } 
         }
 
         private void notifyUpdateAvailable() {
@@ -875,14 +884,15 @@ namespace RPS {
 
                     if (this.newVersionAvailable) {
                         if (this.downloadUpdates) {
-                            string updatePath = Path.Combine(Constants.getUpdateFolder(), Path.GetFileName(he.GetAttribute("href")));
-                            if (!File.Exists(updatePath) || !this.VerifyMD5(updatePath, he.GetAttribute("data-md5"))) {
+                            string downloadedUpdateLocalPath = Path.Combine(Constants.getUpdateFolder(), Path.GetFileName(he.GetAttribute("href")));
+                            if (!File.Exists(downloadedUpdateLocalPath) || !Utils.VerifyMD5(downloadedUpdateLocalPath, he.GetAttribute("data-md5"))) {
+                                if (File.Exists(downloadedUpdateLocalPath)) File.Delete(downloadedUpdateLocalPath);
                                 this.showUpdateInfo("<div class='downloadProgress'><div class='downloadLabel'>Downloading update: " + update.ToString() + "</div><div class='downloadProgress' style='width: 0%'></div>");
-                                Directory.CreateDirectory(Path.GetDirectoryName(updatePath));//.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Constants.DownloadFolder));
+                                Directory.CreateDirectory(Path.GetDirectoryName(downloadedUpdateLocalPath));//.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Constants.DownloadFolder));
                                 WebClient client = new WebClient();
                                 client.DownloadFileCompleted += new AsyncCompletedEventHandler(DownloadFileCompleted);
                                 client.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadProgress);
-                                client.DownloadFileAsync(new Uri(he.GetAttribute("href")), updatePath);
+                                client.DownloadFileAsync(new Uri(he.GetAttribute("href")), downloadedUpdateLocalPath);
                                 return;
                             } else {
                                 this.DownloadFileCompleted(this, null);
@@ -895,7 +905,7 @@ namespace RPS {
             }
         }
         
-        private void timerCheckUpdates_Tick(object sender, EventArgs e) {
+        public void timerCheckUpdates_Tick(object sender, EventArgs e) {
             this.timerCheckUpdates.Enabled = false;
             if (this.screensaver.action != Screensaver.Actions.Preview) {
                 string update;

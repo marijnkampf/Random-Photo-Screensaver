@@ -195,7 +195,14 @@ CREATE UNIQUE INDEX `keys` ON `Setting` (`key` ASC);
         }
 
         public static string getUpdateFolder() {
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Constants.AppFolderName, Constants.DownloadFolder);
+            return Path.Combine(Constants.getLocalAppDataFolder(), Constants.DownloadFolder);
+        }
+
+        public static string getLocalAppDataFolder() {
+            return Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                Constants.AppFolderName
+            );
         }
 
         public static string getDataFolder(string filename) {
@@ -205,12 +212,7 @@ CREATE UNIQUE INDEX `keys` ON `Setting` (`key` ASC);
 
             /* 1 */
             string notFound = "";
-            string fullPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), 
-                Constants.AppFolderName,
-                Constants.DataFolder,
-                filename
-            );
+            string fullPath = Path.Combine(Constants.getLocalAppDataFolder(), Constants.DataFolder, filename);
             
             /* 2 */
             if (!File.Exists(fullPath)) {

@@ -457,8 +457,19 @@ namespace RPS {
         }
 
         public void saveDebug() {
-            string path = this.browser.Url.LocalPath.Replace(Constants.MonitorHtmlFile, "_M" + (this.id + 1) + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".html");
-            File.WriteAllText(path, this.browser.Document.GetElementsByTagName("HTML")[0].OuterHtml);
+            string filename = "_M" + (this.id + 1) + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".html";
+            string path = this.browser.Url.LocalPath.Replace(Constants.MonitorHtmlFile, filename);
+            try {
+                File.WriteAllText(path, this.browser.Document.GetElementsByTagName("HTML")[0].OuterHtml);
+            } catch (Exception) {
+                path = Path.Combine(Constants.getLocalAppDataFolder(), Constants.DataFolder, filename);
+                try {
+                    File.WriteAllText(path, this.browser.Document.GetElementsByTagName("HTML")[0].OuterHtml);
+                } catch (Exception e) {
+                    this.showInfoOnMonitor("Error exporting HTML to '" + path + "'" + Environment.NewLine + e.Message, false, true);
+                    return;
+                }
+            } 
             this.info = this.showInfoOnMonitor("HTML exported to " + path, false, false);
         }
 

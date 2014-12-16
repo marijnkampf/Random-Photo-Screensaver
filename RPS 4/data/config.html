@@ -21,8 +21,8 @@
 <body>
 	<div id="waiting"></div>
 	<div id="donation"><a class="hideMessage" href="#">[X]</a>
-		<a id="donate" class="linkButton external" target="_blank" href="http://www.abscreensavers.com/random-photo-screensaver/donation?source=RPS4">Donate</a>
-		Random Photo Screensaver is <strong>donationware</strong>, you are <strong>required</strong> to make a <a class="external" target="_blank" href="http://www.abscreensavers.com/random-photo-screensaver/donation?source=RPS4">donation to the author</a> is you continue using this software after your 30 days trail ends.
+		<a id="donate" class="linkButton external" href="http://www.abscreensavers.com/random-photo-screensaver/donation?source=RPS4">Donate</a>
+		Random Photo Screensaver is <strong>donationware</strong>, you are <strong>required</strong> to make a <a class="external" href="http://www.abscreensavers.com/random-photo-screensaver/donation?source=RPS4">donation to the author</a> is you continue using this software after your 30 days trail ends.
 		<div><strong>Thank you for your support!</strong></div>
 	</div>
 	<div id="navigation">
@@ -35,7 +35,7 @@
 		<input id="search" type="text" placeholder="Search settings" aria-label="Search settings"/>
 		<a id="settings"></a><h1 class="underline">Settings</h1>
 		<div class="previewTip">Tip: You can also access the settings menu by pressing the 'S' key when the screensaver is running</div>
-		<div class="lowIEWarning">Internet Explorer 8 or greater is required, please <a class="external" target="_blank" href="http://windows.microsoft.com/en-us/internet-explorer/download-ie">upgrade Internet Explorer</a>!</div>
+		<div class="lowIEWarning">Internet Explorer 8 or greater is required, please <a class="external" href="http://windows.microsoft.com/en-us/internet-explorer/download-ie">upgrade Internet Explorer</a>!</div>
 		<div id="update" class="note"></div>
 
 		<form>
@@ -43,7 +43,7 @@
 				<h2>Folders</h2>
 				<div class="foldersTree">
 					<div id="tree">
-						<label>Select folders (right click to exclude/include subfolders)</label>
+						<label class="tooltip" data-title="Right click on folder to exclude/include subfolders with that name.">Select folders (?)</label>
 						<div id="foldersFancyTree"></div>
 					</div>
 					<!--div>Selected keys: <span id="echoSelection3">-</span></div>
@@ -73,7 +73,7 @@
 				<div class="row">
 					<a class="expandSelected button" href="#">Show selected folders</a>
 					<a class="toggleTreeTextareas button" href="#" data-toggle="Back to treeview">Show folder list (for copy and paste)</a>
-					<span class="info" title="To add network drives click 'Show folder list' button and copy and paste network paths">Network drives (?)</span>
+					<span class="tooltip" data-title="To add network drives click 'Show folder list' button and copy and paste network paths.">Network drives (?)</span>
 				</div>
 				<div class="set checkboxGroup">
 					<input type="checkbox" id="excludeAllSubfolders"/> <label for="excludeAllSubfolders">Exclude all subfolders</label>
@@ -91,8 +91,8 @@
 				<div class="column">
 					<label for="timeoutMax">Maximum duration</label><input type="number" id="timeoutMax" value="20"/>
 				</div>
-				<div class="">
-					<label class="left" for="variableTimeout" title="Enable to vary the how long each image is shown for"><input type="checkbox" id="variableTimeout" checked /> Use variable durations (?)</label>
+				<div class="line">
+					<label class="left tooltip" for="variableTimeout" data-title="Enable to vary the how long each image is shown for."><input type="checkbox" id="variableTimeout" checked /> Use variable durations (?)</label>
 				</div>
 				<div class="multiOnly">
 					<label>Synchronise multi-monitors</label>
@@ -167,8 +167,8 @@
 					<input type="checkbox" id="stretchSmallImages"/> <label for="stretchSmallImages">Stretch small images</label>
 				</div>
 				<div id="fitTo" class="radioGroupHorizontal"><label>Fit images to</label>
-					<input type="radio" id="fitToContain" name="fitTo" value="contain" checked /> <label for="fitToContain" title="Scale image so it fits entirely on the display (background visible)">contain (?)</label>
-					<input type="radio" id="fitToCover" name="fitTo" value="cover"/> <label for="fitToCover" title="Scale image so that it covers the entiry display (no background visisble)">cover (?)</label>
+					<input type="radio" id="fitToContain" name="fitTo" value="contain" checked /> <label for="fitToContain" class="tooltip" data-title="Scale image so it fits entirely on the display (background visible).">contain (?)</label>
+					<input type="radio" id="fitToCover" name="fitTo" value="cover"/> <label for="fitToCover" class="tooltip"  data-title="Scale image so that it covers the entiry display (no background visisble).">cover (?)</label>
 				</div>
 				<div class="clear"></div>
 				<div class="set checkboxGroup">
@@ -209,7 +209,7 @@
 				</div>
 				<div class="rawUseConverter">
 					<div class="noRaw">
-						<p>Raw converter not found. Please <a class="external" target="_blank" href="http://sourceforge.net/projects/ufraw/files/latest/download?source=typ_redirect" >download and install UFRaw</a>, then click: <a id="detectUFRaw" class="button" href="#">Locate UFRaw installation</a><br/>
+						<p>Raw converter not found. Please <a class="external" href="http://sourceforge.net/projects/ufraw/files/latest/download?source=typ_redirect" >download and install UFRaw</a>, then click: <a id="detectUFRaw" class="button" href="#">Locate UFRaw installation</a><br/>
 						Or install your own favourite RAW file converter.</p>
 					</div>
 					<label for="rawConverter">Raw file converter</label>
@@ -315,10 +315,10 @@
 				<h3>Wallpaper source</h3>
 				<div id="wallpaperSource" class="radioGroup">
 					<input type="radio" name="wallpaperSource" id="wallpaperSourceDB" checked /> <label for="wallpaperSourceDB">Pick from files</label>
-					<input type="radio" name="wallpaperSource" id="wallpaperSourceFolder" titel="Not implemented yet" disabled/> <label for="wallpaperSourceFolder" titel="Not implemented yet" >Use separate wallpaper folder</label>
+					<!--input type="radio" name="wallpaperSource" id="wallpaperSourceFolder" titel="Not implemented yet" disabled/> <label for="wallpaperSourceFolder" titel="Not implemented yet" >Use separate wallpaper folder</label>
 					<input type="file" id="wallpaperFolder" value="Not implemented yet"  titel="Not implemented yet" disabled/>
 					<input type="radio" name="wallpaperSource" id="wallpaperSourceFilter"  titel="Not implemented yet" disabled/> <label for="wallpaperSourceFolder" titel="Not implemented yet" >Use filter</label>
-					<input type="text" id="wallpaperFilter" value="SELECT * FROM `FileNodes` NATURAL JOIN Metadata WHERE `all` LIKE '%Exposure Time	1/100\' || x'0d' || x'0a' || '%'"  titel="Not implemented yet" disabled/>
+					<input type="text" id="wallpaperFilter" value="SELECT * FROM `FileNodes` NATURAL JOIN Metadata WHERE `all` LIKE '%Exposure Time	1/100\' || x'0d' || x'0a' || '%'"  titel="Not implemented yet" disabled/-->
 				</div>
 				<input type="hidden" id="wallpaperLastChange"/>
 			</div>
@@ -360,8 +360,8 @@
 			<h2 class="underline">Advanced settings</h2>
 			<div class="set advanced checkboxGroup">
 				<h3>Hidden files and folders</h3>
-				<input type="checkbox" id="ignoreHiddenFiles" checked /> <label for="ignoreHiddenFiles"  title="Files with system attribute hidden set are not shown.">Ignore hidden files (?)</label>
-				<input type="checkbox" id="ignoreHiddenFolders" checked/> <label for="ignoreHiddenFolders"  title="Folders with system attribute hidden set are not shown.">Ignore hidden folders (?)</label>
+				<div class="line"><input type="checkbox" id="ignoreHiddenFiles" checked /> <label for="ignoreHiddenFiles" class="tooltip" data-title="Files with system attribute hidden set are not shown.">Ignore hidden files (?)</label></div>
+				<div class="line"><input type="checkbox" id="ignoreHiddenFolders" checked/> <label for="ignoreHiddenFolders"  class="tooltip" data-title="Folders with system attribute hidden set are not shown.">Ignore hidden folders (?)</label></div>
 			</div>
 			<div class="set advanced checkboxGroup">
 				<h3>Keyboard and mouse</h3>
@@ -375,11 +375,11 @@
 					</div>
 				</div>
 				<div class="clear"></div>
-				<input type="checkbox" id="browseMouse" /> <label for="browseMouse" title="Left button: next; Right button: previous">Use mouse to browse (?)</label>
+				<div class="line"><input type="checkbox" id="browseMouse" /> <label for="browseMouse" class="tooltip" data-title="Left button: next; Right button: previous.">Use mouse to browse (?)</label></div>
 				<h4>Keyboard settings</h4>
 				<input type="checkbox" id="onlyEscapeExits"/> <label for="onlyEscapeExits" title="Only escape key closes screensaver (separate from mouse movement).">Only escape key exits screensaver</label>
 				<input type="checkbox" id="closeAfterImageLocate"/> <label for="closeAfterImageLocate"  title="Close screensaver after locating images (E key / Ctrl + E keys).">Close screensaver after image locate (E key / Ctrl + E keys)</label>
-				<label for="externalEditor" title="Custom editor to use to open current image(s) (Ctrl + E)">Custom editor (?)</label>
+				<label for="externalEditor" class="tooltip" data-title="Custom editor to use to open current image(s) (Ctrl + E).">Custom editor (?)</label>
 				<div class="browseFile"><input type="text" id="externalEditor" data-filter="Executable files (*.exe)|*.exe" value="" /><a id="externalEditorBrowse" class="button" href="#">Browse</a></div>
 
 				<input type="checkbox" id="deleteKey" checked/> <label for="deleteKey"  title="Place selected monitors photos into recycling bin on Delete key">Enable delete key</label>
@@ -388,7 +388,7 @@
 			<div class="set advanced checkboxGroup">
 				<h3>History</h3>
 				<label for="rememberLast">Remember last images for next session</label><input type="number" id="rememberLast" value="10"/>
-				<label for="maxHistory" title="Unlimited max history size will eventually result in out of memory error.">Maximum random history size (?)</label><input type="number" id="maxHistory" value="10000"/>
+				<div class="line"><label for="maxHistory" class="tooltip" data-title="Unlimited max history size will eventually result in out of memory error.">Maximum random history size (?)</label><input type="number" id="maxHistory" value="10000"/></div>
 				<div class="keywords">previous old</div>
 			</div>
 			<div class="set advanced checkboxGroup">
@@ -471,7 +471,7 @@
 		<input id="sequentialStartImageId" type="hidden"/>
 		<input id="randomStartImages" type="hidden"/>
 	</form>
-	<h3><a class="external" target="_blank" href="http://www.abscreensavers.com/rps?source=RPS4">Visit abScreensavers.com/rps for help and information</a></h3>
+	<h3><a class="external" href="http://www.abscreensavers.com/rps?source=RPS4">Visit abScreensavers.com/rps for help and information</a></h3>
 	</div>
 	<div id="debug"></div>
 </body>

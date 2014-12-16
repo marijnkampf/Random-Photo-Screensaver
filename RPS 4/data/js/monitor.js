@@ -235,6 +235,13 @@ function getVideoObjectElement(source, settings) {
 	return html;
 }
 
+// Fix video pausing after show animation completes
+// https://forum.jquery.com/topic/video-stops-when-using-effect-on-show
+var videoFixEvents = ["abort", "canplay", "canplaythrough", "durationchange", "emptied", "ended",
+    "error", "loadeddata", "loadedmetadata", "loadstart", "pause", "play", "playing",
+    "progress", "ratechange", "readystatechange", "seeked", "seeking", "stalled",
+    "suspend", "x-timeupdate", "volumechange", "waiting"];
+
 function showImage(source, displayPath, settings) {
 	//prompt("settings", settings);
 	if (typeof settings == "string") settings = JSON.parse(settings);
@@ -303,6 +310,8 @@ function showImage(source, displayPath, settings) {
 			if (settings.mute) html += ' muted';
 			if (settings.showcontrols) html += ' controls';
 			html += '></video>';
+			// ToDo fix video effects in jQuery UI
+			//if (settings.effect != undefined && settings.effect.length > 0) settings.effect = '{"effect":"fade", "duration":1000}';
 			if (settings.stretchSmallVideos) stretch = true;
 		break;
 		case "object":
@@ -311,6 +320,10 @@ function showImage(source, displayPath, settings) {
 	}
 	card = $("<div class='card stretch'>" + html + "</div>").hide();
 	$("#rolodex").append(card);
+
+	// Fix video pausing after show animation completes
+	if (settings.mediatype == "video") $("video",card).on(videoFixEvents.join(" "), function (e) { }).one("suspend pause",function(){this.play()})
+
 	// ToDo: Wait for images to finish rendering before start show
 	$("#rolodex").waitForImages().done(function(source, settings) {
 		if (settings.animated == "true" && settings.effect != undefined) card.show(JSON.parse(settings.effect));
@@ -386,13 +399,11 @@ $(function(){
 });
 
 window.onload = function() {
-
 	resize();
 	clockTick();
 	if (typeof(window.external.RunningFromRPS)=== "undefined") {
 		setBackgroundColour("#000000");
 		clockTick();
-//				window.onclick();
 	} else {
 		$(".info").each(function() {
 			if ($(this).text().substr(0,1) == "#" && $(this).text().substr(-1, 1) == "#") $(this).text("");

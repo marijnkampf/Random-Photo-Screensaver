@@ -82,7 +82,7 @@ namespace RPS {
 
         public SQLiteConnection connectToDB() {
             this.dbConnector = new DBConnector(
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Constants.AppFolderName, Constants.PersistantConfigFileName),
+                Path.Combine(Constants.getLocalAppDataFolder(), Constants.PersistantConfigFileName),
                 Constants.SettingsDefinition,
                 false
             );
@@ -140,6 +140,10 @@ namespace RPS {
         public void jsSetSelectedEffects(string jsonEffects) {
             this.effects = JsonConvert.DeserializeObject<jsonFolder>(jsonEffects);
             this.persistant["effects"] = jsonEffects;
+        }
+
+        public void jsOpenExternalLink(string href) {
+            Utils.RunTaskScheduler("OpenURL", "explorer.exe", "\"" + href + "\"");
         }
 
         public string jsGetSelectedEffects() {

@@ -121,6 +121,10 @@ textarea, input {
 	clear: none !important;
 }
 
+.line {
+	clear: left;
+}
+
 .checkboxGroup label, .radioGroup label {
 	clear: right;
 }
@@ -283,3 +287,32 @@ label {
 .config #clearFilter, .config #applyFilter {
 	display: none;
 }
+
+	.tooltip{
+			display: inline;
+			position: relative;
+	}
+
+	.tooltip:hover:after{
+			background: #811788;
+			border-radius: 5px;
+			bottom: 26px;
+			color: #fff;
+			content: attr(data-title);
+			left: 20%;
+			padding: 15px 15px;
+			position: absolute;
+			z-index: 10000;
+			width: 220px;
+	}
+
+	.tooltip:hover:before{
+			border: solid;
+			border-color: #811788 transparent;
+			border-width: 6px 6px 0 6px;
+			bottom: 20px;
+			content: "";
+			left: 50%;
+			position: absolute;
+			z-index: 10000;
+	}

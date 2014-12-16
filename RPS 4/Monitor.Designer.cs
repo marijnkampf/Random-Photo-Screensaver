@@ -26,6 +26,7 @@ namespace RPS {
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Monitor));
             this.browser = new System.Windows.Forms.WebBrowser();
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
@@ -52,6 +53,7 @@ namespace RPS {
             this.ControlBox = false;
             this.Controls.Add(this.browser);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Name = "Monitor";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;

@@ -78,7 +78,7 @@ namespace RPS {
 
         public void setWallpaper(long monitor, string[] paths) {
             // Wallpaper will have exact size of monitors so wallpaper style (Tile, Center, Stretch, Fit, Fill) shouldn't matter
-            string wallpaperPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Constants.AppFolderName, Constants.WallpaperFileName);
+            string wallpaperPath = Path.Combine(Constants.getLocalAppDataFolder(), Constants.WallpaperFileName);
             Rectangle r = Constants.getDesktopBounds();
             Bitmap wallpaper  = new Bitmap(r.Width, r.Height);
             Graphics g = Graphics.FromImage(wallpaper);

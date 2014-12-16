@@ -119,9 +119,18 @@ namespace RPS {
                 filePersists.Open();
 
                 // Check all DB columns exists
-
-                SQLiteCommand sqlCommand = new SQLiteCommand("PRAGMA TABLE_INFO(`" + this.tableDefinition.tablename + "`)" , filePersists);
-                SQLiteDataReader sqlReader = sqlCommand.ExecuteReader();
+                SQLiteCommand sqlCommand;
+                SQLiteDataReader sqlReader = null;
+                try {
+                    sqlCommand = new SQLiteCommand("PRAGMA TABLE_INFO(`" + this.tableDefinition.tablename + "`)", filePersists);
+                    sqlReader = sqlCommand.ExecuteReader();
+                } catch (System.Data.SQLite.SQLiteException se) {
+                    if (se.ErrorCode == Convert.ToInt32(SQLiteErrorCode.Error)) {
+                        filePersists.Close();
+                        File.Delete(filename);
+                        return this.openCreateFileDB(filename);
+                    }
+                }
                 DataTable dt = new DataTable();
                 dt.Load(sqlReader);
                 bool createTable = false;

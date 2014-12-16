@@ -191,6 +191,8 @@ namespace ExifTool
             }*/
         }
 
+        // TODO if mistery  System.NullReferenceException: Object reference not set to an instance of an object. exceptions keep occuring make
+        // seprate method for each line in function to determine where it goes wrong.
         public string SendCommand(string cmd)
         {
             if(Status != Statuses.Ready)

@@ -25,8 +25,7 @@ namespace RPS {
             this.readOnly = readOnly;
             this.dbConnector = new DBConnector(
                 Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), 
-                    Constants.AppFolderName,
+                    Constants.getLocalAppDataFolder(),
                     Constants.DbFileName
                 ),
                 Constants.FileNodesDefinition
@@ -34,8 +33,7 @@ namespace RPS {
 
             // Connect to metadata regardless so it can be switched on whilst running
             string mdbPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                Constants.AppFolderName,
+                Constants.getLocalAppDataFolder(),
                 Constants.MetadataFileName
             );
             this.metaDataDbConnector = new DBConnector(

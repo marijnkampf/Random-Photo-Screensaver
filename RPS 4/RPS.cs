@@ -109,8 +109,7 @@ namespace RPS {
         public void appendDebugFile(int monitor, string log) {
             if (this.config.getPersistantBool("debugLog")) {
                 string path = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    Constants.AppFolderName,
+                    Constants.getLocalAppDataFolder(),
                     "debug_" + DateTime.Now.ToString("yyyyMMdd") + ".txt"
                 );
                 try {

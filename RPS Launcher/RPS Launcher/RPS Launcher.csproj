@@ -57,6 +57,9 @@
     <Win32Resource>
     </Win32Resource>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>App.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -72,6 +75,7 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="App.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -114,6 +118,11 @@
     <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFiles="$(ProjectDir)\bin\ssNews.scr" SkipUnchangedFiles="true" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetDir)\$(TargetName).exe" "$(TargetDir)\Random Photo Screensaver.scr"</PostBuildEvent>
+    <PostBuildEvent>call "$(DevEnvDir)..\Tools\vsvars32.bat"
+mt.exe -manifest "$(ProjectDir)App.manifest" -updateresource:"$(TargetDir)$(TargetName).exe";#1
+copy "$(TargetDir)\$(TargetName).exe" "$(TargetDir)\Random Photo Screensaver.scr"
+copy "$(TargetDir)\$(TargetName).exe.config" "$(TargetDir)\Random Photo Screensaver.scr.config"
+
+</PostBuildEvent>
   </PropertyGroup>
 </Project>

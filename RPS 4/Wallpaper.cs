@@ -105,9 +105,11 @@ namespace RPS {
                         image = Image.FromFile(paths[i]);
                         readSuccess = true;
                     } catch (OutOfMemoryException ex) {
-                        this.screensaver.monitors[0].showInfoOnMonitor("Out of memory reading '" + paths[i] + "' for wallpaper");
+                        this.screensaver.monitors[i].showInfoOnMonitor("Out of memory reading '" + paths[i] + "' for wallpaper");
                     } catch (FileNotFoundException ex) {
-                        this.screensaver.monitors[0].showInfoOnMonitor("File not found '" + paths[i] + "' for wallpaper");
+                        this.screensaver.monitors[i].showInfoOnMonitor("File not found '" + paths[i] + "' for wallpaper");
+                    } catch (System.ArgumentNullException ex) {
+                        this.screensaver.monitors[i].showInfoOnMonitor("No file found for wallpaper");
                     }
                     if (readSuccess) {
                         float imgRatio = (float)image.Width / (float)image.Height;

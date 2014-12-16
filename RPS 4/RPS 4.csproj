@@ -75,6 +75,9 @@
   <PropertyGroup>
     <SignManifests>false</SignManifests>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>App.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Microsoft.Win32.TaskScheduler">
@@ -119,6 +122,7 @@
     <Compile Include="FileDatabase.cs" />
     <Compile Include="FileNodes.cs" />
     <Compile Include="jsonFolder.cs" />
+    <Compile Include="MessageBoxManager.cs" />
     <Compile Include="Metadata.cs" />
     <Compile Include="Monitor.cs">
       <SubType>Form</SubType>
@@ -144,6 +148,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="App.manifest" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -192,10 +197,13 @@
     <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.94.0\build\net40\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.94.0\build\net40\System.Data.SQLite.Core.targets'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>IF NOT EXIST "$(TargetDir)vendor" MKDIR "$(TargetDir)vendor"
+    <PostBuildEvent>call "$(DevEnvDir)..\Tools\vsvars32.bat"
+IF NOT EXIST "$(TargetDir)vendor" MKDIR "$(TargetDir)vendor"
 xcopy /d /s "$(ProjectDir)vendor\*.*" "$(TargetDir)vendor"
 rem IF NOT EXIST "$(TargetDir)data" MKDIR "$(TargetDir)data"
-rem xcopy /d /s "$(ProjectDir)data\*.*" "$(TargetDir)data"</PostBuildEvent>
+rem xcopy /d /s "$(ProjectDir)data\*.*" "$(TargetDir)data"
+
+mt.exe -manifest "$(ProjectDir)app.manifest" -updateresource:"$(TargetDir)$(TargetName).exe";#1</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

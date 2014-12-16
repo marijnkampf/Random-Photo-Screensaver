@@ -5,8 +5,8 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Random Photo Screensaver 4")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("RPS4")]
+[assembly: AssemblyDescription("Random Photo Screensaver")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("www.abscreensavers.com")]
 [assembly: AssemblyProduct("RPS 4")]

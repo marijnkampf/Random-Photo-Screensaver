@@ -68,7 +68,6 @@ namespace RPS {
             this.config = new Config(this);
             this.config.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.PreviewKeyDown);
             this.config.browser.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.PreviewKeyDown);
-//            this.config.browser.OnMouseMove += new System.Windows.Forms.MouseEventHandler(this.MouseMove);
 
             this.config.browser.Navigate(new Uri(Constants.getDataFolder(Constants.ConfigHtmlFile)));
             this.config.browser.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.config.ConfigDocumentCompleted);
@@ -80,7 +79,31 @@ namespace RPS {
                     this.mouseMoveTimer.Tick += mouseMoveTimer_Tick;
                 }
             }
-            // Wait for config document to load to complete initialisation
+            // Wait for config document to load to complete initialisation: Config.ConfigDocumentCompleted()
+        }
+
+        public static bool checkBrowserVersionOk() {
+            if ((new WebBrowser()).Version.Major < 8) {
+                MessageBoxManager.Yes = "Upgrade";
+                MessageBoxManager.No = "Continue";
+                MessageBoxManager.Register();
+
+                switch (MessageBox.Show("RPS requires Internet Explorer 8 or later" + Environment.NewLine + Environment.NewLine + "Open Internet Explorer download page?", "Upgrade Internet Explorer?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning)) {
+                    //this.ExitThread();
+                    //Environment.Exit(1);
+                    case DialogResult.Yes:
+                        Process.Start("explorer.exe", "http://windows.microsoft.com/en-us/internet-explorer/download-ie");
+                        Application.Exit();
+                        return false;
+                    break;
+                    case DialogResult.Cancel:
+                        Application.Exit();
+                        return false;
+                    break;
+                }
+                MessageBoxManager.Unregister();
+            }
+            return true;
         }
 
         public void appendDebugFile(int monitor, string log) {
@@ -486,12 +509,12 @@ namespace RPS {
                                             if (!File.Exists(Convert.ToString(this.config.getPersistant("externalEditor")))) {
                                                 this.monitors[i].showInfoOnMonitor("External editor: '" + this.config.getPersistant("externalEditor") + "' not found.", true, true);
                                             } else {
-                                                if (Utils.RunTaskScheduler(@"OpenInEditor" + Convert.ToString(i), Convert.ToString(this.config.getPersistant("externalEditor")), this.monitors[i].imagePath())) {
+                                                if (Utils.RunTaskScheduler(@"OpenInEditor" + Convert.ToString(i), Convert.ToString(this.config.getPersistant("externalEditor")), "\"" + this.monitors[i].imagePath() + "\"")) {
                                                     this.monitors[i].showInfoOnMonitor("Opened in external editor", false, true);
                                                 }
                                             }
                                         } else {
-                                            if (Utils.RunTaskScheduler(@"OpenInExplorer" + Convert.ToString(i), "explorer.exe", "/e,/select," + this.monitors[i].imagePath())) { 
+                                            if (Utils.RunTaskScheduler(@"OpenInExplorer" + Convert.ToString(i), "explorer.exe", "/e,/select,\"" + this.monitors[i].imagePath() + "\"")) { 
                                                 this.monitors[i].showInfoOnMonitor("Opened in Explorer Window", false, true);
                                             }
                                         }
@@ -860,8 +883,6 @@ namespace RPS {
             Cursor.Hide();
             this.mouseMoveTimer.Enabled = false;
         }
-
-
    
         /// <summary>
         /// The main entry point for the application.
@@ -932,22 +953,26 @@ namespace RPS {
                 }
             }
             bool readOnly = Screensaver.singleProcess(action);
+            if (!Screensaver.checkBrowserVersionOk()) {
+                Application.Exit();
+                return;
+            }
 
             Screensaver screensaver = new Screensaver(action, readOnly, hwnds);
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(screensaver.CleanUpOnException);
             switch (action) {
                 case Actions.Config:
                     Application.Run(screensaver);
-                break;
+                    break;
                 case Actions.Preview:
-    //MessageBox.Show(hwnds[0].ToString());
+                    //MessageBox.Show(hwnds[0].ToString());
                     screensaver.monitors = new Monitor[hwnds.Length];
                     screensaver.monitors[0] = new Monitor(hwnds[0], 0, screensaver);
                     screensaver.monitors[0].FormClosed += new FormClosedEventHandler(screensaver.OnFormClosed);
                     screensaver.monitors[0].PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(screensaver.PreviewKeyDown);
                     screensaver.monitors[0].browser.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(screensaver.PreviewKeyDown);
                     Application.Run(screensaver.monitors[0]);
-                break;
+                    break;
                 default:
                     Cursor.Hide();
                     Application.AddMessageFilter(new MouseMessageFilter());
@@ -955,7 +980,7 @@ namespace RPS {
                     MouseMessageFilter.MouseClick += new MouseEventHandler(screensaver.MouseClick);
 
                     Application.Run(screensaver);
-                break;
+                    break;
             }
         }
     }

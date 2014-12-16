@@ -316,6 +316,11 @@ function settingChanged(object) {
 }
 
 $(function(){
+	if ($('html').is('.lowIE')) {
+		alert('Please update to Internet Explorer 8 or newer');
+			oldIE = true;
+	}
+
 	// Rerun on refresh
 	persistantConfigLoaded();
 

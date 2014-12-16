@@ -63,6 +63,11 @@ The following (free) libraries and programs have been used in/ship with RPS4:
     - [ExifTool by Phil Harvey](http://www.sno.phy.queensu.ca/~phil/exiftool/)
     - [UFRaw](http://ufraw.sourceforge.net/)
     - [SQLite](http://www.sqlite.org/)
+    - [Virtual Machine used for testing](https://www.virtualbox.org/)
+    	- [Windows XP/Vista](https://www.modern.ie/en-us/virtualization-tools#downloads)
+    	- [Windows 7](http://www.microsoft.com/en-us/evalcenter/evaluate-windows-7-enterprise)
+    	- [Windows 8](http://www.microsoft.com/en-us/evalcenter/evaluate-windows-8-1-enterprise)
+    	- [Windows 8.1](http://www.microsoft.com/en-us/evalcenter/evaluate-windows-8-enterprise)
 - JavaScript 
     - [jQuery](http://jquery.com/)
     - [jQuery UI](http://jqueryui.com/)

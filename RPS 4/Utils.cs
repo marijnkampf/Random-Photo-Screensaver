@@ -6,6 +6,8 @@ using System.Runtime.InteropServices;
 using Microsoft.Win32.TaskScheduler;
 using System.Security.Cryptography;
 using System.IO;
+using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace RPS {
     class Utils {
@@ -59,13 +61,19 @@ namespace RPS {
 
         public static bool RunTaskScheduler(string taskName, string path, string arguments) {
             try {
-                using (TaskService ts = new TaskService()) {
-                    TaskDefinition td = ts.NewTask();
-                    td.Actions.Add(new ExecAction(path, arguments, null));
-                    ts.RootFolder.RegisterTaskDefinition(taskName, td);
-                    Microsoft.Win32.TaskScheduler.Task t = ts.FindTask(taskName);
-                    if (t != null) t.Run();
-                    ts.RootFolder.DeleteTask(taskName);
+                // List of Windows versions at: http://msdn.microsoft.com/library/windows/desktop/ms724832.aspx
+                // Windows XP
+                if (Environment.OSVersion.Version.Major < 6) {
+                    Process.Start(path, arguments);
+                } else {
+                    using (TaskService ts = new TaskService()) {
+                        TaskDefinition td = ts.NewTask();
+                        td.Actions.Add(new ExecAction(path, arguments, null));
+                        ts.RootFolder.RegisterTaskDefinition(taskName, td);
+                        Microsoft.Win32.TaskScheduler.Task t = ts.FindTask(taskName);
+                        if (t != null) t.Run();
+                        ts.RootFolder.DeleteTask(taskName);
+                    }
                 }
             } catch (Exception e) {
                 return false;
@@ -81,8 +89,5 @@ namespace RPS {
                 }
             }
         }
-
-
-
     }
 }

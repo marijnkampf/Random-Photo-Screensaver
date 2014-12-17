@@ -522,7 +522,6 @@ $(function(){
 	});
 
 	$(".external").click(function(event) {
-//		alert($(this).attr("href"));
 		if (typeof(window.external.jsOpenExternalLink) !== "undefined") {
 			window.external.jsOpenExternalLink($(this).attr("href"));
 			event.preventDefault();

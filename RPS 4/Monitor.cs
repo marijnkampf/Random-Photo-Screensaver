@@ -345,7 +345,7 @@ namespace RPS {
                         if (this.screensaver.config.getPersistantBool("exifRotate")) {
                             if (this.quickMetadata != null && this.quickMetadata.metadata.ContainsKey("orientation#")) {
                                 int rotate = 0;
-                                switch (Convert.ToByte(this.quickMetadata.metadata["orientation#"])) {
+                                switch (Convert.ToInt32(this.quickMetadata.metadata["orientation#"])) {
                                     case (int)Constants.Orientation.Rotate_180: rotate = 180; break;
                                     case (int)Constants.Orientation.Rotate_90_CW: 
                                     case (int)Constants.Orientation.Mirror_Horizontal_Rotate_90_CW: 

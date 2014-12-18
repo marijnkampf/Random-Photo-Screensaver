@@ -328,10 +328,6 @@ namespace RPS {
                 bool hideFile = false;
 
                 switch (this.config.getPersistantString("rawLocation")) {
-                    case "same":
-                        cachedFilename = Path.ChangeExtension(filename, Constants.rawFileConvertedExt);
-                        hideFile = true;
-                    break;
                     case "subfolder":
                         cachedFilename = Path.Combine(
                             Path.GetDirectoryName(filename),
@@ -347,6 +343,10 @@ namespace RPS {
                         );
                         hideFolder = false;
                         hideFile = false;
+                    break;
+                    default:
+                        cachedFilename = Path.ChangeExtension(filename, Constants.rawFileConvertedExt);
+                        hideFile = true;
                     break;
                 }
                 if (!File.Exists(cachedFilename)) this.cacheRawImage(filename, cachedFilename, hideFolder, hideFile);

@@ -324,6 +324,37 @@ $(function(){
 	// Rerun on refresh
 	persistantConfigLoaded();
 
+	/** Begin Tabs **/
+	var tabs = $('#tabs > li');
+	var content = $('#tabs-content > li');
+
+	tabs.bind('click',function(){
+		content.hide(); //hide all contents
+		tabs.removeClass('current'); //remove 'current' classes
+		$("#" + $(this).attr("data-tab")).show(); //show tab content that matches tab title index
+		$(this).addClass('current'); //add current class on clicked tab title
+	});
+	tabs.first().click();
+	/** End Tabs **/
+
+	/** Begin Advanced **/
+	var showText = "Show advanced settings...";
+	var hideText = "Hide advanced settings...";
+
+	$(".advanced").after("<a href='#' class='toggleAdvanced'>" + showText + "</a>");
+
+	$(".toggleAdvanced").click(function() {
+		if ($(".advanced").is(":visible")) $(".toggleAdvanced").text(showText);
+		else $(".toggleAdvanced").text(hideText);
+		$(".advanced").toggle('slow');
+		return false;
+	});
+
+
+	/** End Advanced **/
+
+
+
 //alert($("#backgroundColour").val());
 	$("#backgroundColour, #wallpaperBackgroundColour").spectrum({
 			showInput: true,
@@ -381,7 +412,8 @@ $(function(){
 	 **/
 	$(".subOptions").change(function() {
 		$("input[type=radio]", this).each(function() {
-			var disabled = (this.id != $("input:radio[name=rawLocation]:checked" ).attr("id").toString());
+			var disabled = false;
+			if ($("input:radio[name=rawLocation]:checked").attr("id") != undefined) disabled = (this.id != $("input:radio[name=rawLocation]:checked").attr("id").toString());
 			$("." + this.id + " input").each(function() { $(this).attr("disabled", disabled); });
 			$("." + this.id).each(function() {
 				$(this).toggleClass("disabled", disabled);
@@ -521,7 +553,7 @@ $(function(){
 		}
 	});
 
-	$(".external").click(function(event) {
+	$(".external, .external a").click(function(event) {
 		if (typeof(window.external.jsOpenExternalLink) !== "undefined") {
 			window.external.jsOpenExternalLink($(this).attr("href"));
 			event.preventDefault();

@@ -1,16 +1,27 @@
+html, #tabs a:visited, #tabs a {
+	color: rgb(48, 57, 66);
+	text-decoration: none;
+}
+
 html {
 	font-family: 'Segoe UI', Tahoma, sans-serif;
 	font-size: 75%;
-	color: rgb(48, 57, 66);
 }
 
-h1, h2, h3, h4 {
+h1 {
 	margin-top: 2em;
 	font-size: 1.75em;
+	font-weight: normal;
+	border-bottom: 1px solid #eee;
+}
+
+h2 {
+	font-size: 1.5em;
 	font-weight: normal;
 }
 
 h3 {
+	font-weight: normal;
 	font-size: 1.4em;
 }
 
@@ -54,7 +65,7 @@ h4 {
 	margin: 1em;
 }
 
-#donation {
+#donation, .tips {
 	width: 98%;
 	top: 0px;
 	left: 0px;
@@ -83,8 +94,8 @@ label, textarea {
 #navigation {
 	width: 180px;
 	z-index: 3;
-	float: left;
 	padding: 0px;
+	position: absolute;
 }
 
 #textareas {
@@ -92,7 +103,6 @@ label, textarea {
 }
 
 #navigation h1 {
-	margin-top: 0px;
 }
 
 #search {
@@ -109,10 +119,6 @@ label, textarea {
 	box-sizing: border-box;
 }
 
-.underline {
-	border-bottom: 1px solid #eee;
-}
-
 textarea, input {
 	width: 100%;
 }
@@ -124,22 +130,21 @@ textarea, input {
 .line {
 	clear: left;
 }
-
+/*
 .checkboxGroup label, .radioGroup label {
 	clear: right;
 }
-
+*/
 input[type='checkbox'], input[type='radio'] {
 	clear: left;
 	width: auto;
-	float: left;
 	margin: 0.6em 1em 0.6em 1em;
 }
 
 input[type='radio'] {
 	clear:both;
 }
-
+/*
 .radioGroupHorizontal input[type='radio'], .radioGroupHorizontal label {
 	clear: none;
 	float: left;
@@ -148,8 +153,8 @@ input[type='radio'] {
 .radioGroupHorizontal input {
 
 }
-
-.inline {
+*/
+.inline, .inline label {
 	display: inline;
 	clear: none;
 }
@@ -288,31 +293,75 @@ label {
 	display: none;
 }
 
-	.tooltip{
-			display: inline;
-			position: relative;
-	}
+.tooltip{
+		display: inline;
+		position: relative;
+}
 
-	.tooltip:hover:after{
-			background: #811788;
-			border-radius: 5px;
-			bottom: 26px;
-			color: #fff;
-			content: attr(data-title);
-			left: 20%;
-			padding: 15px 15px;
-			position: absolute;
-			z-index: 10000;
-			width: 220px;
-	}
+.tooltip:hover:after{
+		background: #811788;
+		border-radius: 5px;
+		bottom: 26px;
+		color: #fff;
+		content: attr(data-title);
+		left: 20%;
+		padding: 15px 15px;
+		position: absolute;
+		z-index: 10000;
+		width: 220px;
+}
 
-	.tooltip:hover:before{
-			border: solid;
-			border-color: #811788 transparent;
-			border-width: 6px 6px 0 6px;
-			bottom: 20px;
-			content: "";
-			left: 50%;
-			position: absolute;
-			z-index: 10000;
-	}
+.tooltip:hover:before{
+		border: solid;
+		border-color: #811788 transparent;
+		border-width: 6px 6px 0 6px;
+		bottom: 20px;
+		content: "";
+		left: 50%;
+		position: absolute;
+		z-index: 10000;
+}
+
+/** Begin tabs **/
+
+#tabs, #tabs-content {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+#tabs li {
+	font-size: 1.2em;
+	line-height: 3em;
+	padding-left: 1em;
+	border-left: solid 5px transparent;
+}
+
+#tabs li.current, #tabs li.current:hover {
+	border-left: solid 5px #811788;
+}
+
+#tabs li:hover {
+	border-left: solid 5px #FF8D00;
+}
+
+#tabs .spacer {
+	margin-top:1.5em;
+}
+
+/** End tabs **/
+
+.advanced {
+	display: none;
+}
+
+.toggleAdvanced {
+	width: 50%;
+	clear: both;
+	float: left;
+	text-decoration: none;
+	color: #811788;
+	padding: 1em;
+	margin-top: 1em;
+	border-top: 1px solid #eee;
+}

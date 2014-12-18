@@ -597,6 +597,10 @@ namespace RPS {
         }
 
         public DataRow nextImage(int step, bool panoramaShownPreviously) {
+            if (this.id != 0 && this.screensaver.config.getPersistantBool("sameImage")) {
+                this.currentImage = this.screensaver.monitors[0].currentImage;
+                return this.currentImage;
+            }
             if (this.id == 0 || !this.isMonitor0PanoramaImage(true)) {
                 if (this.screensaver.fileNodes == null) return null;
                 if (this.screensaver.config.getOrder() == Config.Order.Random) {

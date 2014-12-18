@@ -25,392 +25,486 @@
 		Random Photo Screensaver is <strong>donationware</strong>, you are <strong>required</strong> to make a <a class="external" href="http://www.abscreensavers.com/random-photo-screensaver/donation?source=RPS4">donation to the author</a> is you continue using this software after your 30 days trail ends.
 		<div><strong>Thank you for your support!</strong></div>
 	</div>
+	<div class="previewTip tips">Tip: You can also access the settings menu by pressing the 'S' key when the screensaver is running</div>
+	<div class="lowIEWarning tips">Internet Explorer 8 or greater is required, please <a class="external" href="http://windows.microsoft.com/en-us/internet-explorer/download-ie">upgrade Internet Explorer</a>!</div>
+	<div id="update" class="note"></div>
 	<div id="navigation">
 		<h1>RPS <span id="version">4.#</span></h1>
-		<ul>
-			<li><a href="#settings">Settings</a></li>
+		<ul id="tabs">
+			<li class="current" data-tab="folders"><a href="#">Folders</a></li>
+			<li data-tab="slideshow" title="Slide show speed, ordering and transition effects"><a href="#">Slideshow</a></li>
+			<li data-tab="filters"><a href="#">Filters</a></li>
+			<li data-tab="media"><a href="#">Media</a></li>
+			<li data-tab="metadata"><a href="#">Metadata</a></li>
+			<li data-tab="wallpaper"><a href="#">Wallpaper</a></li>
+			<li data-tab="monitors"><a href="#">Monitors</a></li>
+			<li data-tab="input"><a href="#">Keyboard and mouse</a></li>
+			<li data-tab="updates"><a href="#">Updates</a></li>
+			<li data-tab="shortcuts"><a href="#">Shortcut keys</a></li>
+			<li class="spacer" data-tab="credits"><a href="#">Credits</a></li>
 		</ul>
 	</div>
 	<div id="content">
 		<input id="search" type="text" placeholder="Search settings" aria-label="Search settings"/>
-		<a id="settings"></a><h1 class="underline">Settings</h1>
-		<div class="previewTip">Tip: You can also access the settings menu by pressing the 'S' key when the screensaver is running</div>
-		<div class="lowIEWarning">Internet Explorer 8 or greater is required, please <a class="external" href="http://windows.microsoft.com/en-us/internet-explorer/download-ie">upgrade Internet Explorer</a>!</div>
-		<div id="update" class="note"></div>
-
 		<form>
-			<div class="set">
-				<h2>Folders</h2>
-				<div class="foldersTree">
-					<div id="tree">
-						<label class="tooltip" data-title="Right click on folder to exclude/include subfolders with that name.">Select folders (?)</label>
-						<div id="foldersFancyTree"></div>
+			<ul id="tabs-content">
+				<li class="set" id="folders">
+					<h1>Folders</h1>
+					<div class="foldersTree">
+						<div id="tree">
+							<label class="tooltip" data-title="Right click on folder to exclude/include subfolders with that name.">Select folders (?)</label>
+							<div id="foldersFancyTree"></div>
+						</div>
+						<!--div>Selected keys: <span id="echoSelection3">-</span></div>
+						<div>Selected root keys: <span id="echoSelectionRootKeys3">-</span></div>
+						<div>Selected folders: <span id="echoSelectionFolders">-</span></div>
+						<div>Selected root nodes: <span id="echoSelectionRoots3">-</span></div-->
+
+						<!-- Definition of context menu -->
+						<ul id="myMenu" class="contextMenu ui-helper-hidden">
+							<li class="exclude"><a href="#exclude" title="Exclude all subfolders with the name '#subfolder#'"><span class="ui-icon ui-icon-closethick"></span>Exclude all '#subfolder#' subfolders</a></li>
+							<li class="include"><a href="#include" title="Remove exclusion of '#subfolder#' subfolders"><span class="ui-icon ui-icon-check"></span>Remove '#subfolder#' exclusion</a></li>
+						</ul>
 					</div>
-					<!--div>Selected keys: <span id="echoSelection3">-</span></div>
-					<div>Selected root keys: <span id="echoSelectionRootKeys3">-</span></div>
-					<div>Selected folders: <span id="echoSelectionFolders">-</span></div>
-					<div>Selected root nodes: <span id="echoSelectionRoots3">-</span></div-->
-
-
-					<!-- Definition of context menu -->
-					<ul id="myMenu" class="contextMenu ui-helper-hidden">
-						<li class="exclude"><a href="#exclude" title="Exclude all subfolders with the name '#subfolder#'"><span class="ui-icon ui-icon-closethick"></span>Exclude all '#subfolder#' subfolders</a></li>
-						<li class="include"><a href="#include" title="Remove exclusion of '#subfolder#' subfolders"><span class="ui-icon ui-icon-check"></span>Remove '#subfolder#' exclusion</a></li>
-					</ul>
-				</div>
-				<div id="textareas">
+					<div id="textareas">
+						<div class="row">
+							<div class="wide">
+								<label for="folders">Folders (separate by new line)</label>
+								<textarea id="folders"></textarea>
+							</div>
+							<div class="narrow">
+								<label for="excludedSubfolders" title="(separate by new line)">Exclude subfolders</label>
+								<textarea id="excludedSubfolders">thumbs</textarea>
+							</div>
+						</div>
+					</div>
 					<div class="row">
-						<div class="wide">
-							<label for="folders">Folders (separate by new line)</label>
-							<textarea id="folders"></textarea>
-						</div>
-						<div class="narrow">
-							<label for="excludedSubfolders" title="(separate by new line)">Exclude subfolders</label>
-							<textarea id="excludedSubfolders">thumbs</textarea>
-						</div>
+						<a class="expandSelected button" href="#">Show selected folders</a>
+						<a class="toggleTreeTextareas button" href="#" data-toggle="Back to treeview">Show folder list (for copy and paste)</a>
+						<span class="tooltip" data-title="To add network drives click 'Show folder list' button and copy and paste network paths.">Network drives (?)</span>
 					</div>
-				</div>
-				<div class="row">
-					<a class="expandSelected button" href="#">Show selected folders</a>
-					<a class="toggleTreeTextareas button" href="#" data-toggle="Back to treeview">Show folder list (for copy and paste)</a>
-					<span class="tooltip" data-title="To add network drives click 'Show folder list' button and copy and paste network paths.">Network drives (?)</span>
-				</div>
-				<div class="set checkboxGroup">
-					<input type="checkbox" id="excludeAllSubfolders"/> <label for="excludeAllSubfolders">Exclude all subfolders</label>
-				</div>
-				<div class="keywords">directory directories location</div>
-				<div class="clear"></div>
-			</div>
-
-			<div class="set">
-				<h2>Slideshow</h2>
-				<label>Display each photo for (seconds)</label>
-				<div class="column">
-					<label for="timeout">Minimum duration</label><input type="number" id="timeout" value="10"/>
-				</div>
-				<div class="column">
-					<label for="timeoutMax">Maximum duration</label><input type="number" id="timeoutMax" value="20"/>
-				</div>
-				<div class="line">
-					<label class="left tooltip" for="variableTimeout" data-title="Enable to vary the how long each image is shown for."><input type="checkbox" id="variableTimeout" checked /> Use variable durations (?)</label>
-				</div>
-				<div class="multiOnly">
-					<label>Synchronise multi-monitors</label>
-					<div id="syncScreens" class="radioGroupHorizontal">
-						<label for="syncScreensTrue"><input type="radio" id="syncScreensTrue" name="syncScreens" value="true" checked/> Yes</label>
-						<label for="syncScreensFalse"><input type="radio" id="syncScreensFalse" name="syncScreens" value="false"/> No</label>
-					</div>
-					<div class="keywords">two three four dual screens triple displays multiple</div>
-				</div>
-				<div class="keywords">timer seconds change time-out</div>
-				<div class="clear"></div>
-			</div>
-			<div class="set">
-				<h3>Order of slideshow</h3>
-				<div id="order" class="radioGroupHorizontal">
-					<input type="radio" id="orderRandom" name="order" value="1" checked /> <label for="orderRandom">Random</label>
-					<input type="radio" id="orderSequential" name="order" value="0"/> <label for="orderSequential">Sequential</label>
-				</div>
-				<div class="keywords">sort ordering sorting sort by</div>
-				<div class="clear"></div>
-			</div>
-			<div class="set">
-				<h3>Effects</h3>
-				<div class="set checkboxGroup">
-					<input type="checkbox" id="useTransitions" checked/> <label for="useTransitions">Use transition effects</label>
-					<div id="transitions">
-						<label>Select transition effect(s) to use</label>
-						<div id="transitionsFancyTree"></div>
-					</div>
-
-					<input type="checkbox" id="randomiseTransitions" checked/> <label for="randomiseTransitions" title="If you select no transitions all will be used anyway">Randomise transition effects</label>
-					<input type="checkbox" id="useTransitionsOnInput"/> <label for="useTransitionsOnInput">Use transition effects when navigating</label>
-				</div>
-
-				<div class="keywords">effects animations transitions</div>
-				<div class="clear"></div>
-			</div>
-			<div class="set">
-				<h3>Sequential ordering</h3>
-				<h4>Sort by</h4>
-				<div id="sortBy" class="radioGroup">
-					<label for="sortByPath"><input type="radio" id="sortByPath" name="sortBy" value="path" checked/> Path and filename</label>
-					<label for="sortByCreation"><input type="radio" id="sortByCreation" name="sortBy" value="created" checked /> File creation date and time</label>
-					<label for="sortByChanged"><input type="radio" id="sortByChanged" name="sortBy" value="modified"/> File change date and time</label>
-					<label for="sortBySize" title="For testing purposes only"><input type="radio" id="sortBySize" name="sortBy" value="size"/> Sort by filesize</label>
-				</div>
-				<h4>Direction</h4>
-				<div id="sortDirection" class="radioGroupHorizontal">
-					<label for="sortOrderPath" title="Lowest to highest"><input type="radio" id="sortDirectionAsc" name="sortDirection" value="asc" checked/> A-Z</label>
-					<label for="sortOrderCreation" title="Highest to lowest"><input type="radio" id="sortDirectionDesc" name="sortDirection" value="desc"/> Z-A</label>
-				</div>
-				<div class="keywords">ascending descending reverse sort ordering sorting sort by</div>
-				<div class="clear"></div>
-			</div>
-
-			<div class="set">
-				<h2>Show</h2>
-				<h3>Background</h3>
-				<div class="set checkboxGroup">
-					<input type="checkbox" id="backgroundImage" checked/> <label for="backgroundImage">Use image as background</label>
-					<input type="checkbox" id="imageShadow" checked/> <label for="imageShadow">Add drop shadow to image</label>
-				</div>
-				<div class="onlyIE8 note">Background colour not supported in IE8</div>
-				<label for="backgroundColour">Colour</label><input class="notIE8" type="text" id="backgroundColour" value="#c9daf8" />
-				<div class="clear"></div>
-				<div class="keywords">background color</div>
-			</div>
-
-			<div class="set">
-				<h2 id="images">Images</h2>
-				<div class="set checkboxGroup">
-					<input type="checkbox" id="stretchSmallImages"/> <label for="stretchSmallImages">Stretch small images</label>
-				</div>
-				<div id="fitTo" class="radioGroupHorizontal"><label>Fit images to</label>
-					<input type="radio" id="fitToContain" name="fitTo" value="contain" checked /> <label for="fitToContain" class="tooltip" data-title="Scale image so it fits entirely on the display (background visible).">contain (?)</label>
-					<input type="radio" id="fitToCover" name="fitTo" value="cover"/> <label for="fitToCover" class="tooltip"  data-title="Scale image so that it covers the entiry display (no background visisble).">cover (?)</label>
-				</div>
-				<div class="clear"></div>
-				<div class="set checkboxGroup">
-					<input type="checkbox" id="exifRotate" checked/> <label for="exifRotate">Rotate image based on EXIF orientation (if available)</label>
-					<span class="multiOnly"><input type="checkbox" id="stretchPanoramas" checked /> <label for="stretchPanoramas" title="Panoramas are only stretched to higher numbered monitors">Stretch panoramas accross multiple monitors</label></span>
-				</div>
-				<div class="set advanced">
-					<label for="imageExtensions">Image extensions <span class="reference">(also see <a href="#RAW">RAW extensions</a>)</span></label>
-					<input type="text" id="imageExtensions" value=".gif .png .jpeg .jpg .bmp .wmp .svg" />
-					<div class="keywords">filenames extensions types</div>
-				</div>
-				<div class="keywords">photos photographs pictures</div>
-				<div class="clear"></div>
-			</div>
-
-			<div class="set">
-				<h2>Videos</h2>
-				<div class="set checkboxGroup">
-					<input type="checkbox" id="stretchSmallVideos"/> <label for="stretchSmallVideos">Stretch small videos</label>
-					<input type="checkbox" id="showControls" checked /> <label for="showControls">Show controls</label>
-					<input type="checkbox" id="videosLoop" checked /> <label for="videosLoop">Loop videos</label>
-					<input type="checkbox" id="videosMute" checked /> <label for="videosMute">Mute videos</label>
-				</div>
-				<div class="set advanced">
-					<label for="videoExtensions">Video extensions</label>
-					<input type="text" id="videoExtensions" value=".avi .wmv .mp4 .mpeg .mpg" />
-					<div class="keywords">filenames extensions types</div>
-				</div>
-				<div class="keywords">videos movies films</div>
-				<div class="clear"></div>
-			</div>
-
-			<div class="set">
-				<h2 id="RAW">RAW files</h2>
-				<div class="note">To display RAW files JPG versions are created and stored on your harddisk. Please note screensaver may run slow whilst images are converted.</div>
-				<div class="set checkboxGroup">
-					<input type="checkbox" id="rawUseConverter"/> <label for="rawUseConverter">Show RAW files (cached as JPG)</label>
-				</div>
-				<div class="rawUseConverter">
-					<div class="noRaw">
-						<p>Raw converter not found. Please <a class="external" href="http://sourceforge.net/projects/ufraw/files/latest/download?source=typ_redirect" >download and install UFRaw</a>, then click: <a id="detectUFRaw" class="button" href="#">Locate UFRaw installation</a><br/>
-						Or install your own favourite RAW file converter.</p>
-					</div>
-					<label for="rawConverter">Raw file converter</label>
-					<div class="browseFile"><input type="text" id="rawConverter" data-filter="Executable files (*.exe)|*.exe" value="" /><a id="rawConverterBrowse" class="button" href="#">Browse</a></div>
-
-					<div class="advanced">
-						<h3 id="RAW">Advanced settings</h3>
-
-						<div class="set radioGroup">
-							<h3>Cache JPEG file location</h3>
-							<div id="rawLocation" class="radioGroup subOptions">
-								<input type="radio" name="rawLocation" id="rawLocationSame" value="same" checked /> <label for="rawLocationSame">Same folder as RAW file</label>
-								<input type="radio" name="rawLocation" id="rawLocationSubfolder" value="subfolder" /> <label for="rawLocationSubfolder">Subfolder in folder RAW file</label>
-								<div class="subOption rawLocationSubfolder">
-									<label for="rawSubfolder">Subfolder</label><input type="text" id="rawSubfolder" value="rawCache.rps" />
-								</div>
-								<input type="radio" name="rawLocation" id="rawLocationSeparate" value="separate" /> <label for="rawLocationSeparate">Seprate RAW files folder</label>
-								<div class="subOption rawLocationSeparate">
-									<div class="browseFolder"><label for="rawFolder">Use folder</label><input type="text" id="rawFolder" value="" /><a id="rawFolderBrowse" class="button" href="#">Browse</a>
-								</div>
-							</div>
-						</div>
-
-						<div id="rawCacheSize" class="radioGroupHorizontal">
-							<h3>Cached image size</h3>
-							<label for="rawCacheSizeMonitor"><input type="radio" id="rawCacheSizeMonitor" name="rawCacheSize" value="monitor" checked/>Biggest monitor (recommended)</label>
-							<label for="rawCacheSizeOriginal"><input type="radio" id="rawCacheSizeOriginal" name="rawCacheSize" value="original"/>Keep original size</label>
-						</div>
-
-						<label for="rawConverterParams">Converter parameters <span class="note">(Use #RAW# #JPG# placeholders)</span></label>
-						<input type="text" id="rawConverterParams" value='--silent --exposure=auto --out-type=jpg --output="#JPG#" "#RAW#"' />
-					</div>
-
-					<div class="hasRaw">
-						<div class="set advanced">
-							<label for="rawExtensions">Raw image extensions <span class="reference">(also see <a href="#images">Image extensions</a>)</span></label>
-							<input type="text" id="rawExtensions" value=".arw .bay .bmq .cr2 .crw .cs1 .dc2 .dcr .dng .fff .k25 .kdc .mos .mrw .nef .nrw .orf .pef .raf .rdc .rw2 .sr2 .srf .srw .x3f" />
-							<div class="keywords">filenames extensions types</div>
-						</div>
-					</div>
-				</div>
-				<div class="keywords">photos photographs pictures</div>
-				<div class="clear"></div>
-			</div>
-		</div>
-
-		<div class="set">
-			<h2>Metadata</h2>
-			<div class="set checkboxGroup">
-				<!--input type="checkbox" id="indexMetadata"/> <label for="indexMetadata">Index metadata</label-->
-				<input type="text" id="quickMetadata" value="<#{Exposure Time} | #><#{F Number} | #><#{ISO} | #><#{Focal Length}#>"/> <label for="quickMetadata">Quick metadata</label>
-				<div class="keywords">metadata iptc xmp exif</div>
-			</div>
-
-			<div class="set checkboxGroup">
-				<h3>ExifTool</h3>
-					<label for="exifTool">Location of ExifTool</label>
-				<input type="text" id="exifTool" value=".\vendor\exiftool(-k).exe" />
-			</div>
-
-			<div class="set checkboxGroup">
-				<h3>Image rotation</h3>
-				<input type="checkbox" id="saveExifOnRotation" checked/> <label for="saveExifOnRotation">Save Orientation to Exif in file</label>
-				<input type="checkbox" id="backupExifOnRotation" checked/> <label for="backupExifOnRotation">Backup before rotation (filename.bak)</label>
-				<div class="note">Use following keys to rotate images(s)<br/>
-					[ rotate image 270&deg; CW<br/>
-					] rotate image 90&deg; CW<br/>
-					+ rotate image 180&deg;<br/>
-					Please note: if filename.bak exists it isn't overwritten.<br/>
-					<span class="multiOnly">For multi monitors: select monitors with 1 ... 9 or 0 for all.<br/></span>
-				</div>
-				<div class="keywords">turning rotate rotating</div>
-			</div>
-			<div class="keywords">metadata iptc xmp exif</div>
-		</div>
-
-		<div class="set checkboxGroup">
-			<h2>Filters</h2>
-			<input type="checkbox" id="useFilter"/> <label for="useFilter">Use filters</label>
-			<div class="clear"></div>
-			<label for="filter">Select filter</label>
-			<input type="text" id="filter" value="`all` LIKE &quot;%Exposure Time	1/100&quot; || x'0d' || x'0a' || &quot;%&quot;;"/>
-			<a id="applyFilter" class="button" href="#">Apply filter</a> <a id="clearFilter" class="button" href="#">Clear filter</a>
-			<div class="clear"></div>
-		</div>
-
-		<div class="set wallpaper">
-			<h2>Wallpaper</h2>
-			<h3>Change wallpaper</h3>
-			<div id="wallpaperChange" class="radioGroup">
-				<label for="wallpaperChangeRun"><input type="radio" id="wallpaperChangeRun" name="wallpaperChange" value="run" checked/>After each screensaver run</label>
-				<label for="wallpaperChangeDaily"><input type="radio" id="wallpaperChangeDaily" name="wallpaperChange" value="daily" />Daily</label>
-				<label for="wallpaperChangeNever"><input type="radio" id="wallpaperChangeNever" name="wallpaperChange" value="never" checked/>Never (Do not change wallaper)</label>
-			</div>
-			<h3>Background colour</h3>
-			<input type="text" id="wallpaperBackgroundColour" value="#000000" />
-			<div class="set checkboxGroup">
-				<h3>Filenames</h3>
-				<input type="checkbox" id="wallpaperFilenames" checked /> <label for="wallpaperFilenames">Include filename(s) on wallpaper</label>
-				<input type="checkbox" id="wallpaperStretchSmall"/> <label for="wallpaperStretchSmall">Stretch small wallpaper images</label>
-			</div>
-			<div class="set radioGroup">
-				<h3>Wallpaper source</h3>
-				<div id="wallpaperSource" class="radioGroup">
-					<input type="radio" name="wallpaperSource" id="wallpaperSourceDB" checked /> <label for="wallpaperSourceDB">Pick from files</label>
-					<!--input type="radio" name="wallpaperSource" id="wallpaperSourceFolder" titel="Not implemented yet" disabled/> <label for="wallpaperSourceFolder" titel="Not implemented yet" >Use separate wallpaper folder</label>
-					<input type="file" id="wallpaperFolder" value="Not implemented yet"  titel="Not implemented yet" disabled/>
-					<input type="radio" name="wallpaperSource" id="wallpaperSourceFilter"  titel="Not implemented yet" disabled/> <label for="wallpaperSourceFolder" titel="Not implemented yet" >Use filter</label>
-					<input type="text" id="wallpaperFilter" value="SELECT * FROM `FileNodes` NATURAL JOIN Metadata WHERE `all` LIKE '%Exposure Time	1/100\' || x'0d' || x'0a' || '%'"  titel="Not implemented yet" disabled/-->
-				</div>
-				<input type="hidden" id="wallpaperLastChange"/>
-			</div>
-			<div class="set">
-				<a id="clearWallpaper" class="button" href="#" title="Clear current wallpaper and reset to Windows default">Clear Wallpaper</a>
-				<div class="keywords">remove reset</div>
-			</div>
-			<div class="keywords">desktop wallpaper backgrounds</div>
-			<div class="clear"></div>
-		</div>
-
-		<div class="set">
-			<h2>Monitor settings</h2>
-			<div class="monitors">
-				<div id="M1" class="monitor multimonitor">
-					<h3>Monitor 1</h3>
 					<div class="set">
-						<div class="set checkboxGroup">
-							<h4>Information</h4>
-							<input type="checkbox" id="showQuickMetadataM1" checked /> <label for="showQuickMetadataM1"  title="Toggle with N key whilst screensaver is running">Show quick metadata</label>
-							<input type="checkbox" id="showFilenameM1" checked /> <label for="showFilenameM1"  title="Toggle with F key whilst screensaver is running">Show filename</label>
-							<input type="checkbox" id="showIndexProgressM1" checked /> <label for="showIndexProgressM1"  title="Show info on number of files: in database, selected by filter, metadata queue and files/folders scanned">Show database / index / filter info</label>
+						<input type="checkbox" id="excludeAllSubfolders"/> <label for="excludeAllSubfolders" class="inline">Exclude all subfolders</label>
+					</div>
+					<div class="keywords">directory directories location</div>
+					<div class="clear"></div>
+
+					<div class="set advanced">
+						<h2>Hidden files and folders</h2>
+						<input type="checkbox" id="ignoreHiddenFiles" checked /> <label for="ignoreHiddenFiles" class="tooltip inline" data-title="Files with system attribute hidden set are not shown.">Ignore hidden files (?)</label><br/>
+						<input type="checkbox" id="ignoreHiddenFolders" checked/> <label for="ignoreHiddenFolders"  class="tooltip inline" data-title="Folders with system attribute hidden set are not shown.">Ignore hidden folders (?)</label>
+					</div>
+				</li>
+
+				<li class="set" id="slideshow">
+					<div class="set">
+						<h1>Slideshow</h1>
+						<label>Display each photo for (seconds)</label>
+						<div class="column">
+							<label for="timeout">Minimum duration</label><input type="number" id="timeout" value="10"/>
 						</div>
-						<div class="set radioGroup">
-							<h4>Clock</h4>
-							<div id="clockM1">
-								<input id="noClockM1" type="radio" name="clockM1" value="none" checked/><label for="noClockM1">No clock</label>
-								<input id="currentClockM1" type="radio" name="clockM1" value="current"/><label for="currentClockM1">Current time</label>
-								<input id="elapsedClockM1" type="radio" name="clockM1" value="elapsed"/><label for="elapsedClockM1">Screensaver running time</label>
+						<div class="column">
+							<label for="timeoutMax">Maximum duration</label><input type="number" id="timeoutMax" value="20"/>
+						</div>
+						<div class="line">
+							<label class="left tooltip" for="variableTimeout" data-title="Enable to vary the how long each image is shown for."><input type="checkbox" id="variableTimeout" checked /> Use variable durations (?)</label>
+						</div>
+						<div class="multiOnly">
+							<label>Synchronise multi-monitors</label>
+							<div id="syncScreens" class="inline">
+								<label for="syncScreensTrue"><input type="radio" id="syncScreensTrue" name="syncScreens" value="true" checked/> Yes</label>
+								<label for="syncScreensFalse"><input type="radio" id="syncScreensFalse" name="syncScreens" value="false"/> No</label>
+							</div>
+							<div class="keywords">two three four dual screens triple displays multiple</div>
+						</div>
+						<div class="keywords">timer seconds change time-out</div>
+						<div class="clear"></div>
+					</div>
+					<div class="set">
+						<h2>Order of slideshow</h2>
+						<div id="order" class="inline">
+							<label for="orderRandom"><input type="radio" id="orderRandom" name="order" value="1" checked /> Random</label>
+							<label for="orderSequential"><input type="radio" id="orderSequential" name="order" value="0"/> Sequential</label>
+						</div>
+						<div class="keywords">sort ordering sorting sort by</div>
+						<div class="clear"></div>
+					</div>
+					<div class="set">
+						<h3>Sort by</h3>
+						<div id="sortBy">
+							<label for="sortByPath"><input type="radio" id="sortByPath" name="sortBy" value="path" checked/> Path and filename</label>
+							<label for="sortByCreation"><input type="radio" id="sortByCreation" name="sortBy" value="created" checked /> File creation date and time</label>
+							<label for="sortByChanged"><input type="radio" id="sortByChanged" name="sortBy" value="modified"/> File change date and time</label>
+							<label for="sortBySize" title="For testing purposes only"><input type="radio" id="sortBySize" name="sortBy" value="size"/> Sort by filesize</label>
+						</div>
+						<h3>Direction</h3>
+						<div id="sortDirection" class="inline">
+							<label for="sortOrderPath" title="Lowest to highest"><input type="radio" id="sortDirectionAsc" name="sortDirection" value="asc" checked/> A-Z</label>
+							<label for="sortOrderCreation" title="Highest to lowest"><input type="radio" id="sortDirectionDesc" name="sortDirection" value="desc"/> Z-A</label>
+						</div>
+						<div class="keywords">ascending descending reverse sort ordering sorting sort by</div>
+						<div class="clear"></div>
+					</div>
+					<div class="set">
+						<h2>Background</h2>
+						<label for="backgroundImage"><input type="checkbox" id="backgroundImage" checked/> Use image as background</label>
+						<label for="imageShadow"><input type="checkbox" id="imageShadow" checked/> Add drop shadow to image</label>
+						<div class="onlyIE8 note">Background colour not supported in IE8</div>
+						<label for="backgroundColour"><input class="notIE8" type="text" id="backgroundColour" value="#c9daf8" /> Background colour</label>
+					</div>
+					<div class="set">
+						<h2>Effects</h2>
+						<div class="set">
+							<label for="useTransitions" class="tooltip" data-title="Unselecting option will default to quick fade effect."><input type="checkbox" id="useTransitions" checked/> Use selected transition effects</label>
+							<div id="transitions">
+								<div id="transitionsFancyTree"></div>
+							</div>
+							<label for="useTransitionsOnInput"><input type="checkbox" id="useTransitionsOnInput"/> Use transition effects when navigating by mouse or keyboard</label>
+						</div>
+						<div class="keywords">effects animations transitions</div>
+						<div class="clear"></div>
+					</div>
+
+					<div class="set advanced">
+						<div class="set">
+							<h3>History</h3>
+							<label for="rememberLast">Remember <input type="number" id="rememberLast" value="10"/> last images for next session</label><br/>
+							<label for="maxHistory" class="tooltip" data-title="Unlimited max history size will eventually result in out of memory error.">Maximum random history size (?)</label><br/>
+							<input type="number" id="maxHistory" value="10000"/><br/>
+							<div class="keywords">previous old</div>
+						</div>
+						<div class="set">
+							<h3>Debug</h3>
+							<input type="checkbox" id="debugLog"/> <label for="debugLog" class="tooltip" data-title="Keep debug log of files loaded. Stored in 'C:\Users\[user name]\AppData\Local\Random Photo Screensaver\debug_#date#.txt'">Debug log</label>
+							<div class="keywords">debugging</div>
+						</div>
+					</div>
+
+				</li>
+
+				<li class="set" id="filters">
+					<h1>Filters</h1>
+					<label for="useFilter"><input type="checkbox" id="useFilter"/> Use filters</label>
+					<div class="clear"></div>
+					<label for="filter">Select filter</label>
+					<input type="text" id="filter" value="`all` LIKE &quot;%Exposure Time	1/100&quot; || x'0d' || x'0a' || &quot;%&quot;;"/>
+					<a id="applyFilter" class="button" href="#">Apply filter</a> <a id="clearFilter" class="button" href="#">Clear filter</a>
+					<div class="clear"></div>
+					<div class="clear"><br/>
+						A user interface to add/create and select filters is on my to do list!<br/>
+						The following columns can be used in SQLite statements:
+						<ul>
+							<li><strong>[database column]</strong> [description]</li>
+							<li><strong>path</strong> full path (folder and filename)</li>
+							<li><strong>parentpath</strong> folder path only</li>
+							<li><strong>filename</strong> filename (including extension)</li>
+							<li><strong>created</strong> created date</li>
+							<li><strong>modified</strong> modified date</li>
+							<li><strong>size</strong> file size</li>
+							<li><strong>all</strong> contains all metadata for file</li>
+						</ul>
+					</div>
+				</li>
+
+				<li class="set" id="media">
+					<h1 id="images">Media</h1>
+					<div class="set">
+						<h2 id="images">Images</h2>
+						<label for="stretchSmallImages"><input type="checkbox" id="stretchSmallImages"/> Stretch small images</label>
+						<div id="fitTo" class="inline"><label>Fit images to</label>
+							<label for="fitToContain" class="tooltip" data-title="Scale image so it fits entirely on the display (background visible)."><input type="radio" id="fitToContain" name="fitTo" value="contain" checked /> contain (?)</label>
+							<label for="fitToCover" class="tooltip"  data-title="Scale image so that it covers the entiry display (no background visisble).">						<input type="radio" id="fitToCover" name="fitTo" value="cover"/> cover (?)</label>
+						</div>
+						<label for="exifRotate"><input type="checkbox" id="exifRotate" checked/> Rotate image based on EXIF orientation (if available)</label>
+						<div class="keywords">photos photographs pictures</div>
+					</div>
+					<div class="set">
+						<h2>Videos</h2>
+						<label for="stretchSmallVideos"><input type="checkbox" id="stretchSmallVideos" /> Stretch small videos</label>
+						<label for="showControls"><input type="checkbox" id="showControls" checked /> Show controls</label>
+						<label for="videosLoop"><input type="checkbox" id="videosLoop" checked /> Loop videos</label>
+						<label for="videosMute"><input type="checkbox" id="videosMute" checked /> Mute videos</label>
+						<div class="keywords">videos movies films</div>
+						<div class="clear"></div>
+					</div>
+
+					<div class="set">
+						<h2 id="RAW">RAW files</h2>
+						<div class="note">To display RAW files JPG versions are created and stored on your harddisk. Please note screensaver may slow down whilst images are being converted.</div>
+						<label for="rawUseConverter"><input type="checkbox" id="rawUseConverter"/> Show RAW files (cached as JPG)</label>
+						<div class="rawUseConverter">
+							<div class="noRaw">
+								<p>Raw converter not found. Please <a class="external" href="http://sourceforge.net/projects/ufraw/files/latest/download?source=typ_redirect" >download and install UFRaw</a>, then click: <a id="detectUFRaw" class="button" href="#">Locate UFRaw installation</a><br/>
+								Or install your own favourite RAW file converter.</p>
+							</div>
+							<label for="rawConverter">Raw file converter</label>
+							<div class="browseFile"><input type="text" id="rawConverter" data-filter="Executable files (*.exe)|*.exe" value="" /><a id="rawConverterBrowse" class="button" href="#">Browse</a></div>
+						</div>
+						<div class="advanced">
+							<h2>Advanced settings</h2>
+							<div class="set">
+								<h3>Image extensions</h3>
+								<input type="text" id="imageExtensions" value=".gif .png .jpeg .jpg .bmp .wmp .svg" />
+
+								<h3>Video extensions</h3>
+								<input type="text" id="videoExtensions" value=".avi .wmv .mp4 .mpeg .mpg" />
+								<div class="keywords">filenames extensions types</div>
+							</div>
+
+							<div class="rawUseConverter">
+								<div class="hasRaw">
+									<div class="set">
+										<h3>Raw image extensions</h3>
+										<input type="text" id="rawExtensions" value=".arw .bay .bmq .cr2 .crw .cs1 .dc2 .dcr .dng .fff .k25 .kdc .mos .mrw .nef .nrw .orf .pef .raf .rdc .rw2 .sr2 .srf .srw .x3f" />
+										<div class="keywords">filenames extensions types</div>
+									</div>
+								</div>
+
+								<div class="set radioGroup">
+									<h3>RAW cache JPEG file location</h3>
+									<div id="rawLocation" class="radioGroup subOptions">
+										<label for="rawLocationSame"><input type="radio" name="rawLocation" id="rawLocationSame" value="same" checked /> Same folder as RAW file</label>
+										<label for="rawLocationSubfolder"><input type="radio" name="rawLocation" id="rawLocationSubfolder" value="subfolder" /> Subfolder in folder RAW file</label>
+										<div class="subOption rawLocationSubfolder">
+											<label for="rawSubfolder">Subfolder</label><input type="text" id="rawSubfolder" value="rawCache.rps" />
+										</div>
+										<label for="rawLocationSeparate"><input type="radio" name="rawLocation" id="rawLocationSeparate" value="separate" /> Seprate RAW files folder</label>
+										<div class="subOption rawLocationSeparate">
+											<div class="browseFolder"><label for="rawFolder">Use folder</label><input type="text" id="rawFolder" value="" /><a id="rawFolderBrowse" class="button" href="#">Browse</a>
+										</div>
+									</div>
+								</div>
+
+								<div id="rawCacheSize" class="inline">
+									<h3>Cached image size</h3>
+									<label for="rawCacheSizeMonitor"><input type="radio" id="rawCacheSizeMonitor" name="rawCacheSize" value="monitor" checked/>Biggest monitor (recommended)</label>
+									<label for="rawCacheSizeOriginal"><input type="radio" id="rawCacheSizeOriginal" name="rawCacheSize" value="original"/>Keep original size</label>
+								</div>
+								<div class="clear"></div>
+								<label for="rawConverterParams">Converter parameters <span class="note">(Use #RAW# #JPG# placeholders)</span></label>
+								<input type="text" id="rawConverterParams" value='--silent --exposure=auto --out-type=jpg --output="#JPG#" "#RAW#"' />
+							</div>
+						</div>
+						<div class="keywords">photos photographs pictures</div>
+						<div class="clear"></div>
+					</div>
+				</li>
+
+				<li class="set" id="metadata">
+					<h1>Metadata</h1>
+					<div class="set">
+						<!--input type="checkbox" id="indexMetadata"/> <label for="indexMetadata">Index metadata</label-->
+						<h2>Quick metadata</h2>
+						<input type="text" id="quickMetadata" value="<#{Exposure Time} | #><#{F Number} | #><#{ISO} | #><#{Focal Length}#>"/>
+						<div class="keywords">metadata iptc xmp exif</div>
+					</div>
+
+					<div class="set">
+						<h2>ExifTool</h2>
+							<label for="exifTool">Location of ExifTool</label>
+						<input type="text" id="exifTool" value=".\vendor\exiftool(-k).exe" />
+					</div>
+
+					<div class="set">
+						<h3>Image rotation</h3>
+						<label for="saveExifOnRotation"><input type="checkbox" id="saveExifOnRotation" checked/> Save Orientation to Exif in file</label>
+						<label for="backupExifOnRotation"><input type="checkbox" id="backupExifOnRotation" checked/> Backup before rotation (filename.bak)</label>
+						<div class="clear note">Use following keys to rotate images(s)<br/>
+							[ rotate image 270&deg; CW<br/>
+							] rotate image 90&deg; CW<br/>
+							+ rotate image 180&deg;<br/>
+							Please note: if filename.bak exists it isn't overwritten.
+							<span class="mutliOnly"><br/>For multi monitors: select monitors with 1 ... 9 or 0 for all.</span>
+						<div class="keywords">turning rotate rotating</div>
+					</div>
+					<div class="keywords">metadata iptc xmp exif</div>
+				</li>
+
+				<li class="set" id="wallpaper">
+					<h1>Wallpaper</h1>
+					<h2>Change wallpaper</h2>
+					<div id="wallpaperChange">
+						<label for="wallpaperChangeRun"><input type="radio" id="wallpaperChangeRun" name="wallpaperChange" value="run" checked/>After each screensaver run</label>
+						<label for="wallpaperChangeDaily"><input type="radio" id="wallpaperChangeDaily" name="wallpaperChange" value="daily" />Daily</label>
+						<label for="wallpaperChangeNever"><input type="radio" id="wallpaperChangeNever" name="wallpaperChange" value="never" checked/>Never (Do not change wallaper)</label>
+					</div>
+					<h2>Customisation</h2>
+					<label><input type="text" id="wallpaperBackgroundColour" value="#000000" /> Background colour</label>
+					<label for="wallpaperFilenames"><input type="checkbox" id="wallpaperFilenames" checked /> Include filename(s) on wallpaper</label>
+					<label for="wallpaperStretchSmall"><input type="checkbox" id="wallpaperStretchSmall"/> Stretch small wallpaper images</label>
+					<div class="set radioGroup">
+						<h2>Wallpaper source</h2>
+						<div id="wallpaperSource" class="radioGroup">
+							<label for="wallpaperSourceDB"><input type="radio" name="wallpaperSource" id="wallpaperSourceDB" checked /> Pick from files</label>
+							<!--input type="radio" name="wallpaperSource" id="wallpaperSourceFolder" titel="Not implemented yet" disabled/> <label for="wallpaperSourceFolder" titel="Not implemented yet" >Use separate wallpaper folder</label>
+							<input type="file" id="wallpaperFolder" value="Not implemented yet"  titel="Not implemented yet" disabled/>
+							<input type="radio" name="wallpaperSource" id="wallpaperSourceFilter"  titel="Not implemented yet" disabled/> <label for="wallpaperSourceFolder" titel="Not implemented yet" >Use filter</label>
+							<input type="text" id="wallpaperFilter" value="SELECT * FROM `FileNodes` NATURAL JOIN Metadata WHERE `all` LIKE '%Exposure Time	1/100\' || x'0d' || x'0a' || '%'"  titel="Not implemented yet" disabled/-->
+						</div>
+						<input type="hidden" id="wallpaperLastChange"/>
+					</div>
+					<div class="set">
+						<a id="clearWallpaper" class="button" href="#" title="Clear current wallpaper and reset to Windows default">Clear Wallpaper</a>
+						<div class="keywords">remove reset</div>
+					</div>
+					<div class="keywords">desktop wallpaper backgrounds</div>
+					<div class="clear"></div>
+				</li>
+
+				<li class="set" id="monitors">
+					<h1>Monitor settings</h1>
+					<div class="monitors">
+						<div id="M1" class="monitor multimonitor">
+							<h2>Monitor 1</h2>
+							<div class="set">
+								<div class="set">
+									<h3>Information</h3>
+									<label for="showQuickMetadataM1" class="tooltip" data-title="Toggle with N key whilst screensaver is running"><input type="checkbox" id="showQuickMetadataM1" checked /> Show quick metadata</label><br/>
+									<label for="showFilenameM1" class="tooltip" data-title="Toggle with F key whilst screensaver is running"><input type="checkbox" id="showFilenameM1" checked /> Show filename</label><br/>
+									<label for="showIndexProgressM1" class="tooltip" data-title="Show info on number of files: in database, selected by filter, metadata queue and files/folders scanned"><input type="checkbox" id="showIndexProgressM1" checked /> Show database / index / filter info</label>
+								</div>
+								<div class="set radioGroup">
+									<h3>Clock</h3>
+									<div id="clockM1">
+										<label for="noClockM1"><input id="noClockM1" type="radio" name="clockM1" value="none" checked/>No clock</label>
+										<label for="currentClockM1"><input id="currentClockM1" type="radio" name="clockM1" value="current"/>Current time</label>
+										<label for="elapsedClockM1"><input id="elapsedClockM1" type="radio" name="clockM1" value="elapsed"/>Screensaver running time</label>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-			</div>
-			<div class="clear"></div>
-		</div>
-
-		<div class="set">
-			<h2 class="underline">Advanced settings</h2>
-			<div class="set advanced checkboxGroup">
-				<h3>Hidden files and folders</h3>
-				<div class="line"><input type="checkbox" id="ignoreHiddenFiles" checked /> <label for="ignoreHiddenFiles" class="tooltip" data-title="Files with system attribute hidden set are not shown.">Ignore hidden files (?)</label></div>
-				<div class="line"><input type="checkbox" id="ignoreHiddenFolders" checked/> <label for="ignoreHiddenFolders"  class="tooltip" data-title="Folders with system attribute hidden set are not shown.">Ignore hidden folders (?)</label></div>
-			</div>
-			<div class="set advanced checkboxGroup">
-				<h3>Keyboard and mouse</h3>
-				<label for="mouseSensitivity">Exit on mouse movement</label>
-				<div class="radioGroupHorizontal">
-					<div id="mouseSensitivity">
-						<input id="msHigh" type="radio" name="mouseSensitivity" value="high"/><label for="msHigh">Sensitive</label>
-						<input id="msMedium" type="radio" name="mouseSensitivity" value="medium" checked/><label for="msMedium">Normal</label>
-						<input id="msLow" type="radio" name="mouseSensitivity" value="low"/><label for="msLow">Insensitive</label>
-						<input id="msNone" type="radio" name="mouseSensitivity" value="none"/><label for="msNone">Ignore</label>
+					<div class="clear"></div>
+					<div class="set multiOnly">
+						<h2>Multi monitors</h2>
+						<label for="stretchPanoramas" title="Panoramas are only stretched to higher numbered monitors"><input type="checkbox" id="stretchPanoramas" checked /> Stretch panoramas accross multiple monitors</label>
+						<label for="sameImage"><input type="checkbox" id="sameImage"/> Same image/video on each monitor</label>
 					</div>
-				</div>
-				<div class="clear"></div>
-				<div class="line"><input type="checkbox" id="browseMouse" /> <label for="browseMouse" class="tooltip" data-title="Left button: next; Right button: previous.">Use mouse to browse (?)</label></div>
-				<h4>Keyboard settings</h4>
-				<input type="checkbox" id="onlyEscapeExits"/> <label for="onlyEscapeExits" title="Only escape key closes screensaver (separate from mouse movement).">Only escape key exits screensaver</label>
-				<input type="checkbox" id="closeAfterImageLocate"/> <label for="closeAfterImageLocate"  title="Close screensaver after locating images (E key / Ctrl + E keys).">Close screensaver after image locate (E key / Ctrl + E keys)</label>
-				<label for="externalEditor" class="tooltip" data-title="Custom editor to use to open current image(s) (Ctrl + E).">Custom editor (?)</label>
-				<div class="browseFile"><input type="text" id="externalEditor" data-filter="Executable files (*.exe)|*.exe" value="" /><a id="externalEditorBrowse" class="button" href="#">Browse</a></div>
+				</li>
 
-				<input type="checkbox" id="deleteKey" checked/> <label for="deleteKey"  title="Place selected monitors photos into recycling bin on Delete key">Enable delete key</label>
-				<input type="checkbox" id="deleteKeyConfirmation"  checked/> <label for="deleteKeyConfirmation"  title="Ask for confirmation on delete">Show confirm delete dialog</label>
-			</div>
-			<div class="set advanced checkboxGroup">
-				<h3>History</h3>
-				<label for="rememberLast">Remember last images for next session</label><input type="number" id="rememberLast" value="10"/>
-				<div class="line"><label for="maxHistory" class="tooltip" data-title="Unlimited max history size will eventually result in out of memory error.">Maximum random history size (?)</label><input type="number" id="maxHistory" value="10000"/></div>
-				<div class="keywords">previous old</div>
-			</div>
-			<div class="set advanced checkboxGroup">
-				<h3>Updates</h3>
-				<div class="note">None of the updates are automatically installed.</div>
-				<div class="set radioGroup">
-					<div id="checkUpdates">
-						<!--input id="checkUpdatesYes" type="radio" name="checkUpdates" value="yes"/><label for="checkUpdatesYes">Check for updates and start installer automatically</label-->
-						<input id="checkUpdatesDownload" type="radio" name="checkUpdates" value="download" checked/><label for="checkUpdatesDownload">Check for updates and download automatically, confirm before installation</label>
-						<input id="checkUpdatesNotify" type="radio" name="checkUpdates" value="notify"/><label for="checkUpdatesNotify">Check for updates, but let me choose whether to download them</label>
-						<input id="checkUpdatesNo" type="radio" name="checkUpdates" value="no"/><label for="checkUpdatesNo">Don't check for updates</label>
+				<li class="set" id="input">
+					<h1>Keyboard and mouse</h1>
+					<h2>Keyboard settings</h2>
+					<label for="onlyEscapeExits" class="tooltip" data-title="Only escape key closes screensaver (separate from mouse movement)."><input type="checkbox" id="onlyEscapeExits"/> Only escape key exits screensaver</label><br/>
+					<label for="closeAfterImageLocate" class="tooltip" data-title="Close screensaver after locating images (E key / Ctrl + E keys)."><input type="checkbox" id="closeAfterImageLocate"/> Close screensaver after image locate (E key / Ctrl + E keys)</label><br/>
+					<label for="externalEditor" class="tooltip" data-title="Custom editor to use to open current image(s) (Ctrl + E).">Custom editor (?)</label><br/>
+					<div class="browseFile"><input type="text" id="externalEditor" data-filter="Executable files (*.exe)|*.exe" value="" /><a id="externalEditorBrowse" class="button" href="#">Browse</a></div>
+
+					<label for="deleteKey" class="tooltip" data-title="Place selected monitors photos into recycling bin on Delete key"><input type="checkbox" id="deleteKey" checked/> Enable delete key</label><br/>
+					<label for="deleteKeyConfirmation" class="tooltip" data-title="Ask for confirmation on delete"><input type="checkbox" id="deleteKeyConfirmation"  checked/> Show confirm delete dialog</label>
+
+					<h2>Mouse settings</h2>
+					<label for="mouseSensitivity">Exit on mouse movement</label>
+					<div class="inline">
+						<div id="mouseSensitivity">
+							<input id="msHigh" type="radio" name="mouseSensitivity" value="high"/><label for="msHigh">Sensitive</label>
+							<input id="msMedium" type="radio" name="mouseSensitivity" value="medium" checked/><label for="msMedium">Normal</label>
+							<input id="msLow" type="radio" name="mouseSensitivity" value="low"/><label for="msLow">Insensitive</label>
+							<input id="msNone" type="radio" name="mouseSensitivity" value="none"/><label for="msNone">Ignore</label>
+						</div>
 					</div>
-				</div>
-				<input type="checkbox" id="disableGoAn"/> <label for="disableGoAn" title="Disable tracking of update page">Don't track downloads with Google Analytics</label>
-				<div class="keywords">previous old</div>
-			</div>
-			<div class="set advanced checkboxGroup">
-				<h3>Debug</h3>
-				<input type="checkbox" id="debugLog"/> <label for="debugLog" title="Keep debug log of files loaded. Stored in 'C:\Users\[user name]\AppData\Local\Random Photo Screensaver\debug_#date#.txt'">Debug log</label>
-				<div class="keywords">debugging</div>
-			</div>
-		</div>
+					<div class="clear"></div>
+					<div class="line"><input type="checkbox" id="browseMouse" /> <label for="browseMouse" class="tooltip" data-title="Left button: next; Right button: previous.">Use mouse to browse (?)</label></div>
+				</li>
+
+				<li class="set" id="updates">
+					<h1>Updates</h1>
+					<div class="note">None of the updates are automatically installed.</div>
+					<div class="set radioGroup">
+						<div id="checkUpdates">
+							<!--label for="checkUpdatesYes"><input id="checkUpdatesYes" type="radio" name="checkUpdates" value="yes"/> Check for updates and start installer automatically</label-->
+							<label for="checkUpdatesDownload"><input id="checkUpdatesDownload" type="radio" name="checkUpdates" value="download" checked/> Check for updates and download automatically, confirm before installation</label>
+							<label for="checkUpdatesNotify"><input id="checkUpdatesNotify" type="radio" name="checkUpdates" value="notify"/>Check for updates, but let me choose whether to download them</label>
+							<label for="checkUpdatesNo"><input id="checkUpdatesNo" type="radio" name="checkUpdates" value="no"/>Don't check for updates</label>
+						</div>
+					</div>
+					<label for="disableGoAn" class="tooltip" data-title="Disable tracking of update page"><input type="checkbox" id="disableGoAn"/> Don't track downloads with Google Analytics</label>
+					<div class="keywords">previous old</div>
+				</li>
+
+				<li class="set" id="shortcuts">
+					<h1>Shortcut keys</h1>
+				</li>
+
+				<li class="set external" id="credits">
+					<h1>Credits</h1>
+					<p>Random Photo Screensaver has been developed by <a href="http://www.abscreensavers.com/contact">Marijn Kampf, www.abscreensavers.com</a></p>
+
+					<p>The following (free) libraries and programs have been used in/ship with RPS4:</p>
+
+					<ul class="task-list">
+					<li>
+					<a href="http://www.visualstudio.com/downloads/download-visual-studio-vs">Microsoft Visual Studio 2013 C# Express Edition</a>
+
+					<ul class="task-list">
+					<li><a href="http://www.sno.phy.queensu.ca/%7Ephil/exiftool/">ExifTool by Phil Harvey</a></li>
+					<li><a href="http://ufraw.sourceforge.net/">UFRaw</a></li>
+					<li><a href="http://www.sqlite.org/">SQLite</a></li>
+					<li>
+					<a href="https://www.virtualbox.org/">Virtual Machine used for testing</a>
+
+					<ul class="task-list">
+					<li><a href="https://www.modern.ie/en-us/virtualization-tools#downloads">Windows XP/Vista</a></li>
+					<li><a href="http://www.microsoft.com/en-us/evalcenter/evaluate-windows-7-enterprise">Windows 7</a></li>
+					<li><a href="http://www.microsoft.com/en-us/evalcenter/evaluate-windows-8-1-enterprise">Windows 8</a></li>
+					<li><a href="http://www.microsoft.com/en-us/evalcenter/evaluate-windows-8-enterprise">Windows 8.1</a></li>
+					</ul>
+					</li>
+					</ul>
+					</li>
+					<li>JavaScript
+
+					<ul class="task-list">
+					<li><a href="http://jquery.com/">jQuery</a></li>
+					<li><a href="http://jqueryui.com/">jQuery UI</a></li>
+					<li><a href="https://github.com/mar10/fancytree">Fancytree</a></li>
+					<li><a href="http://johannburkard.de/blog/programming/javascript/highlight-javascript-text-higlighting-jquery-plugin.html">Highlight text</a></li>
+					<li><a href="http://bgrins.github.io/spectrum/">Colour picker</a></li>
+					</ul>
+					</li>
+					<li>CSS
+					<ul class="task-list">
+					    <li><a href="/marijnkampf/Random-Photo-Screensaver/blob/master/nicolasgallagher.com/pure-css-speech-bubbles">Pure CSS speech bubbles</a></li>
+					</ul>
+					</li>
+					<li>Miscellaneous
+					<ul class="task-list">
+					    <li><a href="http://preloaders.net/en/circular">Waiting image spinners</a></li>
+					    <li><a href="http://iconverticons.com/online/">Windows icons converted with iconverticons</a></li>
+					</ul>
+					</li>
+					<li>
+					<a href="http://nsis.sourceforge.net/Main_Page">NSIS installer</a>
+
+					<ul class="task-list">
+					<li><a href="http://muldersoft.com/docs/stdutils_readme.html#e5717960">StdUtils NSIS</a></li>
+					</ul>
+					</li>
+					</ul>
+
+					<h2>
+					<a id="user-content-license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h2>
+
+					<p>Copyright (C) 2005-2014 Marijn Kampf </p>
+
+					<p>Random Photo Screensaver is free software (<a href="http://www.gnu.org/philosophy/free-sw.html">http://www.gnu.org/philosophy/free-sw.html</a>); you can redistribute it and/or modify it under the terms of the GNU General Public License (<a href="http://www.gnu.org/licenses/gpl.html">http://www.gnu.org/licenses/gpl.html</a>) as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.</p>
+
+					<p>You may use this software on a trial basis free of charge for up to thirty (30) days in order to ascertain its usefulness for your purposes. Beyond that time, you are required to either remit payment (<a href="http://www.abscreensavers.com/rps/donation">http://www.abscreensavers.com/rps/donation</a>) for its use, or remove it from your computer. </p>
+
+					<p>Alternatively, Random Photo Screensaver is also available with a commercial license, which allows it to be used in closed-source projects. Contact me (<a href="http://www.abscreensavers.com/contact">http://www.abscreensavers.com/contact</a>) for more information.</p>
+
+					<p>Random Photo Screensaver is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</p>
+
+<p>See <a href="http://www.abscreensavers.com">http://www.abscreensavers.com</a> for more information.</p>
+				</li>
+			</ul>
+
+
+
+		<div class="clear"></div>
+		<hr/>
+
+
 		<h3><div class="button" id="save" title="Setting are either applied instantly or when you close the config window. They are automatically saved when you exit the screensaver.">Save</div></h3>
 
 		<!--div class="set">

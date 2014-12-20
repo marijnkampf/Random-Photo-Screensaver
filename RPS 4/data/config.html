@@ -31,24 +31,24 @@
 	<div id="navigation">
 		<h1>RPS <span id="version">4.#</span></h1>
 		<ul id="tabs">
-			<li class="current" data-tab="folders"><a href="#">Folders</a></li>
-			<li data-tab="slideshow" title="Slide show speed, ordering and transition effects"><a href="#">Slideshow</a></li>
-			<li data-tab="filters"><a href="#">Filters</a></li>
-			<li data-tab="media"><a href="#">Media</a></li>
-			<li data-tab="metadata"><a href="#">Metadata</a></li>
-			<li data-tab="wallpaper"><a href="#">Wallpaper</a></li>
-			<li data-tab="monitors"><a href="#">Monitors</a></li>
-			<li data-tab="input"><a href="#">Keyboard and mouse</a></li>
-			<li data-tab="updates"><a href="#">Updates</a></li>
-			<li data-tab="shortcuts"><a href="#">Shortcut keys</a></li>
-			<li class="spacer" data-tab="credits"><a href="#">Credits</a></li>
+			<li class="current" data-tab="tabFolders"><a href="#">Folders</a></li>
+			<li data-tab="tabSlideshow" title="Slide show speed, ordering and transition effects"><a href="#">Slideshow</a></li>
+			<li data-tab="tabFilters"><a href="#">Filters</a></li>
+			<li data-tab="tabMedia"><a href="#">Media</a></li>
+			<li data-tab="tabMetadata"><a href="#">Metadata</a></li>
+			<li data-tab="tabWallpaper"><a href="#">Wallpaper</a></li>
+			<li data-tab="tabMonitors"><a href="#">Monitors</a></li>
+			<li data-tab="tabInput"><a href="#">Keyboard and mouse</a></li>
+			<li data-tab="tabUpdates"><a href="#">Updates</a></li>
+			<li data-tab="tabShortcuts"><a href="#">Shortcut keys</a></li>
+			<li class="spacer" data-tab="tabCredits"><a href="#">Credits</a></li>
 		</ul>
 	</div>
 	<div id="content">
 		<input id="search" type="text" placeholder="Search settings" aria-label="Search settings"/>
 		<form>
 			<ul id="tabs-content">
-				<li class="set" id="folders">
+				<li class="set" id="tabFolders">
 					<h1>Folders</h1>
 					<div class="foldersTree">
 						<div id="tree">
@@ -96,7 +96,7 @@
 					</div>
 				</li>
 
-				<li class="set" id="slideshow">
+				<li class="set" id="tabSlideshow">
 					<div class="set">
 						<h1>Slideshow</h1>
 						<label>Display each photo for (seconds)</label>
@@ -182,7 +182,7 @@
 
 				</li>
 
-				<li class="set" id="filters">
+				<li class="set" id="tabFilters">
 					<h1>Filters</h1>
 					<label for="useFilter"><input type="checkbox" id="useFilter"/> Use filters</label>
 					<div class="clear"></div>
@@ -206,7 +206,7 @@
 					</div>
 				</li>
 
-				<li class="set" id="media">
+				<li class="set" id="tabMedia">
 					<h1 id="images">Media</h1>
 					<div class="set">
 						<h2 id="images">Images</h2>
@@ -290,7 +290,7 @@
 					</div>
 				</li>
 
-				<li class="set" id="metadata">
+				<li class="set" id="tabMetadata">
 					<h1>Metadata</h1>
 					<div class="set">
 						<!--input type="checkbox" id="indexMetadata"/> <label for="indexMetadata">Index metadata</label-->
@@ -320,7 +320,7 @@
 					<div class="keywords">metadata iptc xmp exif</div>
 				</li>
 
-				<li class="set" id="wallpaper">
+				<li class="set" id="tabWallpaper">
 					<h1>Wallpaper</h1>
 					<h2>Change wallpaper</h2>
 					<div id="wallpaperChange">
@@ -351,7 +351,7 @@
 					<div class="clear"></div>
 				</li>
 
-				<li class="set" id="monitors">
+				<li class="set" id="tabMonitors">
 					<h1>Monitor settings</h1>
 					<div class="monitors">
 						<div id="M1" class="monitor multimonitor">
@@ -382,7 +382,7 @@
 					</div>
 				</li>
 
-				<li class="set" id="input">
+				<li class="set" id="tabInput">
 					<h1>Keyboard and mouse</h1>
 					<h2>Keyboard settings</h2>
 					<label for="onlyEscapeExits" class="tooltip" data-title="Only escape key closes screensaver (separate from mouse movement)."><input type="checkbox" id="onlyEscapeExits"/> Only escape key exits screensaver</label><br/>
@@ -407,30 +407,36 @@
 					<div class="line"><input type="checkbox" id="browseMouse" /> <label for="browseMouse" class="tooltip" data-title="Left button: next; Right button: previous.">Use mouse to browse (?)</label></div>
 				</li>
 
-				<li class="set" id="updates">
+				<li class="set" id="tabUpdates">
 					<h1>Updates</h1>
-					<div class="note">None of the updates are automatically installed.</div>
+					<!--div class="note">None of the updates are automatically installed.</div-->
 					<div class="set radioGroup">
 						<div id="checkUpdates">
 							<!--label for="checkUpdatesYes"><input id="checkUpdatesYes" type="radio" name="checkUpdates" value="yes"/> Check for updates and start installer automatically</label-->
-							<label for="checkUpdatesDownload"><input id="checkUpdatesDownload" type="radio" name="checkUpdates" value="download" checked/> Check for updates and download automatically, confirm before installation</label>
+							<label for="checkUpdatesDownload"><input id="checkUpdatesDownload" type="radio" name="checkUpdates" value="download" checked/>Check for updates and download automatically, confirm before installation</label>
 							<label for="checkUpdatesNotify"><input id="checkUpdatesNotify" type="radio" name="checkUpdates" value="notify"/>Check for updates, but let me choose whether to download them</label>
 							<label for="checkUpdatesNo"><input id="checkUpdatesNo" type="radio" name="checkUpdates" value="no"/>Don't check for updates</label>
 						</div>
 					</div>
-					<label for="disableGoAn" class="tooltip" data-title="Disable tracking of update page"><input type="checkbox" id="disableGoAn"/> Don't track downloads with Google Analytics</label>
+					<label for="disableGoAn" class="tooltip" data-title="Disable tracking of update page"><input type="checkbox" id="disableGoAn"/>Don't track downloads with Google Analytics</label>
+					<div class="clear"></div>
+					<div class="advanced">
+						<label for="betaVersion"><input type="checkbox" id="betaVersion" checked/>Include beta and release candidate versions</label>
+						<label for="ignoreUpdate"><input type="checkbox" id="ignoreUpdate"/>Ignore latest update (version: <input type="text" id="ignoreVersion"/>)</label>
+					</div>
 					<div class="keywords">previous old</div>
 				</li>
 
-				<li class="set" id="shortcuts">
+				<li class="set" id="tabShortcuts">
 					<h1>Shortcut keys</h1>
+					<p>ToDo add shortcut descriptions</p>
 				</li>
 
-				<li class="set external" id="credits">
+				<li class="set external" id="tabCredits">
 					<h1>Credits</h1>
 					<p>Random Photo Screensaver has been developed by <a href="http://www.abscreensavers.com/contact">Marijn Kampf, www.abscreensavers.com</a></p>
 
-					<p>The following (free) libraries and programs have been used in/ship with RPS4:</p>
+					<p>The following libraries and programs have been used in the making of or ship with RPS4:</p>
 
 					<ul class="task-list">
 					<li>

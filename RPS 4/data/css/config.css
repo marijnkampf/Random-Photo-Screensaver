@@ -365,3 +365,8 @@ label {
 	margin-top: 1em;
 	border-top: 1px solid #eee;
 }
+
+#ignoreVersion {
+	width: 5em;
+	border:none;
+}

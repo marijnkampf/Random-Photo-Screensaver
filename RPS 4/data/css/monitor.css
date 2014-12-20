@@ -181,6 +181,10 @@ html, body {
     padding: 15px;
 }
 
+.updatebubble .small {
+	font-size: .75em;
+}
+
 .downloadLabel {
 	width: 200px;
 }

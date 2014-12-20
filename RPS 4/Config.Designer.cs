@@ -36,7 +36,7 @@
             this.browser.Location = new System.Drawing.Point(0, 0);
             this.browser.MinimumSize = new System.Drawing.Size(20, 20);
             this.browser.Name = "browser";
-            this.browser.Size = new System.Drawing.Size(837, 537);
+            this.browser.Size = new System.Drawing.Size(784, 682);
             this.browser.TabIndex = 0;
             // 
             // webUpdateCheck
@@ -60,7 +60,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(837, 537);
+            this.ClientSize = new System.Drawing.Size(784, 682);
             this.Controls.Add(this.webUpdateCheck);
             this.Controls.Add(this.browser);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));

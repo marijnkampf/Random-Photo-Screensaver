@@ -280,7 +280,7 @@ namespace RPS {
             }
         }
 
-        public float resizeRatioRotate90(int rotate) {
+        public double resizeRatioRotate90(int rotate) {
             this.imageSettings["resizeRatio"] = 1;
             if (this.quickMetadata != null && this.quickMetadata.metadata.ContainsKey("image width") && this.quickMetadata.metadata.ContainsKey("image height")) {
                 int width = Convert.ToInt32(this.quickMetadata.metadata["image width"]);
@@ -302,7 +302,7 @@ namespace RPS {
                     this.quickMetadata.metadata["image height"] = Convert.ToString(width);
                 }
             }
-            return Convert.ToInt32(this.imageSettings["resizeRatio"]);
+            return Convert.ToDouble(this.imageSettings["resizeRatio"]);
         }
 
         public void readMetadataImage() {

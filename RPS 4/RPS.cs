@@ -48,6 +48,7 @@ namespace RPS {
         public bool readOnly;
 
         public Version version;
+        public bool showUpdateStatus = false;
 
         private System.Windows.Forms.Timer mouseMoveTimer;
 
@@ -310,6 +311,10 @@ namespace RPS {
                     }
                 }
             }
+        }
+
+        public void showAllUpToDate() {
+            this.showInfoOnMonitors("All up to date" + Environment.NewLine + "(" + this.version.ToString() + ")", true, true);
         }
 
         public void pauseAll(bool showInfo) {
@@ -615,15 +620,37 @@ namespace RPS {
                         case Keys.U:
                             string updateFilename = this.config.updateFilename();
                             if (updateFilename == null) {
+                                this.showUpdateStatus = true;
                                 this.showInfoOnMonitors("Checking for updates.", true, true);
                                 this.config.timerCheckUpdates_Tick(this, null);
                             } else {
-                                if (File.Exists(updateFilename) && Utils.VerifyMD5(updateFilename, this.config.updateFileMD5())) {
-                                    Utils.RunTaskScheduler(@"Run", updateFilename);
+                                if (e.Control) {
+                                    string update = this.config.getUpdateVersion();
+                                    if (update != null) {
+                                        this.config.setPersistant("ignoreVersion", update);
+                                        this.config.setPersistant("ignoreUpdate", Convert.ToString(true));
+                                        this.hideUpdateInfo();
+                                        this.showInfoOnMonitors("Update " + update + " will be ignored.", true, true);
+                                    }
                                 } else {
-                                    Utils.RunTaskScheduler(@"Run", "explorer.exe", this.config.updateDownloadUrl());
+                                    switch (this.config.isUpdateNewer()) { 
+                                        case true:
+                                            this.showInfoOnMonitors("Activating update", true, true);
+                                            if (File.Exists(updateFilename) && Utils.VerifyMD5(updateFilename, this.config.updateFileMD5())) {
+                                                // Keep call to explorer.exe otherwise update won't start!
+                                                Utils.RunTaskScheduler(@"Run", "explorer.exe", updateFilename);
+                                            } else {
+                                                Utils.RunTaskScheduler(@"Run", "explorer.exe", this.config.updateDownloadUrl());
+                                            }
+                                            this.OnExit();
+                                        break;
+                                        case false:
+                                            this.showAllUpToDate();
+                                        break;
+                                        case null:
+                                        break;
+                                    }
                                 }
-                                this.OnExit();
                             }
                         break;
                         case Keys.W:

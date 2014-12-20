@@ -776,6 +776,17 @@ namespace RPS {
             }
         }
 
+        public bool? isUpdateNewer() {
+            if (this.webUpdateCheck.Document != null) {
+                HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
+                if (he != null) {
+                    Version update = new Version(he.GetAttribute("data-version"));
+                    return (this.screensaver.version.CompareTo(update) < 0);
+                }
+            }
+            return null;
+        }
+
         public string updateFilename() {
             if (this.webUpdateCheck.Document != null) {
                 HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
@@ -854,14 +865,14 @@ namespace RPS {
             }
             if (this.getPersistantString("checkUpdates") == "yes") this.installUpdate();
             else {
-                string clickOrKey = "Press 'U' key to update";
-                if (this.getPersistant("mouseSensitivity") == "none" || this.screensaver.action == Screensaver.Actions.Config) clickOrKey = "Click to install now";
-                this.screensaver.showUpdateInfo("RPS " + he.GetAttribute("data-version") + " downloaded<br/><a class='exit external' target='_blank' href='file://" + updatePath + "'>" + clickOrKey + "</a>.");
+                string message = "RPS " + he.GetAttribute("data-version") + " downloaded<br/><a class='exit external' target='_blank' href='file://" + updatePath + "'>";
+                if (this.getPersistant("mouseSensitivity") == "none" || this.screensaver.action == Screensaver.Actions.Config) {
+                    message += "Click to install now</a>";
+                } else {
+                    message += "Press 'U' key to update</a><div class='small'>(Ctrl + U to ignores this update)</div>";
+                }
+                this.screensaver.showUpdateInfo(message);
             }
-        }
-
-        private void notifyUpdateAvailable() {
-
         }
 
         public void showUpdateInfo(string info) {
@@ -878,13 +889,36 @@ namespace RPS {
             return new Uri(Constants.UpdateCheckURL + param);
         }
 
+        public string getUpdateVersion() {
+            if (this.webUpdateCheck.Url.Equals(this.getUpdateUri())) {
+                HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
+                return he.GetAttribute("data-version");
+            }
+            return null;
+        }
+
         
         private void webUpdateCheck_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
             if (this.webUpdateCheck.Url.Equals(this.getUpdateUri())) {
                 HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
                 if (he != null) {
+                    Version ignore = null;
+                    Version compareTo = this.screensaver.version;
                     Version update = new Version(he.GetAttribute("data-version"));
-                    this.newVersionAvailable = (this.screensaver.version.CompareTo(update) < 0);
+                    if (this.getPersistantBool("ignoreUpdate")) {
+                        try {
+                            ignore = new Version(this.getPersistantString("ignoreVersion"));
+                        } catch (Exception) { }
+                        if (ignore != null && compareTo.CompareTo(ignore) < 0) {
+                            compareTo = ignore;
+                        }
+                    }
+                    if (!this.getPersistantBool("betaVersion")) {
+                        // Revision number = 0 for alpha release, 
+                        // Revision number != 0 indicates beta / release candidate version
+                        update = new Version(update.Major, update.Minor, update.Build);
+                    }
+                    this.newVersionAvailable = (compareTo.CompareTo(update) < 0);
 
                     if (this.newVersionAvailable) {
                         if (this.downloadUpdates) {
@@ -904,6 +938,8 @@ namespace RPS {
                         } else {
                             this.showUpdateInfo("Update available<br/><a href='" + he.GetAttribute("href") + "'>Download RPS " + he.GetAttribute("data-version-text") + "</a>");
                         }
+                    } else if (this.screensaver.showUpdateStatus) {
+                        this.screensaver.showAllUpToDate();
                     }
                 }
             }

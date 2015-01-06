@@ -288,6 +288,13 @@ namespace RPS {
 
         }
 
+        public string jsonAllPersistant() {
+            if (this.persistant != null) {
+                return JsonConvert.SerializeObject(this.persistant, Newtonsoft.Json.Formatting.Indented);
+            }
+            return null;
+        }
+
         public void safePersistantConfig() {
             if (this.persistant != null) {
                 this.persistant["effects"] = JsonConvert.SerializeObject(this.effects);

@@ -300,7 +300,8 @@ function settingChanged(object) {
 	//beep();
 	switch($(object).attr("type")) {
 		case "checkbox":
-			value = object.checked;
+			// Set to numeric value (international version translate True and False)
+			if (object.checked) value = 1; else value = 0;
 		break;
 		case "radio":
 			id = object.name;

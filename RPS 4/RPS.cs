@@ -448,11 +448,12 @@ namespace RPS {
                         #if (DEBUG)
                         case Keys.F12:
                             this.config.saveDebug();   
-                            string log = "HTML saved";
+                            MessageBox.Show(this.config.jsonAllPersistant());
+                            /*string log = "HTML saved";
                             foreach(string s in this.debugLog) {
                                 log += s + Environment.NewLine;
                             }
-                            MessageBox.Show(log, "Debug log:");
+                            MessageBox.Show(log, "Debug log:");*/
                         break;
                         #endif
                         case Keys.S:

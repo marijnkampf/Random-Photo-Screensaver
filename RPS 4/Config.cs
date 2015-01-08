@@ -49,11 +49,14 @@ namespace RPS {
         //SQLiteConnection connection;
 
         private Screensaver screensaver;
-        //private FolderBrowserDialog folderBrowserDialog1;
 
-        private string folderChanged = null;
-        private string excludedSubfoldersChanged = null;
-        private bool excludeAllSubfolders;
+        private Dictionary<string, object> trackChanges = new Dictionary<string, object>() {
+           {"folders", null},
+           {"excludedSubfolders", null},
+           {"excludeAllSubfolders", null},
+           {"ignoreHiddenFiles", null},
+           {"ignoreHiddenFolders", null}
+        };
 
         public long maxMonitorDimension = 0;
 
@@ -762,18 +765,36 @@ namespace RPS {
             }
         }
 
+        private void setCurrentTrackChanges() {
+            List<string> keys = new List<string>(this.trackChanges.Keys);
+            for (int i = 0; i < keys.Count; i++) {
+                this.trackChanges[keys[i]] = this.getPersistant(keys[i]);
+            }
+        }
+
+        private bool checkTrackChangesChanged() {
+            List<string> keys = new List<string>(this.trackChanges.Keys);
+            for (int i = 0; i < keys.Count; i++) {
+                if (this.trackChanges[keys[i]] != this.getPersistant(keys[i])) return true;
+            }
+            return false;
+        }
+            
+
         private void Config_VisibleChanged(object sender, EventArgs e) {
             if (this.Visible && this.screensaver.action != Screensaver.Actions.Config) {
-                // Showing
-                this.folderChanged = Convert.ToString(this.getPersistant("folders"));
-                this.excludedSubfoldersChanged = Convert.ToString(this.getPersistant("excludedSubfolders"));
-                this.excludeAllSubfolders = this.getPersistantBool("excludeAllSubfolders");
+                this.setCurrentTrackChanges();
             } else if (this.screensaver.action != Screensaver.Actions.Config) {
                 // Hiding
-                if (this.folderChanged != this.getPersistant("folders") || this.excludedSubfoldersChanged != this.getPersistant("excludedSubfolders") || this.excludeAllSubfolders != this.getPersistantBool("excludeAllSubfolders")) {
-                    //this.screensaver.fileNodes.purgeNotMatchingParentFolders(this.getPersistant("folders"));
+                if (this.checkTrackChangesChanged()) {
+                    if (this.trackChanges["ignoreHiddenFiles"] != this.getPersistant("ignoreHiddenFiles") || this.trackChanges["ignoreHiddenFolders"] != this.getPersistant("ignoreHiddenFolders")) {
+                        this.screensaver.showInfoOnMonitors("Emptying Media Database", true, false);
+                        this.screensaver.fileNodes.purgeMediaDatabase();
+                        this.screensaver.showInfoOnMonitors("Media Database Emptied", true, true);
+                    } else {
+                        this.screensaver.showInfoOnMonitors("", true, false);
+                    }
                     this.screensaver.fileNodes.restartBackgroundWorkerImageFolder();
-//                    MessageBox.Show("changed");
                 }
             }
             if (this.Visible) {

@@ -91,6 +91,7 @@
 
 					<div class="set advanced">
 						<h2>Hidden files and folders</h2>
+						<div class="note">Media database will be re-indexed after making changes to hidden files/folders settings.</div>
 						<input type="checkbox" id="ignoreHiddenFiles" checked /> <label for="ignoreHiddenFiles" class="tooltip inline" data-title="Files with system attribute hidden set are not shown.">Ignore hidden files (?)</label><br/>
 						<input type="checkbox" id="ignoreHiddenFolders" checked/> <label for="ignoreHiddenFolders"  class="tooltip inline" data-title="Folders with system attribute hidden set are not shown.">Ignore hidden folders (?)</label>
 					</div>
@@ -328,10 +329,17 @@
 						<label for="wallpaperChangeDaily"><input type="radio" id="wallpaperChangeDaily" name="wallpaperChange" value="daily" />Daily</label>
 						<label for="wallpaperChangeNever"><input type="radio" id="wallpaperChangeNever" name="wallpaperChange" value="never" checked/>Never (Do not change wallaper)</label>
 					</div>
-					<h2>Customisation</h2>
-					<label><input type="text" id="wallpaperBackgroundColour" value="#000000" /> Background colour</label>
-					<label for="wallpaperFilenames"><input type="checkbox" id="wallpaperFilenames" checked /> Include filename(s) on wallpaper</label>
+					<h2>Fit wallpaper</h2>
 					<label for="wallpaperStretchSmall"><input type="checkbox" id="wallpaperStretchSmall"/> Stretch small wallpaper images</label>
+					<div id="wallpaperFitTo" class="inline"><label>Fit images to</label>
+						<label for="wallpaperFitToContain" class="tooltip" data-title="Scale image so it fits entirely on the display (background visible)."><input type="radio" id="wallpaperFitToContain" name="wallpaperFitTo" value="contain" checked /> contain (?)</label>
+						<label for="wallpaperFitToCover" class="tooltip"  data-title="Scale image so that it covers the entiry display (no background visisble).">						<input type="radio" id="wallpaperFitToCover" name="wallpaperFitTo" value="cover"/> cover (?)</label>
+					</div>
+					<h2>Background</h2>
+					<label for="wallpaperBackgroundImage"><input type="checkbox" id="wallpaperBackgroundImage" checked/> Use image as background</label>
+					<label><input type="text" id="wallpaperBackgroundColour" value="#000000" /> Background colour</label>
+					<h2>Customisation</h2>
+					<label for="wallpaperFilenames"><input type="checkbox" id="wallpaperFilenames" checked /> Include filename(s) on wallpaper</label>
 					<div class="set radioGroup">
 						<h2>Wallpaper source</h2>
 						<div id="wallpaperSource" class="radioGroup">

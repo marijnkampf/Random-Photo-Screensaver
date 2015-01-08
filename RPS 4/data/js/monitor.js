@@ -339,9 +339,10 @@ function showImage(source, displayPath, settings) {
 			first = $("#rolodex .card").first();
 			if ($(first.get(0).childNodes[0]).hasClass("video")) {
 				if(typeof first.get(0).childNodes[0].pause === 'function') {
+					//Pausing don't work, video sound is continued mystriously on showImage exit
 					first.get(0).childNodes[0].pause();
+					first.remove();
 				}
-				if ($(first.get(0).childNodes[0]).hasClass("object")) first.remove();
 			}
 			if ($(first.get(0).childNodes[0]).hasClass("object")) {
 				var player = document.getElementById("mediaPlayer");

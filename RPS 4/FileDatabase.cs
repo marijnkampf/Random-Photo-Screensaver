@@ -250,7 +250,22 @@ namespace RPS {
             command.Parameters.AddWithValue("@id", id);
             r += command.ExecuteNonQuery();
             return r;
+        }
 
+        public int purgeMediaDatabase() {
+            if (this.readOnly) return -1;
+
+            SQLiteCommand command;
+            int r = 0;
+            try {
+                command = new SQLiteCommand("DELETE FROM `FileNodes`; VACUUM;", this.dbConnector.connection);
+                command.ExecuteNonQuery();
+                command = new SQLiteCommand("DELETE FROM `Metadata`; VACUUM;", this.metaDataDbConnector.connection);
+                command.ExecuteNonQuery();
+            } catch (Exception e) {
+                Debug.WriteLine("Failed to empty media database " + e.Message);
+            }
+            return r;
         }
 
         public int purgeMetadata() {
@@ -295,6 +310,23 @@ namespace RPS {
             command = new SQLiteCommand("DELETE FROM `FileNodes` " + where + ";", this.dbConnector.connection);
             Debug.WriteLine(command.CommandText);
             r += command.ExecuteNonQuery();
+            return r;
+        }
+
+        public int purgeMatchingParentPaths(string fullpath) {
+            if (this.readOnly) return -1;
+
+            Debug.WriteLine(this.nrImagesInDB());
+
+            string where = "WHERE parentpath LIKE \"" + fullpath + "%\"";
+            SQLiteCommand command;
+            int r = 0;
+            command = new SQLiteCommand("DELETE FROM `FileNodes` " + where + ";", this.dbConnector.connection);
+            Debug.WriteLine(command.CommandText);
+            r += command.ExecuteNonQuery();
+
+            Debug.WriteLine(this.nrImagesInDB());
+            
             return r;
         }
 

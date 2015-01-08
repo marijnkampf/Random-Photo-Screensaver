@@ -130,7 +130,9 @@ namespace RPS {
 
                 folders[0] = folders[0].Trim();
 
-                if (Directory.Exists(folders[0])) {
+                if (!Directory.Exists(folders[0])) {
+                    this.fileDatabase.purgeMatchingParentPaths(folders[0]);
+                } else {
                     this.nrFolders++;
                     //HtmlElement he;
                     string allowedExtensions;
@@ -208,7 +210,7 @@ namespace RPS {
                             if ((i % 100 == 0) && (this.bwCancelled() == true)) break;
                         }
                     }
-                }
+                } 
                 folders.RemoveAt(0);
             }
         }
@@ -445,6 +447,10 @@ namespace RPS {
 
         public int purgeNotMatchingParentFolders(List<string> folders) {
             return this.fileDatabase.purgeNotMatchingParentFolders(folders, this.screensaver.config.getPersistantBool("excludeAllSubfolders"), Utils.stringToList(this.screensaver.config.getPersistantString("excludedSubfolders")));
+        }
+
+        public int purgeMediaDatabase() {
+            return this.fileDatabase.purgeMediaDatabase();
         }
 /*
         public void addIdToMetadataQueue(long monitorId, DataRow image) {

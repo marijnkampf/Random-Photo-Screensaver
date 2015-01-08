@@ -5,6 +5,8 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Data;
 //using System.Windows.Media;
 using System.IO;
@@ -116,6 +118,7 @@ namespace RPS {
                         string path = paths[i];
                         // Panorama
                         Rectangle bounds;
+                        Rectangle backgroundBounds;
                         if (i == 0 && this.screensaver.config.getPersistantBool("stretchPanoramas") && imgRatio >= this.screensaver.desktopRatio) {
                             // ToDo: Stretch wallpaper parts to fit monitor(s)
                             bounds = this.screensaver.Desktop;
@@ -127,7 +130,26 @@ namespace RPS {
                         g.FillRectangle(fill, bounds);
                         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                         g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g.DrawImage(image, Constants.FitIntoBounds(Rectangle.Round(image.GetBounds(ref units)), bounds, this.screensaver.config.getPersistantBool("wallpaperStretchSmall"), this.screensaver.config.getPersistantString("fitTo") == "cover"));
+
+                        // Draw faded background image or covered front image
+                        if (this.screensaver.config.getPersistantBool("wallpaperBackgroundImage") || this.screensaver.config.getPersistantString("wallpaperFitTo") == "cover") {
+                            ColorMatrix colorMatrix = new ColorMatrix();
+                            if (this.screensaver.config.getPersistantString("wallpaperFitTo") == "cover") colorMatrix.Matrix33 = (float)1;
+                            else colorMatrix.Matrix33 = (float)0.5;
+                            ImageAttributes imageAttributes = new ImageAttributes();
+                            imageAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+
+                            // Get scaled union of screen and image
+                            Rectangle source = Constants.FitIntoBounds(bounds, Rectangle.Round(image.GetBounds(ref units)), true, false);
+                            Point[] dest = {bounds.Location, new Point(bounds.Right, bounds.Top), new Point(bounds.Left, bounds.Bottom)};
+                            g.DrawImage(image, dest, source, GraphicsUnit.Pixel, imageAttributes, null);
+                        }
+
+                        // Draw font image only if not full cover
+                        if (this.screensaver.config.getPersistantString("wallpaperFitTo") != "cover") {
+                            g.DrawImage(image, Constants.FitIntoBounds(Rectangle.Round(image.GetBounds(ref units)), bounds, this.screensaver.config.getPersistantBool("wallpaperStretchSmall"), this.screensaver.config.getPersistantString("wallpaperFitTo") == "cover"), 0, 0, image.Width, image.Height, GraphicsUnit.Pixel);
+                        }
+                        
                         if (this.screensaver.config.getPersistantBool("wallpaperFilenames")) {
                             // ToDo: Get font settings from config.html
                             Font font = new Font("Arial", 10);

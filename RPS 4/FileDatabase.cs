@@ -202,7 +202,9 @@ namespace RPS {
                     if (dr != null) {
                         if (offset < 0) offset += Convert.ToInt32(dr[0])+1;
                         else offset -= Convert.ToInt32(dr[0])+1;
-                        offset = offset % this.nrImagesFilter();                        
+                        if (this.nrImagesFilter() > 0) {
+                            offset = offset % this.nrImagesFilter();
+                        }
                         dr = getFirstImage(sortByColumn, sortByDirection, offset);
                     }
                 }

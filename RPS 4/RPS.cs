@@ -536,6 +536,25 @@ namespace RPS {
                                 }
                             }
                         break;
+                        case Keys.H:
+                            for (int i = 0; i < this.monitors.Length; i++) {
+                                if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
+                                    if (this.monitors[i].imagePath() != null) {
+                                        FileAttributes attributes = File.GetAttributes(this.monitors[i].imagePath());
+                                        if ((attributes & FileAttributes.Hidden) == FileAttributes.Hidden) {
+                                            attributes = attributes & ~FileAttributes.Hidden;
+                                            this.monitors[i].showInfoOnMonitor("Showing image<br/>(Hidden file attribute cleared)", false, true);
+                                        } else {
+                                            attributes = attributes | FileAttributes.Hidden;
+                                            this.monitors[i].showInfoOnMonitor("Hiding image<br/>(Hidden file attribute set and removed from DB)", false, true);
+                                            this.fileNodes.deleteFromDB(this.monitors[i].imagePath());
+                                        }
+                                        File.SetAttributes(this.monitors[i].imagePath(), attributes);
+                                    }
+                                }
+                            }
+                            if (Convert.ToBoolean(this.config.getPersistantBool("closeAfterImageLocate"))) this.OnExit();
+                        break;
                         case Keys.I:
                             for (int i = 0; i < this.monitors.Length; i++) {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
@@ -544,8 +563,6 @@ namespace RPS {
                             }
                         break;
                         case Keys.M:
-                            this.showInfoOnMonitors("ToDo: Implement Metadata form");
-                        break;
                         case Keys.N:
                             for (int i = 0; i < this.monitors.Length; i++) {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
@@ -696,7 +713,7 @@ namespace RPS {
                             for (int i = 0; i < this.monitors.Length; i++) {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                                     this.monitors[i].timer.Stop();
-                                    this.monitors[i].offsetImage(1);
+                                    this.monitors[i].offsetImage(this.getStep(e));
                                     this.monitors[i].showImage(this.config.getPersistantBool("useTransitionsOnInput"));
                                     this.monitors[i].showInfoOnMonitor("v (" + this.monitors[i].offset + ")");
                                     this.monitors[i].startTimer();
@@ -709,7 +726,7 @@ namespace RPS {
                             for (int i = 0; i < this.monitors.Length; i++) {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                                     this.monitors[i].timer.Stop();
-                                    this.monitors[i].offsetImage(-1);
+                                    this.monitors[i].offsetImage(this.getStep(e)*-1);
                                     this.monitors[i].showImage(this.config.getPersistantBool("useTransitionsOnInput"));
                                     this.monitors[i].showInfoOnMonitor("^ (" + this.monitors[i].offset + ")");
                                     this.monitors[i].startTimer();
@@ -858,7 +875,7 @@ namespace RPS {
                             break;
                     }
                 } else {
-                    this.OnExit();
+                    if (!this.config.getPersistantBool("ignoreMouseClick")) this.OnExit();
                 }
             }
         }

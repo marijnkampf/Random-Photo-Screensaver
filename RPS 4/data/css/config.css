@@ -269,6 +269,15 @@ label {
 	display: block;
 }
 
+.multi span.multiOnly {
+	display: inline;
+}
+
+.multi tr.multiOnly {
+	display: table-row;
+}
+
+
 .lowIEWarning {
 	display: none;
 }
@@ -370,3 +379,24 @@ label {
 	width: 5em;
 	border:none;
 }
+
+/*** Start shortcut Keys ***/
+#shortcuts tr td {
+	text-align: center;
+}
+
+#shortcuts tr td:nth-child(4), #shortcuts tr th:nth-child(4) {
+	padding-left: 2em;
+	text-align: left;
+}
+
+#shortcuts tr td:nth-child(3), #shortcuts tr th:nth-child(3) {
+	color: #777777;
+}
+
+#shortcuts td.header {
+	padding-top: 1em;
+	font-weight: bold !important;
+	text-align: left !important;
+}
+/*** End shortcut Keys ***/

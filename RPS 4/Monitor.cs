@@ -607,7 +607,7 @@ namespace RPS {
                     this.historyPointer += step;
                     if (this.historyPointer < this.history.Count()) {
                         this.currentImage = this.screensaver.fileNodes.getImageById(this.history[this.historyPointer], this.offset);
-                        this.seedImageId = Convert.ToInt32(this.currentImage["id"]);
+                        if (this.currentImage != null) this.seedImageId = Convert.ToInt32(this.currentImage["id"]);
                     } else {
                         this.historyPointer = this.history.Count();
                         this.currentImage = this.screensaver.fileNodes.getRandomImage();

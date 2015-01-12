@@ -80,8 +80,12 @@ namespace RPS {
 
         public void exifToolWorkerStarted() {
             if (this.exifToolWorker == null) {
-                this.exifToolWorker = new ExifTool.Wrapper(Convert.ToString(this.config.getPersistant("exifTool")));
-                this.exifToolWorker.Starter();
+                try {
+                    this.exifToolWorker = new ExifTool.Wrapper(Convert.ToString(this.config.getPersistant("exifTool")));
+                    this.exifToolWorker.Starter();
+                } catch (Exception e) {
+                    this.screensaver.showInfoOnMonitors(e.Message, true, true);
+                }
             }
         }
 
@@ -242,23 +246,11 @@ namespace RPS {
                 if (this.bwCancelled() == true) return;
                 if (i % 50 == 0) this.fileDatabase.toggleMetadataTransaction(this.bwCancelled());
                 this.exifToolWorkerStarted();
-                meta = this.exifToolWorker.SendCommand(Convert.ToString(dr["path"]) + Constants.ExifToolMetadataOptions);
-                /*              // Alternative using exiv2, slightly (10% - 15%) quicker but output needs more processing (not tab deliminated)
-                                Process proc = new Process {
-                                    StartInfo = new ProcessStartInfo {
-                                        FileName = @"D:\programming\vc#\RPS 4\RPS 4\vendor\exiv2_32.exe",
-                                        Arguments = "-PEIXkvt \"" + Convert.ToString(dr["path"]) + "\"",
-                                        UseShellExecute = false,
-                                        RedirectStandardOutput = true,
-                                        CreateNoWindow = true
-                                    }
-                                };
-                                proc.Start();
-                                string meta = proc.StandardOutput.ReadToEnd();
-                                proc.WaitForExit();
-                */
-                if (this.bwCancelled() == true) return;
-                this.fileDatabase.addMetadataToDB(Convert.ToInt32(dr["id"]), meta);
+                if (this.exifToolWorker != null) {
+                    meta = this.exifToolWorker.SendCommand(Convert.ToString(dr["path"]) + Constants.ExifToolMetadataOptions);
+                    if (this.bwCancelled() == true) return;
+                    this.fileDatabase.addMetadataToDB(Convert.ToInt32(dr["id"]), meta);
+                }
                 if (!this.fileDatabase.readOnly) {
                     this.nrUnprocessedMetadata--;
                     if (this.bwCancelled() == true) return;

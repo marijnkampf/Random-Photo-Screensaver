@@ -305,14 +305,15 @@ function showImage(source, displayPath, settings) {
 			html += 'class="image front ' + mainClasses +'media" src="file://' + source + '"/>';
 		break;
 		case "video":
-			html = '<video class="video media" src="' + source + '" onerror="useBackupVideoSolution()" autoplay';
+			if (settings.stretchSmallVideos) stretch = " stretch";
+			html = '<video class="video media' + stretch + '" src="' + source + '" onerror="useBackupVideoSolution()" autoplay';
 			if (settings.loop) html += ' loop';
 			if (settings.mute) html += ' muted';
 			if (settings.showcontrols) html += ' controls';
 			html += '></video>';
 			// ToDo fix video effects in jQuery UI
 			//if (settings.effect != undefined && settings.effect.length > 0) settings.effect = '{"effect":"fade", "duration":1000}';
-			if (settings.stretchSmallVideos) stretch = true;
+
 		break;
 		case "object":
 			html = getVideoObjectElement(source, settings);

@@ -156,7 +156,8 @@ namespace ExifTool
 
         public void Stop()
         {
-            //if (Status == Statuses.Stopped) return;
+            // Uncommented 12/01/2015 to avoid error onexit when exiftool.exe not found
+            if (Status == Statuses.Stopped) return;
             if(Status != Statuses.Ready)
                 throw new InvalidOperationException("Process must be ready");
 

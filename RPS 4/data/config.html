@@ -18,7 +18,7 @@
 	<script src="js/config.js"></script>
 	<link rel="stylesheet" href="css/config.css"/>
 </head>
-<body>
+<body class="">
 	<div id="waiting"></div>
 	<div id="donation"><a class="hideMessage" href="#">[X]</a>
 		<a id="donate" class="linkButton external" href="http://www.abscreensavers.com/random-photo-screensaver/donation?source=RPS4">Donate</a>
@@ -225,6 +225,7 @@
 						<label for="showControls"><input type="checkbox" id="showControls" checked /> Show controls</label>
 						<label for="videosLoop"><input type="checkbox" id="videosLoop" checked /> Loop videos</label>
 						<label for="videosMute"><input type="checkbox" id="videosMute" checked /> Mute videos</label>
+						<div class="note"><!--a href=";tabInput;ignoreMouseClick"-->Enable 'Ignore mouse clicks' in 'Keyboard and mouse' tab to allow control of videos<!--/a--></div>
 						<div class="keywords">videos movies films</div>
 						<div class="clear"></div>
 					</div>
@@ -412,6 +413,7 @@
 						</div>
 					</div>
 					<div class="clear"></div>
+					<div class="line"><input type="checkbox" id="ignoreMouseClick" /> <label for="ignoreMouseClick" class="tooltip">Ignore mouse clicks (allow video control)</label></div>
 					<div class="line"><input type="checkbox" id="browseMouse" /> <label for="browseMouse" class="tooltip" data-title="Left button: next; Right button: previous.">Use mouse to browse (?)</label></div>
 				</li>
 
@@ -437,7 +439,62 @@
 
 				<li class="set" id="tabShortcuts">
 					<h1>Shortcut keys</h1>
-					<p>ToDo add shortcut descriptions</p>
+					<table id="shortcuts">
+						<thead>
+							<tr><th>Group</th><th>Key</th><th>[Alternative]</th><th>Function</th></tr>
+						</thead>
+						<tbody>
+<tr><td class='header' colspan='4'>General</td></tr>
+	<tr><td></td><td>Escape</td><td></td><td>Exit screensaver</td></tr>
+	<tr><td></td><td>S</td><td></td><td>Show settings screen</td></tr>
+	<tr><td></td><td>A/B</td><td></td><td>Open <a class="external" href="http://www.abscreensavers.com">www.abscreensavers.com</a> in browser</td></tr>
+	<tr><td></td><td></td><td></td><td></td></tr>
+<tr><td class='header' colspan='4'>Slideshow</td></tr>
+	<tr><td></td><td>&uarr;</td><td>Numpad 8</td><td>Next sequential image</td></tr>
+	<tr><td></td><td>&darr;</td><td>Numpad 2</td><td>Previous sequential image</td></tr>
+	<tr><td></td><td>&rarr;</td><td>Numpad 6</td><td>Next random image</td></tr>
+	<tr><td></td><td>&larr;</td><td>Numpad 4</td><td>Previous random image</td></tr>
+	<tr><td></td><td>Shift + &uarr;/&darr;/&larr;/&rarr;</td><td></td><td>Jump 5 files</td></tr>
+	<tr><td></td><td>Control + &uarr;/&darr;/&larr;/&rarr;</td><td></td><td>Jump 25 files</td></tr>
+	<tr><td></td><td>Alt + &uarr;/&darr;/&larr;/&rarr;</td><td></td><td>Jump 100 files</td></tr>
+	<tr><td></td><td></td><td></td><td></td></tr>
+	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>P</td><td></td><td>Pause/resume slideshow</td></tr>
+	<tr><td></td><td>R</td><td>NumPad 1</td><td>Switch between random and sequential order</td></tr>
+	<tr><td></td><td></td><td></td><td></td></tr>
+<tr><td class='header' colspan='4'>Actions</td></tr>
+	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>C</td><td></td><td>Copy path<span class="multiOnly">(s)</span> of current media to clipboard</td></tr>
+	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>E</td><td></td><td>Open windows explorer window<span class="multiOnly">(s)</span> with current media selected</td></tr>
+	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>Cltr+E</td><td></td><td>Open current media in external editor (if specified)</td></tr>
+	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>H</td><td></td><td>Set/clear hidden file attribute to media</td></tr>
+	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>Delete</td><td></td><td>Place media in recycling bin</td></tr>
+	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>W</td><td></td><td>Set current image<span class="multiOnly">(s)</span> as wallpaper</td></tr>
+<tr><td class='header' colspan='4'>Rotate image</td></tr>
+	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>[</td><td></td><td>Rotate image 270° clock wise</td></tr>
+	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>]</td><td></td><td>Rotate image 90° clock wise</td></tr>
+	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>+</td><td></td><td>Rotate image 180°</td></tr>
+	<tr><td></td><td></td><td></td><td></td></tr>
+<tr><td class='header' colspan='4'>Display</td></tr>
+	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>F</td><td>NumPad 7</td><td>Switch filename<span class="multiOnly">(s)</span> on/off</td></tr>
+	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>I</td><td></td><td>Show selected monitor<span class="multiOnly">(s)</span></td></tr>
+	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>N/M</td><td></td><td>Switch quick metadata on/off</td></tr>
+	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>T</td><td>NumPad 5</td><td>Switch between current time, screensaver running time and no clock</td></tr>
+	<tr><td></td><td></td><td></td><td></td></tr>
+<tr><td class='header' colspan='4'>Updates</td></tr>
+	<tr><td></td><td>U</td><td></td><td>Check for updates/install update</td></tr>
+	<tr><td></td><td>Cltr+U</td><td></td><td>Ignore current update</td></tr>
+	<tr><td></td><td>X</td><td></td><td>Hide update info</td></tr>
+	<tr><td></td><td></td><td></td><td></td></tr>
+<tr class='multiMonitor multiOnly'><td class='header' colspan='4'>Multi monitor</td></tr>
+	<tr class='multiMonitor multiOnly'><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>0</td><td></td><td>Apply settings to all monitors</td></tr>
+	<tr class='multiMonitor multiOnly'><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>1...9</td><td></td><td>Select monitor 1 - 9</td></tr>
+	<tr><td></td><td></td><td></td><td></td></tr>
+<tr><td class='header' colspan='4'>Debug</td></tr>
+	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>F12</td><td></td><td>Save debug information for monitor<span class="multiOnly">(s)</span> to file</td></tr>
+
+						</tbody>
+					</table>
+					<div class="keywords">keyboard shortcut keys</div>
+					<div class="clear"></div>
 				</li>
 
 				<li class="set external" id="tabCredits">
@@ -520,61 +577,6 @@
 
 
 		<h3><div class="button" id="save" title="Setting are either applied instantly or when you close the config window. They are automatically saved when you exit the screensaver.">Save</div></h3>
-
-		<!--div class="set">
-			<h2 class="underline">Keys</h2>
-			<table>
-				<thead>
-					<tr>
-						<th>Key</th>
-						<th>[Alternative]</th>
-						<th>Function</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<th colspan="3">Navigate in order</th>
-					</tr>
-					<tr>
-						<th>Numpad 8</th>
-						<th>[Up Arrow]</th>
-						<th>Next image</th>
-					</tr>
-					<tr>
-						<th>Numpad 2</th>
-						<th>[Down Arrow]</th>
-						<th>Previous image</th>
-					</tr>
-					<tr>
-						<th>Numpad 6</th>
-						<th>[Right Arrow]</th>
-						<th>Next image</th>
-					</tr>
-					<tr>
-						<th>Numpad 4</th>
-						<th>[Left Arrow]</th>
-						<th>Previous image</th>
-					</tr>
-					<tr>
-						<th></th>
-						<th></th>
-						<th></th>
-					</tr>
-					<tr>
-						<th></th>
-						<th></th>
-						<th></th>
-					</tr>
-					<tr>
-						<th></th>
-						<th></th>
-						<th></th>
-					</tr>
-				</tbody>
-			</table>
-			<div class="keywords">keyboard shortcut keys</div>
-			<div class="clear"></div>
-		</div-->
 
 		<input id="sequentialStartImageId" type="hidden"/>
 		<input id="randomStartImages" type="hidden"/>

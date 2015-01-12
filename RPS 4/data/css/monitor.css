@@ -28,6 +28,11 @@ embed {
 	height: 100%;
 }
 
+video.stretch {
+	width: 100%;
+	height: 100%;
+}
+
 .background {
 	opacity: 0.5;
 }

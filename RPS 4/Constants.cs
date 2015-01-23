@@ -48,13 +48,13 @@ namespace RPS {
             "FileNodes",
             new Dictionary<string, ColumnInfo> {
                 {"id",              new ColumnInfo("INTEGER PRIMARY KEY AUTOINCREMENT", true, true) },
-                {"path",            new ColumnInfo("TEXT UNIQUE", true, true)},
-                {"parentpath",      new ColumnInfo("TEXT", true)},
-                {"filename",        new ColumnInfo("TEXT", true)},
-                {"created",         new ColumnInfo("DATETIME", true)},
-                {"modified",        new ColumnInfo("DATETIME", true)},
-                {"size",            new ColumnInfo("INTEGER", true)},
-                {"metainfoindexed", new ColumnInfo( "INTEGER DEFAULT 0")}
+                {"path",            new ColumnInfo("TEXT UNIQUE", new FilterInfo("paths", true, FilterInfo.VarType.text), true, true)},
+                {"parentpath",      new ColumnInfo("TEXT", new FilterInfo("parent paths", true, FilterInfo.VarType.text), true)},
+                {"filename",        new ColumnInfo("TEXT", new FilterInfo("filenames", true, FilterInfo.VarType.text), true)},
+                {"created",         new ColumnInfo("DATETIME", new FilterInfo("created date", true, FilterInfo.VarType.date), true)},
+                {"modified",        new ColumnInfo("DATETIME", new FilterInfo("modified date", true, FilterInfo.VarType.date), true)},
+                {"size",            new ColumnInfo("INTEGER", new FilterInfo("size", true, FilterInfo.VarType.numeral), true)},
+                {"metainfoindexed", new ColumnInfo( "INTEGER DEFAULT 0", false, false)}
             }
         );
 
@@ -103,11 +103,11 @@ CREATE TABLE `Metadata` (
         public static DBTableDefinition MetadataDefinition = new DBTableDefinition(
             "Metadata",
             new Dictionary<string, ColumnInfo> {
-                {"id",              new ColumnInfo("INTEGER PRIMARY KEY") },
-                {"all",             new ColumnInfo("TEXT")},
-                {"width",           new ColumnInfo("TEXT")},
-                {"height",          new ColumnInfo("TEXT")},
-                {"area",            new ColumnInfo("DATETIME")},
+                {"id",              new ColumnInfo("INTEGER PRIMARY KEY", false, false) },
+                {"all",             new ColumnInfo("TEXT", new FilterInfo("metadata", true, FilterInfo.VarType.text))},
+                {"width",           new ColumnInfo("TEXT", new FilterInfo("width", true, FilterInfo.VarType.numeral))},
+                {"height",          new ColumnInfo("TEXT", new FilterInfo("height", true, FilterInfo.VarType.numeral))},
+                {"area",            new ColumnInfo("DATETIME", new FilterInfo("area", true, FilterInfo.VarType.numeral))},
             }
         );
 

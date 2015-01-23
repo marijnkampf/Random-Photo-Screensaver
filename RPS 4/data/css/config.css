@@ -297,11 +297,11 @@ label {
 .lowIE .lowIEWarning {
 	display: block;
 }
-
+/*
 .config #clearFilter, .config #applyFilter {
 	display: none;
 }
-
+*/
 .tooltip{
 		display: inline;
 		position: relative;
@@ -400,3 +400,95 @@ label {
 	text-align: left !important;
 }
 /*** End shortcut Keys ***/
+
+/*** Begin filters ***/
+/*#filter,*/ #filterNrLines, .currentFilter {
+	display: none;
+}
+
+.line {
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	overflow: auto;
+	padding: 10px 0 10px 10px;
+	background-color: #efefef;
+}
+
+.connect {
+	margin: -2px 0px -2px 90px;
+	background-color: #efefef;
+	color: #000;
+	font-size: 1.1em;
+	font-weight: bold;
+	padding: 0px 2em 0px 1em;
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	float: left;
+}
+
+.connect label, .connect label input {
+	clear: none;
+	float: left;
+}
+
+#add_filter a {
+	margin-left: 85px;
+}
+
+.filterLines {
+	margin: 1em 0;
+}
+
+.filterLines select, .filterLines input[type=text] {
+	padding: 0.25em 0.5em;
+	margin: 0 0.5em;
+	line-height: 1.5;
+}	
+
+.filterLines a {
+
+}
+
+.filterLines option {
+	font-size: 1.25em;
+}
+
+.value, #filterName {
+	width: 8em;
+}
+
+.isText, .isNumeral {
+	display: none;
+}
+
+.setText .isText, .setNumeral .isNumeral {
+	display: inline;
+}
+
+.columns {
+	background: #811788;
+	color: white;
+}
+
+.filter .actions {
+	float: right;
+}
+
+.filter .name {
+	float: left;
+	width: 15%;
+}
+
+.filter .content, .filter .sql {
+	margin-left: 17%;
+}
+
+.filter.heading {
+	font-weight: bold;
+}
+
+.filter {
+	clear: both;
+}
+
+/*** End filters ***/

@@ -14,6 +14,7 @@ using System.IO;
 using System.Data.SQLite;
 //using System.Data.SQLite.Linq;
 using System.Data.Linq;
+using System.Linq;
 using System.Data.Linq.Mapping;
 using System.Collections;
 //using System.DirectoryServices;
@@ -140,6 +141,10 @@ namespace RPS {
             return null;
         }
 
+        public void jsInputChanged(string id, string value) {
+            this.setPersistant(id, value, false);
+        }
+
         public void jsSetSelectedEffects(string jsonEffects) {
             this.effects = JsonConvert.DeserializeObject<jsonFolder>(jsonEffects);
             this.persistant["effects"] = jsonEffects;
@@ -151,6 +156,18 @@ namespace RPS {
 
         public string jsGetSelectedEffects() {
             return JsonConvert.SerializeObject(this.effects);
+        }
+
+        public string jsGetFilters() {
+            return this.getPersistantString("filters");
+        }
+
+        public string jsGetFilterColumns() {
+            Dictionary<string, ColumnInfo> columns;
+            columns = Constants.FileNodesDefinition.columns.Union(Constants.MetadataDefinition.columns)
+                .ToLookup(pair => pair.Key, pair => pair.Value)
+                .ToDictionary(group => group.Key, group => group.First());
+            return JsonConvert.SerializeObject(columns/*, Newtonsoft.Json.Formatting.Indented*/);
         }
 
         public void setBrowserBodyClasses(WebBrowser browser, Screensaver.Actions action) {
@@ -183,7 +200,6 @@ namespace RPS {
                 this.screensaver.debugLog.Add("loadPersistantConfig(" + nrMonitors + ")");
             #endif
 
-            this.browser.Document.InvokeScript("initMonitors", new string[] { Convert.ToString(Screen.AllScreens.Length) });
             //SQLiteConnection connection = 
             this.connectToDB();
             this.persistant = new Dictionary<string, object>();
@@ -193,6 +209,10 @@ namespace RPS {
             foreach(Setting item in items) {
                 this.persistant.Add(item.Key, item.Value);
             }
+            if (!this.persistant.ContainsKey("filterNrLines")) this.persistant["filterNrLines"] = 0;
+            //this.browser.Document.InvokeScript("initMonitorsAndFilterCount", new string[] { Convert.ToString(Screen.AllScreens.Length), Convert.ToString(this.persistant["filterNrLines"]) });
+            this.browser.Document.InvokeScript("initMonitors", new string[] { Convert.ToString(Screen.AllScreens.Length) });
+            
             if (!this.persistant.ContainsKey("folders") || this.persistant["folders"] == null || this.getPersistantString("folders").Trim().Length == 0) { 
                 string path = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) + Environment.NewLine + 
                                                         Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
@@ -279,7 +299,16 @@ namespace RPS {
                 }
             }
 
-            string classes= null;
+            hec = this.browser.Document.GetElementsByTagName("select");
+            foreach (HtmlElement e in hec) {
+                if (this.persistant.ContainsKey(e.GetAttribute("id"))) {
+                    e.SetAttribute("value", Convert.ToString(this.persistant[e.GetAttribute("id")]));
+                } else {
+                    this.persistant[e.GetAttribute("id")] = this.getDomValue(e.GetAttribute("id"));
+                }
+            }
+
+            string classes = null;
             if (nrMonitors > 1) classes += " multi ";
             Config.setBrowserBodyClasses(this.browser, this.screensaver.action, classes);
 
@@ -298,9 +327,10 @@ namespace RPS {
             return null;
         }
 
-        public void safePersistantConfig() {
+        public void savePersistantConfig() {
             if (this.persistant != null) {
                 this.persistant["effects"] = JsonConvert.SerializeObject(this.effects);
+                this.persistant["filters"] = Convert.ToString(this.browser.Document.InvokeScript("getJsonFilters"));
                 if (this.screensaver.action != Screensaver.Actions.Config) {
                     for (int i = 0; i < this.screensaver.monitors.Length; i++) {
                         this.persistant["historyM" + Convert.ToString(i)] = JsonConvert.SerializeObject(this.screensaver.monitors[i].historyLastEntries(Convert.ToInt32(this.getPersistant("rememberLast"))));
@@ -535,10 +565,6 @@ namespace RPS {
             return json;
         }
 
-        public void InputChanged(string id, string value) {
-            this.setPersistant(id, value, false);
-        }
-
         public string InvokeScriptOnMonitor(int monitor, string script, string parameters) {
             string s = null;
             if (this.screensaver.monitors != null) for (int i = 0; i < this.screensaver.monitors.Length; i++) {
@@ -732,7 +758,7 @@ namespace RPS {
         
         public void Config_FormClosing(object sender, FormClosingEventArgs e) {
             if (screensaver.action == Screensaver.Actions.Config) {
-                this.safePersistantConfig();
+                this.savePersistantConfig();
                 Application.Exit();
             } else if (!this.screensaver.applicationClosing) {
                 if (!this.syncMonitors()) {

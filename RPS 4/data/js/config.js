@@ -1,4 +1,349 @@
-// TODO fix error when chaning clock settings in screensaver change menu
+var NaturalText = {
+	"contains": "Containing",
+	"begin": "Begining with",
+	"ends": "Ending with",
+	"equals": "Equals",
+	"less": "Less than",
+	"greater": "Greater than",
+	"currentFilter": "~currentFilter~"
+}
+
+// Fix IE 8 issue
+NaturalText[null] = "...";
+
+var Filters = function() {
+	this.filters = [];
+	this.currentFilter = 0;
+	this.editorCount = 0;
+	this.columns = false;
+}
+
+filters = new Filters();
+
+var FilterLine = function (clude, column, match, value, connect) {
+	this.clude = clude; // exclude, include
+	this.column = column;
+	this.match = match; // depends on type
+	this.value = value;
+	this.connect = connect; // and, or
+};
+
+var Filter = function(name, filterLines) {
+	this.name = name;
+	this.filterLines = filterLines;
+}
+
+function initFilters() {
+	var data;
+	if (typeof(window.external.jsGetFilters)=== "undefined") {
+		data = JSON.parse('{"filters":[{"name":"~currentFilter~","filterLines":[{"clude":"include","column":"path","match":"contains","value":"jenni","connect":"and"},{"clude":"exclude","column":"path","match":"contains","value":"marijn","connect":"and"}]},{"name":"Marijn and Jenni","filterLines":[{"clude":"include","column":"path","match":"contains","value":"jenni","connect":"and"},{"clude":"exclude","column":"path","match":"contains","value":"marijn","connect":"and"}]},{"name":"Panoramas","filterLines":[{"clude":"include","column":"filename","match":"contains","value":"pano","connect":"and"}]},{"name":"Small files","filterLines":[{"clude":"include","column":"size","match":"less","value":"100000","connect":"and"}]},{"name":"Wallpaper","filterLines":[{"clude":"include","column":"filename","match":"contains","value":"-","connect":"and"}]}],"currentFilter":0,"editorCount":1,"columns":{"id":{"type":"INTEGER PRIMARY KEY AUTOINCREMENT","filterInfo":{"name":"","searchable":false,"varType":0},"index":true,"unique":true,"searchable":false},"path":{"type":"TEXT UNIQUE","filterInfo":{"name":"paths","searchable":true,"varType":0},"index":true,"unique":true,"searchable":false},"parentpath":{"type":"TEXT","filterInfo":{"name":"parent paths","searchable":true,"varType":0},"index":true,"unique":false,"searchable":false},"filename":{"type":"TEXT","filterInfo":{"name":"filenames","searchable":true,"varType":0},"index":true,"unique":false,"searchable":false},"created":{"type":"DATETIME","filterInfo":{"name":"created date","searchable":true,"varType":2},"index":true,"unique":false,"searchable":false},"modified":{"type":"DATETIME","filterInfo":{"name":"modified date","searchable":true,"varType":2},"index":true,"unique":false,"searchable":false},"size":{"type":"INTEGER","filterInfo":{"name":"size","searchable":true,"varType":1},"index":true,"unique":false,"searchable":false},"metainfoindexed":{"type":"INTEGER DEFAULT 0","filterInfo":{"name":"","searchable":false,"varType":0},"index":false,"unique":false,"searchable":false},"all":{"type":"TEXT","filterInfo":{"name":"metadata","searchable":true,"varType":0},"index":false,"unique":false,"searchable":false},"width":{"type":"TEXT","filterInfo":{"name":"width","searchable":true,"varType":1},"index":false,"unique":false,"searchable":false},"height":{"type":"TEXT","filterInfo":{"name":"height","searchable":true,"varType":1},"index":false,"unique":false,"searchable":false},"area":{"type":"DATETIME","filterInfo":{"name":"area","searchable":true,"varType":1},"index":false,"unique":false,"searchable":false}}}');
+	} else {
+		//prompt("json", window.external.jsGetFilters());
+		try {
+			data = JSON.parse(window.external.jsGetFilters());
+		} catch(e) {
+		}
+	}
+	// Create filter object from data
+	try {
+		filters.filters = data.filters;
+		filters.edit(NaturalText.currentFilter);
+		filters.showFilterList();
+	} catch(e) {
+	}
+}
+
+FilterLine.prototype.getEditorValues = function(id) {
+	this.clude = $("#clude_" + id).first().val();
+	this.column = $("#column_" + id).val();
+
+	if ($("#match_text_" + id).is(':visible')) {
+		this.match = $("#match_text_" + id).val();
+	} else {
+		this.match = $("#match_numeral_" + id).val();
+	}
+
+	this.value = $("#value_" + id).val();
+	if ($("#connect_and_" + id).prop('checked')) this.connect = "and";
+	else this.connect = "or";
+	return this;
+}
+
+function getJsonFilters() {
+//	alert(filters.filters.length);
+	filters.saveCurrentFilter(NaturalText.currentFilter);
+	return JSON.stringify(filters);
+}
+
+Filters.prototype.asText = function(filter) {
+	var s = "";
+//	columns =
+	for(var i = 0; i < filter.filterLines.length; i++) {
+		s += filter.filterLines[i].clude + " <strong>" + this.getColumns()[filter.filterLines[i].column].filterInfo.name + "</strong> " + NaturalText[filter.filterLines[i].match].toLowerCase() + " <strong>'" + filter.filterLines[i].value + "'</strong>";
+		if (i < filter.filterLines.length-1) {
+			s += " " + filter.filterLines[i].connect + " ";
+		}
+	}
+	s = s.charAt(0).toUpperCase() + s.substr(1);
+	return s + ".";
+}
+
+Filters.prototype.asSql = function(filter) {
+	var s = "";
+	columns = this.getColumns();
+	for(var i = 0; i < filter.filterLines.length; i++) {
+		filterInfo = columns[filter.filterLines[i].column].filterInfo;
+
+/// ToDo Special selects:
+//
+//	Similar time of year:
+//		Current week across all years:
+//			select * from filenodes where strftime('%W', `modified`) = strftime('%W', 'now')
+//		+/- ## days across all years
+
+// select * from filenodes where not size < 50000
+// select * from filenodes where not path LIKE '%marijn%'
+		//s +=  + "</strong> " + NaturalText[filter.filterLines[i].match].toLowerCase() + " <strong>'" + filter.filterLines[i].value + "'</strong>";
+
+		if (filter.filterLines[i].clude == "exclude") s += " NOT ";
+		s += "`" + filter.filterLines[i].column + "`";
+		//s += " " + filterInfo.varType + " ";
+
+		switch(filterInfo.varType) {
+			case 0:
+				var start = "%";
+				var end = "%";
+				switch(filter.filterLines[i].match) {
+					case "begin": start = ''; break;
+					case "ends": end = ''; break;
+				}
+				// ToDo: Escape filter.filterLines[i].value
+
+				s += " LIKE '" + start + sqlite_escape_string(filter.filterLines[i].value) + end + "' ESCAPE '\\'";
+				//s += " LIKE '" + start + sqlite_escape_string(filter.filterLines[i].value) + end + "'";
+				//s += " LIKE '" + start + filter.filterLines[i].value + end + "'";
+			break;
+			default:
+				var compare;
+				switch(filter.filterLines[i].match) {
+					case "less": compare = "<"; break;
+					case "greater": compare = ">"; break;
+					default: compare = "="; break;
+				}
+				s += " " + compare + " " + filter.filterLines[i].value;
+
+			break;
+		}
+
+		//if (this.getColumns()[filter.filterLines[i].column].filterInfo.
+
+		if (i < filter.filterLines.length-1) {
+			s += " " + filter.filterLines[i].connect.toUpperCase() + " ";
+		}
+	}
+	return s;
+}
+
+Filters.prototype.showFilterList = function() {
+	$("#filters").empty();
+	for(var i = 0; i < filters.filters.length; i++) {
+		var currentFilter = "";
+		if (filters.filters[i].name == NaturalText.currentFilter) currentFilter = " currentFilter";
+		$("#filters")
+			.append($("<div/>").addClass("filter" + currentFilter)
+				.append($("<div/>").addClass("actions").attr("data-name", filters.filters[i].name).html('<a class="selectFilter button" href="#">Select</a> <a class="removeFilter button" title="Remove filter button" href="#">X</a>'))
+				.append($("<div/>").addClass("name").html(filters.filters[i].name))
+				.append($("<div/>").addClass("content").html(this.asText(filters.filters[i])))
+				.append($("<div/>").addClass("sql").html(this.asSql(filters.filters[i])))
+			)
+		;
+		$(".button").button()
+	}
+	$(".selectFilter").click(function() {
+		filters.edit($(this).parent().attr("data-name"));
+		$("#filterName").val($(this).parent().attr("data-name"));
+		settingChanged($("#filterName")[0]);
+	});
+
+	$(".removeFilter").click(function() {
+		filters.remove($(this).parent().attr("data-name"));
+	});
+}
+
+Filters.prototype.getColumns = function() {
+	if (this.columns == false) {
+		if (typeof(window.external.jsGetFilterColumns) !== "undefined") {
+			//prompt("", window.external.jsGetFilterColumns());
+			this.columns = JSON.parse(window.external.jsGetFilterColumns());
+		} else {
+			this.columns = JSON.parse('{"id":{"type":"INTEGER PRIMARY KEY AUTOINCREMENT","filterInfo":{"name":"","searchable":false,"varType":0},"index":true,"unique":true,"searchable":false},"path":{"type":"TEXT UNIQUE","filterInfo":{"name":"paths","searchable":true,"varType":0},"index":true,"unique":true,"searchable":false},"parentpath":{"type":"TEXT","filterInfo":{"name":"parent paths","searchable":true,"varType":0},"index":true,"unique":false,"searchable":false},"filename":{"type":"TEXT","filterInfo":{"name":"filenames","searchable":true,"varType":0},"index":true,"unique":false,"searchable":false},"created":{"type":"DATETIME","filterInfo":{"name":"created date","searchable":true,"varType":2},"index":true,"unique":false,"searchable":false},"modified":{"type":"DATETIME","filterInfo":{"name":"modified date","searchable":true,"varType":2},"index":true,"unique":false,"searchable":false},"size":{"type":"INTEGER","filterInfo":{"name":"size","searchable":true,"varType":1},"index":true,"unique":false,"searchable":false},"metainfoindexed":{"type":"INTEGER DEFAULT 0","filterInfo":{"name":"","searchable":false,"varType":0},"index":false,"unique":false,"searchable":false},"all":{"type":"TEXT","filterInfo":{"name":"metadata","searchable":true,"varType":0},"index":false,"unique":false,"searchable":false},"width":{"type":"TEXT","filterInfo":{"name":"width","searchable":true,"varType":1},"index":false,"unique":false,"searchable":false},"height":{"type":"TEXT","filterInfo":{"name":"height","searchable":true,"varType":1},"index":false,"unique":false,"searchable":false},"area":{"type":"DATETIME","filterInfo":{"name":"area","searchable":true,"varType":1},"index":false,"unique":false,"searchable":false}}');
+		}
+	}
+	return this.columns;
+};
+
+Filters.prototype.add = function(filter) {
+	this.filters.push(filter);
+}
+
+Filters.prototype.findKey = function(name) {
+	for (var i = 0; i < this.filters.length; i++) {
+		if (name == this.filters[i].name) return i;
+	}
+	return undefined;
+}
+
+Filters.prototype.saveCurrentFilter = function(key) {
+	var filterLines = [];
+	for(var i = 1; i <= this.editorCount; i++) {
+		var line = new FilterLine();
+		filterLines.push(line.getEditorValues(i));
+	}
+	var id = filters.findKey(key);
+	if (id == undefined) {
+		filters.add(new Filter(key, filterLines));
+	} else {
+		filters.filters[id] = new Filter(key, filterLines);
+	}
+	filters.showFilterList();
+}
+
+Filters.prototype.remove = function(name) {
+	this.currentFilter = this.findKey(name);
+	if (this.currentFilter == undefined) {
+		alert("Filter '" + name + "' not found.");
+		return undefined;
+	} else {
+		this.filters.splice(this.currentFilter, 1);
+		filters.showFilterList();
+	}
+}
+
+Filters.prototype.edit = function(name) {
+	this.currentFilter = this.findKey(name);
+	if (this.currentFilter == undefined) {
+		alert("Filter '" + name + "' not found.");
+		return undefined;
+	}
+	$("#filterLines").empty();
+	this.editorCount = 0;
+//	$("#filterNrLines").val(this.filters[key].filterLines.length);
+	for(var i = 0; i < this.filters[this.currentFilter].filterLines.length; i++) {
+		this.editorAddLine(this.filters[this.currentFilter].filterLines[i]);
+	}
+	this.currentFilter = this.findKey(NaturalText.currentFilter);
+}
+
+Filters.prototype.editorRemoveLine = function(removeId) {
+//	$("#fl_" + removeId).remove();
+	var filterLines = [];
+	$("#fl_" + removeId).remove();
+	for(var i = parseInt(removeId)+1; i <= this.editorCount; i++) {
+		var line = new FilterLine();
+		filterLines.push(line.getEditorValues(i));
+		$("#fl_" + i).remove();
+	}
+
+	this.editorCount = removeId-1;
+	for(var i = 0; i < filterLines.length; i++) {
+		this.editorAddLine(filterLines[i]);
+	}
+}
+
+Filters.prototype.editorAddLine = function(line) {
+	this.editorCount++;
+
+	var $columnSelect = $("<select>")
+		.attr("id", "column_" + this.editorCount)
+		.attr("data-id", this.editorCount)
+		.addClass("columns text ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only");
+
+	columns = filters.getColumns();
+
+	for(var key in columns) {
+		var value = columns[key];
+		if (columns[key].filterInfo.searchable) {
+			$columnSelect.append($("<option value='" + key + "' class='column vt" + columns[key].filterInfo.varType + "'>" + columns[key].filterInfo.name + "</option>"));
+		}
+	}
+
+	var $newFilterLine = $("<div/>")
+		.attr("id", "fl_" + this.editorCount)
+		.addClass("filterLine")
+		.append($("<div/>").addClass("line").attr("id", "l_" + this.editorCount)
+			.append($("<select id='clude_" + this.editorCount + "' class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'><option value='include'>Include</option><option value='exclude'>Exclude</option></select>"))
+			.append($columnSelect)
+			.append($("<select id='match_text_" + this.editorCount + "' class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only match isText'>"
+									 + "<option value='contains'>" + NaturalText.contains + "</option>"
+									 + "<option value='begin'>" + NaturalText.begin + "</option>"
+									 + "<option value='ends'>" + NaturalText.ends + "</option>"
+								+ "</select>")
+			)
+			.append($("<select id='match_numeral_" + this.editorCount + "' class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only match isNumeral'>"
+									 + "<option value='equals'>" + NaturalText.equals + "</option>"
+									 + "<option value='less'>" + NaturalText.less + "</option>"
+									 + "<option value='greater'>" + NaturalText.greater + "</option>"
+								+ "</select>")
+			)
+			.append($("<input type='text' id='value_" + this.editorCount + "' value='' class='value'/>"))
+			.append($("<a data-id='" + this.editorCount + "' class='remove_line' title='Delete dimension' href='#'>[X]</a>"))
+		)
+		.append($("<div class='connect'><label for='connect_and_" + this.editorCount + "'><input type='radio' id='connect_and_" + this.editorCount + "' name='connect_" + this.editorCount + "' value='and' checked/> and</label><label for='connect_or_" + this.editorCount + "'><input type='radio' id='connect_or_" + this.editorCount + "' name='connect_" + this.editorCount + "' value='or'/> or</label></div>")
+	);
+
+	//$newFilterLine.insertBefore($("#add_filter"));
+	$("#filterLines").append($newFilterLine);
+
+	if (typeof(line) != "undefined") {
+		$("#clude_" + this.editorCount, $newFilterLine).val(line.clude);
+		$("#column_" + this.editorCount, $newFilterLine).val(line.column);
+		$("#match_text_" + this.editorCount, $newFilterLine).val(line.match);
+		$("#match_numeral_" + this.editorCount, $newFilterLine).val(line.match);
+		$("#value_" + this.editorCount, $newFilterLine).val(line.value);
+		if (line.connect == "and") $("#connect_and_" + this.editorCount, $newFilterLine).prop('checked', true);
+		else $("#connect_or_" + this.editorCount, $newFilterLine).prop('checked', true);
+	}
+
+	$(".remove_line", $newFilterLine).click(function() {
+		filters.editorRemoveLine($(this).attr("data-id"));
+	});
+
+	$("#l_" + this.editorCount + " .columns").change(function() {
+		$("#l_" + $(this).attr("data-id")).removeClass();
+		var match = "Text";
+		if (columns[this.value].filterInfo.varType > 0) match = "Numeral";
+		$("#l_" + $(this).attr("data-id")).addClass("line set" + match);
+	});
+
+	$("#l_" + this.editorCount + " .columns").change();
+	$("#filterNrLines").val($("#tabFilters .filterLine").length-1);
+	settingChanged($("#filterNrLines")[0]);
+};
+
+// Source: http://stackoverflow.com/questions/7744912/making-a-javascript-string-sql-friendly
+function sqlite_escape_string(str) {
+	return str.replace(/'/g, "''").replace(/[\0\x08\x09\x1a\n\r_\\\%]/g, function (char) {
+		switch (char) {
+			case "\0":
+				return "\\0";
+			case "\x08":
+				return "\\b";
+			case "\x09":
+				return "\\t";
+			case "\x1a":
+				return "\\z";
+			case "\n":
+				return "\\n";
+			case "\r":
+				return "\\r";
+			case "_":
+			case "\\":
+			case "%":
+				return "\\"+char; // prepends a backslash to backslash, percent,
+													// and double/single quotes
+		}
+	});
+}
 
 function beep() {
 	if (typeof Audio !== "undefined") {
@@ -254,10 +599,22 @@ function updateExcludedFolders() {
 }
 
 function applyFilter() {
+	filters.saveCurrentFilter(NaturalText.currentFilter);
+	var key = filters.findKey(NaturalText.currentFilter);
+	$("#filter").val(filters.asSql(filters.filters[key]));
+	settingChanged($("#filter")[0]);
 	if (typeof(window.external.jsApplyFilter) !== "undefined") {
 		return window.external.jsApplyFilter($("#filter").val());
 	} else {
 		return alert("Can't apply '" + $("#filter").val() + "' filter in preview browser mode");
+	}
+}
+
+function saveFilter() {
+	if (typeof(window.external.jsSaveFilter) !== "undefined") {
+		return window.external.jsSaveFilter($("#filter").val());
+	} else {
+		return alert("Can't save filter in preview browser mode");
 	}
 }
 
@@ -313,8 +670,8 @@ function settingChanged(object) {
 			value = object.value;
 		break;
 	}
-	if (typeof(window.external.InputChanged) !== "undefined") {
-		window.external.InputChanged(id, value);
+	if (typeof(window.external.jsInputChanged) !== "undefined") {
+		window.external.jsInputChanged(id, value);
 	}
 }
 
@@ -337,7 +694,17 @@ $(function(){
 		$("#" + $(this).attr("data-tab")).show(); //show tab content that matches tab title index
 		$(this).addClass('current'); //add current class on clicked tab title
 	});
-	tabs.first().click();
+
+	if (window.location.hash.length > 0) {
+		var tab = window.location.hash.replace("#tab", "").replace("#", "");
+		tab = "tab" + tab.charAt(0).toUpperCase() + tab.substr(1).toLowerCase();
+		$("#tabs").find("[data-tab='" + tab + "']").click();
+	} else {
+		tabs.first().click();
+	}
+
+	//$("#tabs").find("[data-tab='tabFilters']").click();
+
 	/** End Tabs **/
 
 	/** Begin Advanced **/
@@ -352,10 +719,7 @@ $(function(){
 		$(".advanced").toggle('slow');
 		return false;
 	});
-
-
 	/** End Advanced **/
-
 
 
 //alert($("#backgroundColour").val());
@@ -437,14 +801,22 @@ $(function(){
 		}
 	});
 
+	$("#add_filter_dimension").click(function() {
+		filters.editorAddLine();
+	});
+
+	$("#saveFilter").click(function() {
+		filters.saveCurrentFilter($("#filterName").val());
+		settingChanged($("#filterName")[0]);
+	});
+
 	$("#save").click(function() {
-/*		if (typeof(window.external.safePersistantConfig) === "undefined") {
-			alert("Can't automatically save settings in browser preview mode");
-		} else {*/
-			window.external.safePersistantConfig();
+		try {
+			window.external.savePersistantConfig();
 			beep();
-			//alert("Setting are saved");
-		//}
+		} catch(e) {
+			alert("Can't automatically save settings in browser preview mode");
+		}
 	});
 
 	$("#detectUFRaw").click(function() {
@@ -550,19 +922,12 @@ $(function(){
 		}
 	});
 
-	$("#waiting").click(function() {
-		if (typeof(window.external.InvokeScriptOnMonitor) == "undefined") {
-			$("#waiting").hide();
-		}
-	});
-
 	$(".external, .external a").click(function(event) {
 		if (typeof(window.external.jsOpenExternalLink) !== "undefined") {
 			window.external.jsOpenExternalLink($(this).attr("href"));
 			event.preventDefault();
 		}
 	});
-
 
 /*
 	$.each(excludedFolders, function() {
@@ -581,6 +946,13 @@ $(function(){
 		node.setExpanded(true);
 	});
 */
+	$("#waiting").click(function() {
+		if (typeof(window.external.InvokeScriptOnMonitor) == "undefined") {
+			$("#waiting").hide();
+		}
+	});
+
+
 });
 
 function searchSettings(event) {
@@ -597,8 +969,6 @@ function searchSettings(event) {
 		//$(sets).highlight(this.value.toLowerCase());
 	}
 }
-
-
 
 function initMonitors(count) {
 	if (count > 1) {
@@ -650,7 +1020,7 @@ function initMonitors(count) {
 	});
 
 	// Assign change / keyups after monitors are initialised.
-	$("input,textarea").change(function() {
+	$("input,textarea,select").change(function() {
 		settingChanged(this);
 	});
 
@@ -671,8 +1041,9 @@ function initMonitors(count) {
 }
 
 window.onload = function() {
-
 	document.getElementById("search").onkeyup = searchSettings;
+	initFilters();
+
 	//document.getElementById("search").attachEvent("onchange", searchSettings);
 /*
 	$('#timeout,#timeoutMax').stepper({

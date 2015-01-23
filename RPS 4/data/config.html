@@ -19,7 +19,7 @@
 	<link rel="stylesheet" href="css/config.css"/>
 </head>
 <body class="">
-	<div id="waiting"></div>
+	<!--div id="waiting"></div-->
 	<div id="donation"><a class="hideMessage" href="#">[X]</a>
 		<a id="donate" class="linkButton external" href="http://www.abscreensavers.com/random-photo-screensaver/donation?source=RPS4">Donate</a>
 		Random Photo Screensaver is <strong>donationware</strong>, you are <strong>required</strong> to make a <a class="external" href="http://www.abscreensavers.com/random-photo-screensaver/donation?source=RPS4">donation to the author</a> is you continue using this software after your 30 days trail ends.
@@ -186,24 +186,88 @@
 				<li class="set" id="tabFilters">
 					<h1>Filters</h1>
 					<label for="useFilter"><input type="checkbox" id="useFilter"/> Use filters</label>
-					<div class="clear"></div>
-					<label for="filter">Select filter</label>
-					<input type="text" id="filter" value="`all` LIKE &quot;%Exposure Time	1/100&quot; || x'0d' || x'0a' || &quot;%&quot;;"/>
 					<a id="applyFilter" class="button" href="#">Apply filter</a> <a id="clearFilter" class="button" href="#">Clear filter</a>
 					<div class="clear"></div>
-					<div class="clear"><br/>
-						A user interface to add/create and select filters is on my to do list!<br/>
-						The following columns can be used in SQLite statements:
-						<ul>
-							<li><strong>[database column]</strong> [description]</li>
-							<li><strong>path</strong> full path (folder and filename)</li>
-							<li><strong>parentpath</strong> folder path only</li>
-							<li><strong>filename</strong> filename (including extension)</li>
-							<li><strong>created</strong> created date</li>
-							<li><strong>modified</strong> modified date</li>
-							<li><strong>size</strong> file size</li>
-							<li><strong>all</strong> contains all metadata for file</li>
-						</ul>
+					<label for="filter">Current filter</label>
+					<div id="filterLines" class="filterLines">
+						<!--div class="filterLine">
+							<div class="line">
+								<select id="clude_1">
+									<option value="0" selected>Include</option>
+									<option value="1">Exclude</option>
+								</select>
+								<select id="column_1" class="columns text">
+									<option value="path" class="text" selected>Path</option>
+									<option value="parentpath" class="text">Parent path</option>
+									<option value="filename" class="text">Filename</option>
+									<option value="Created" class="date">Created</option>
+								</select>
+								<select id="match_1" class="match text">
+									<option value="begin" class="text" selected>Begins with</option>
+									<option value="parentpath" class="text">Ends with</option>
+									<option value="filename" class="text">Containing</option>
+								</select>
+								<input type="text" id="value_1" value="Value" class="value"/>
+								<a class="remove_line button" title="Delete dimension" href="#">X</a>
+							</div>
+							<div class="connect">
+								<label for="connect_and_1"><input type="radio" id="connect_and_1" name="connect_1" value="and" checked/> and</label>
+								<label for="connect_or_1"><input type="radio" id="connect_or_1" name="connect_1" value="or"/> or</label>
+							</div>
+						</div-->
+					</div>
+					<div class="filterLines">
+						<div id="add_filter" class="filterLine">
+							<div class="line">
+							<a id="add_filter_dimension" class="button" title="Add a dimension" href="#">Add filter dimension</a>
+							</div>
+						</div>
+					</div>
+					<label for="filterName">Filter name: </label><input type="text" id="filterName" value="Filter"/> <a id="saveFilter" class="button" href="#">Save filter</a>
+					<div id="filterHeading">
+						<div class="filter heading">
+							<div class="name">Filter name</div>
+							<div class="content">Filter content</div>
+						</div>
+					</div>
+					<div id="filters">
+						<!--div class="filter">
+							<div class="actions"><a class="applyFilter button" href="#">Apply</a> <a class="editFilter button" href="#">Edit</a> <a class="removeFilter button" title="Remove filter button" href="#">X</a></div>
+							<div class="name">Panorama</div>
+							<div class="content">Include filenames containing 'pano'.</div>
+						</div>
+						<div class="filter">
+							<div class="actions"><a class="applyFilter button" href="#">Apply</a> <a class="editFilter button" href="#">Edit</a> <a class="removeFilter button" title="Remove filter button" href="#">X</a></div>
+							<div class="name">Polar planets</div>
+							<div class="content">Include filenames containing 'polar'.</div>
+						</div>
+						<div class="filter">
+							<div class="actions"><a class="applyFilter button" href="#">Apply</a> <a class="editFilter button" href="#">Edit</a> <a class="removeFilter button" title="Remove filter button" href="#">X</a></div>
+							<div class="name">Jenni and Marijn</div>
+							<div class="content">Include filenames containing <strong>'jenni'</strong> and include filenames containing <strong>'marijn'</strong>.</div>
+						</div-->
+					</div>
+
+					<div class="advanced">
+						<label>The following SQL is used (display only)</label>
+						<input readonly disabled type="text" id="filter" value="`all` LIKE &quot;%Exposure Time	1/100&quot; || x'0d' || x'0a' || &quot;%&quot;;"/>
+						<input type="text" id="filterNrLines" value="0"/>
+						<div class="clear"><br/>
+							The following dimensions can be used in filters:
+							<ul>
+								<li><strong>[database column]</strong> [description]</li>
+								<li><strong>paths</strong> full path (folder and filename)</li>
+								<li><strong>parent paths</strong> folder path only</li>
+								<li><strong>filenames</strong> filename (including extension)</li>
+								<li><strong>created date</strong> created date</li>
+								<li><strong>modified date</strong> modified date</li>
+								<li><strong>metadata</strong> all metadata of media</li>
+								<li><strong>size</strong> file size</li>
+								<li><strong>width</strong> width of the media in pixels</li>
+								<li><strong>height</strong> height of the media in pixels</li>
+								<li><strong>area</strong> pixel width x height of the media</li>
+							</ul>
+						</div>
 					</div>
 				</li>
 
@@ -249,7 +313,7 @@
 								<input type="text" id="imageExtensions" value=".gif .png .jpeg .jpg .bmp .wmp .svg" />
 
 								<h3>Video extensions</h3>
-								<input type="text" id="videoExtensions" value=".avi .wmv .mp4 .mpeg .mpg" />
+								<input type="text" id="videoExtensions" value=".avi .wmv .mov .mp4 .mpeg .mpg" />
 								<div class="keywords">filenames extensions types</div>
 							</div>
 

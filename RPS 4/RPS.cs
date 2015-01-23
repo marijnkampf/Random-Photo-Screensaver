@@ -817,7 +817,7 @@ namespace RPS {
                 this.fileNodes.CancelBackgroundWorker();
                 this.config.setPersistant("sequentialStartImageId", this.fileNodes.currentSequentialSeedId.ToString());
             }
-            this.config.safePersistantConfig();
+            this.config.savePersistantConfig();
             if (this.fileNodes != null) this.fileNodes.OnExitCleanUp();
             // Manually call config close to ensure it will not cancel the close.
             this.applicationClosing = true;

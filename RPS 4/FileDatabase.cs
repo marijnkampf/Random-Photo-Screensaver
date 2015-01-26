@@ -57,6 +57,14 @@ namespace RPS {
             this.filterReady(true);
         }
 
+        public void resetFilter() {
+            this.filterReady(true);
+        }
+
+        public void resetIfChangedFilter() {
+            if (this.filterOutOfDate > 0) this.filterReady(true);
+        }
+
         public void clearFilter() {
             this.useFilter = false;
         }
@@ -304,7 +312,7 @@ namespace RPS {
             if (exactMatchFolders) match = "";
             string where = "WHERE NOT parentpath LIKE \"" + String.Join(match + "\" AND NOT parentpath LIKE \"", folders) + match + "\"";
             if (excludedSubfolders.Count > 0) {
-                where += " OR parentpath LIKE \"%\\" + String.Join("%\" OR parentpath LIKE \"%\\", excludedSubfolders) + "\\%\"";
+                where += " OR parentpath LIKE \"%\\" + String.Join("\\%\" OR parentpath LIKE \"%\\", excludedSubfolders) + "\\%\"";
             }
             SQLiteCommand command;
             int r = 0;

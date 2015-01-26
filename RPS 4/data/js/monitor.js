@@ -347,13 +347,17 @@ function showImage(source, displayPath, settings) {
 			}
 			if ($(first.get(0).childNodes[0]).hasClass("object")) {
 				var player = document.getElementById("mediaPlayer");
+				// Attempt stop
 				try {
 					player.PlayState = 0;
 					player.controls.stop();
 				} catch(e) {
-
 				}
-				first.get(0).childNodes[0].pause();
+				// Attempt pause even if stop fails
+				try {
+					first.get(0).childNodes[0].pause();
+				} catch(e) {
+				}
 				$(first.get(0)).hide()
 			}
 		}

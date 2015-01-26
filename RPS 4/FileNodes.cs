@@ -54,6 +54,11 @@ namespace RPS {
                 this.backgroundWorker.ProgressChanged += new ProgressChangedEventHandler(progressChanged);
                 this.backgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(runWorkerCompleted);
 
+                var folders = Utils.stringToList(Convert.ToString(this.config.getPersistant("folders")));
+                
+                // Purge database in main thread rather, to avoid having to run database filter twice
+                this.purgeNotMatchingParentFolders(folders);
+
                 this.backgroundWorker.RunWorkerAsync();
             }
         }
@@ -75,6 +80,15 @@ namespace RPS {
         public void clearFilter() {
             this.config.setPersistant("useFilter", false);
             this.fileDatabase.clearFilter();
+            this.showProgress();
+        }
+
+        public void resetFilter() {
+            if (this.config.getPersistantBool("useFilter")) {
+                this.fileDatabase.resetFilter();
+            } else {
+                this.fileDatabase.clearFilter();
+            }
             this.showProgress();
         }
 
@@ -217,6 +231,7 @@ namespace RPS {
                 } 
                 folders.RemoveAt(0);
             }
+            this.fileDatabase.resetIfChangedFilter();
         }
 
         public string exifToolCommand(string command) {
@@ -262,6 +277,7 @@ namespace RPS {
                 }
             }
             this.fileDatabase.toggleMetadataTransaction(this.bwCancelled());
+            this.fileDatabase.resetIfChangedFilter();
         }
 
 
@@ -464,9 +480,11 @@ namespace RPS {
                 var folders = Utils.stringToList(Convert.ToString(this.config.getPersistant("folders")));
                 this.swFileScan = new System.Diagnostics.Stopwatch();
                 this.swMetadata = new System.Diagnostics.Stopwatch();
-                if (this.purgeNotMatchingParentFolders(folders) > 0) {
-                    this.clearFilter();
-                }
+                // Folder purge done in main thread
+//                if (this.purgeNotMatchingParentFolders(folders) > 0) {
+                    // Communicate to main thread to reset filter
+  //                  this.resetFilter();
+    //            }
                 this.swFileScan.Start();
                 this.processFolders(folders);
                 this.swFileScan.Stop();
@@ -498,10 +516,10 @@ namespace RPS {
             long nrImagesFiltered = this.fileDatabase.nrImagesFilter();
             long nrImagesInDb = this.fileDatabase.nrImagesInDB();
             if (nrImagesFiltered > 0 || nrImagesInDb > 0) {
-                info += String.Format("DB {0:##,#} images; ", this.fileDatabase.nrImagesInDB());
+                info += String.Format("DB {0:##,#} images; ", nrImagesInDb);
             }
             if (this.screensaver.config.getPersistantBool("useFilter")) {
-                info += String.Format("filtered {0:##,#} images; ", this.fileDatabase.nrImagesFilter());
+                info += String.Format("filtered {0:##,#} images; ", nrImagesFiltered);
             }
             if (this.nrUnprocessedMetadata > 0) {
                 info += String.Format(" Metadata queue {0:##,#} files", this.nrUnprocessedMetadata);

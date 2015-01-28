@@ -251,7 +251,6 @@ namespace RPS {
 
         public int deleteFromDB(long id) {
             if (this.readOnly) return -1;
-
             string tableName = this.filterReady();
             SQLiteCommand command = new SQLiteCommand("DELETE FROM `FileNodes` WHERE id = @id;", this.dbConnector.connection);
             command.Parameters.AddWithValue("@id", id);
@@ -399,6 +398,24 @@ namespace RPS {
                     this.readOnly = true;
                 }
             }
+        }
+
+        public bool updateFileNodesPath(long id, string path) {
+            if (this.readOnly) return false;
+            try {
+                SQLiteCommand command = new SQLiteCommand("UPDATE `FileNodes` SET `path` = @path, `filename` = @filename WHERE id = @id;", this.dbConnector.connection);
+                command.Parameters.AddWithValue("@id", id);
+                command.Parameters.AddWithValue("@path", path);
+                command.Parameters.AddWithValue("@filename", Path.GetFileName(path));
+                command.ExecuteNonQuery();
+                this.filterOutOfDate+=5;
+            } catch (System.Data.SQLite.SQLiteException se) {
+                if (se.ErrorCode == DBConnector.DatabaseIsLocked) {
+                    this.readOnly = true;
+                    return false;
+                }
+            }
+            return true;
         }
 
         public bool addMetadataToDB(long id, string metadata) {

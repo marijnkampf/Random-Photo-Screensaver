@@ -820,6 +820,7 @@ namespace RPS {
                     } else {
                         this.screensaver.showInfoOnMonitors("", true, false);
                     }
+                    this.screensaver.fileNodes.purgeNotMatchingParentFolders(this.getPersistantString("folders"));
                     this.screensaver.fileNodes.restartBackgroundWorkerImageFolder();
                 }
             }

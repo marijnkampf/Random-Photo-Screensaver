@@ -64,6 +64,7 @@ namespace RPS {
                     // Start at position 2 to strip <#
                     int tagPos = 2;
                     foreach (Match tagMatch in tagMatches) {
+                        //String tMatch = tagMatch.Value.Replace(" ", "");
                         tagCode += groupMatch.Value.Substring(tagPos, tagMatch.Index - tagPos);
                         metaKey = tagMatch.Value.ToLower();
                         tagCode += metaKey;
@@ -77,9 +78,9 @@ namespace RPS {
                     // Get keys, 
                     // perform match on keys
                     // loop 
-
-                    if (this.metadata.ContainsKey(metaKey)) {
-                        output += tagCode.Replace("{" + metaKey + "}", this.metadata[metaKey]);
+                    String metaKeyWithoutSpaces = metaKey.Replace(" ", ""); // Ignore spaces as they where allowed in RPS 4 beta and RC
+                    if (this.metadata.ContainsKey(metaKeyWithoutSpaces)) {
+                        output += tagCode.Replace("{" + metaKey + "}", this.metadata[metaKeyWithoutSpaces]);
                     }
                     pos = groupMatch.Index + groupMatch.Length;
                 }

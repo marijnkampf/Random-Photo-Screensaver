@@ -136,6 +136,7 @@ namespace RPS {
                     this.backgroundWorker.CancelAsync();
                 } else {
                     this.restartBackgroundWorker = false;
+
                     this.backgroundWorker.RunWorkerAsync();
                 }
             }
@@ -159,7 +160,6 @@ namespace RPS {
                     bool excludeSubfolders;
                     List<string> excludedSubfolders;
                     string rawExtensions = null;
-                    
 
                     try {
                         //he = this.config.getElementById("imageExtensions");
@@ -173,6 +173,8 @@ namespace RPS {
                             rawExtensions = Convert.ToString(this.config.getPersistant("rawExtensions")).ToLower();
                             allowedExtensions += " " + rawExtensions;
                         }
+
+                    
                     } catch (Exception e) {
                         Debug.WriteLine("processFolders " + e.Message);
                         // TODO: only catch:
@@ -220,10 +222,12 @@ namespace RPS {
                             FileAttributes fa = File.GetAttributes(subfolder);
                             // Ignore hidden folders if option checked
                             if (!ignoreHiddenFolders || (ignoreHiddenFolders && (fa & FileAttributes.Hidden) != FileAttributes.Hidden)) {
-                                if (excludedSubfolders.IndexOf(Path.GetFileName(subfolder)) == -1) {
+                                if (excludedSubfolders.IndexOf(Path.GetFileName(subfolder.ToLower())) == -1) {
                                     i++;
                                     folders.Add(subfolder);
                                 }
+                            } else {
+                                this.fileDatabase.purgeMatchingParentPaths(subfolder);
                             }
                             if ((i % 100 == 0) && (this.bwCancelled() == true)) break;
                         }
@@ -367,6 +371,10 @@ namespace RPS {
             }
             return filename;
         }
+
+        public int getNrImagesFilter() {
+            return this.screensaver.fileNodes.fileDatabase.nrImagesFilter();
+        }
 /*
         public DataRow getFirstImage(int monitor) {
             this.
@@ -460,6 +468,10 @@ namespace RPS {
         public int purgeMediaDatabase() {
             return this.fileDatabase.purgeMediaDatabase();
         }
+
+        public void updatePath(long id, string path) {
+            this.fileDatabase.updateFileNodesPath(id, path);
+        }
 /*
         public void addIdToMetadataQueue(long monitorId, DataRow image) {
             this.fileDatabase.addIdToMetadataQueue(monitorId, image);
@@ -481,16 +493,14 @@ namespace RPS {
                 this.swFileScan = new System.Diagnostics.Stopwatch();
                 this.swMetadata = new System.Diagnostics.Stopwatch();
                 // Folder purge done in main thread
-//                if (this.purgeNotMatchingParentFolders(folders) > 0) {
-                    // Communicate to main thread to reset filter
-  //                  this.resetFilter();
-    //            }
                 this.swFileScan.Start();
                 this.processFolders(folders);
                 this.swFileScan.Stop();
+                Debug.WriteLine("FileScan: " + swFileScan.ElapsedMilliseconds + "ms");
                 this.swMetadata.Start();
                 this.processMetadata();
                 this.swMetadata.Stop();
+                Debug.WriteLine("Metadata: " + swMetadata.ElapsedMilliseconds + "ms");
             }
 
             if (!this.backgroundWorker.CancellationPending) this.fileDatabase.purgeMetadata();
@@ -562,7 +572,7 @@ namespace RPS {
                 Debug.WriteLine("BackgroundWorker Error: " + e.Error.Message);
             } else {
                 if (this.screensaver.fileNodes.fileDatabase.nrImagesFilter() == 0) {
-                    this.screensaver.showInfoOnMonitors("No images found in folder(s)\n\ror filter didn't return any results.\n\rPress 'S' key to enter setup", true);
+                    this.screensaver.showInfoOnMonitors(Constants.NoImagesFound, true);
                 }
                 this.showProgress();
                 //if (this.screensaver.monitors != null) this.screensaver.monitors[0].browser.Document.InvokeScript("dbInfo", new String[] { this.getProgress() });

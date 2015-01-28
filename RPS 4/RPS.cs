@@ -141,7 +141,13 @@ namespace RPS {
             this.configInitialised = true;
             this.fileNodes = new FileNodes(this.config, this);
             if (this.config.getPersistantBool("useFilter")) {
-                this.fileNodes.setFilterSQL(this.config.getPersistantString("filter"));
+                try {
+                    this.fileNodes.setFilterSQL(this.config.getPersistantString("filter"));
+                } catch (Exception e) {
+                    //this.showInfoOnMonitors(e.Message, true, true);
+                    this.config.setPersistant("useFilter", false, true);
+                    this.fileNodes.clearFilter();
+                }
             }
             this.Desktop = Constants.getDesktopBounds();
             this.desktopRatio = Desktop.Width / Desktop.Height;
@@ -304,7 +310,7 @@ namespace RPS {
             if (this.action == Actions.Config) {
                 this.config.showUpdateInfo(info);
             } else {
-                for (int i = 0; i < this.monitors.Length; i++) {
+                if (this.monitors != null) for (int i = 0; i < this.monitors.Length; i++) {
                     if ((this.currentMonitor == CM_ALL) || (this.currentMonitor == i)) {
                         this.monitors[i].showInfoOnMonitor(info, highPriority, fade);
                         //this.monitors[i].browser.Document.InvokeScript("showInfo", new String[] { info });
@@ -733,6 +739,13 @@ namespace RPS {
                                 }
                             }
                             this.startTimers();
+                        break;
+                        case Keys.F2:
+                        for (int i = 0; i < this.monitors.Length; i++) {
+                            if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
+                                this.monitors[i].renameFile();
+                            }
+                        }
                         break;
                         case Keys.F12:
                             for (int i = 0; i < this.monitors.Length; i++) {

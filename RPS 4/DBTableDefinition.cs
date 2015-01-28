@@ -7,7 +7,7 @@ namespace RPS {
     struct FilterInfo {
         public string name;
         public bool searchable;
-        public enum VarType { text, numeral, date }
+        public enum VarType { text=0, rawSQL, numeral, date }
         public int varType;
 
         public FilterInfo(string name, bool searchable, FilterInfo.VarType type) {

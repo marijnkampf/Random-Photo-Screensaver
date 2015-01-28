@@ -167,6 +167,10 @@ input[type='radio'] {
 	height: 5em;
 }
 
+#quickMetadata {
+	height: 4em;
+}
+
 .keywords {
 	display: none;
 }
@@ -463,6 +467,14 @@ label {
 
 .setText .isText, .setNumeral .isNumeral {
 	display: inline;
+}
+
+.setRawSQL .value {
+	width: 26em;
+}
+
+.setRawSQL .clude {
+	display: none;
 }
 
 .columns {

@@ -361,7 +361,9 @@
 					<div class="set">
 						<!--input type="checkbox" id="indexMetadata"/> <label for="indexMetadata">Index metadata</label-->
 						<h2>Quick metadata</h2>
-						<input type="text" id="quickMetadata" value="<#{Exposure Time} | #><#{F Number} | #><#{ISO} | #><#{Focal Length}#>"/>
+						<textarea id="quickMetadata" wrap="off"><#{ExposureTime} | #><#{FNumber} | #><#{ISO} | #><#{FocalLength}#></textarea>
+						<!--input type="text" id="quickMetadata" value="<#{ExposureTime} | #><#{FNumber} | #><#{ISO} | #><#{FocalLength}#>"/-->
+						<div class="notes">See <a class="external" href="http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/">ExifTool TagNames</a> for EXIF/IPTC and other metatagnames that may be used.</div>
 						<div class="keywords">metadata iptc xmp exif</div>
 					</div>
 
@@ -530,6 +532,7 @@
 	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>E</td><td></td><td>Open windows explorer window<span class="multiOnly">(s)</span> with current media selected</td></tr>
 	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>Cltr+E</td><td></td><td>Open current media in external editor (if specified)</td></tr>
 	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>H</td><td></td><td>Set/clear hidden file attribute to media</td></tr>
+	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>F2</td><td></td><td>Rename current media file<span class="multiOnly">(s)</span></td></tr>
 	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>Delete</td><td></td><td>Place media in recycling bin</td></tr>
 	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>W</td><td></td><td>Set current image<span class="multiOnly">(s)</span> as wallpaper</td></tr>
 <tr><td class='header' colspan='4'>Rotate image</td></tr>

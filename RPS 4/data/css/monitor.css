@@ -125,7 +125,16 @@ html, body {
 	z-index: 100;
 	right: 0.5em;
 	bottom: 0.5em;
+	text-align: right;
 }
+
+#debug {
+	z-index: 100;
+	right: 0.5em;
+	bottom: 2.5em;
+}
+
+
 
 #showinfo {
 	z-index: 80;

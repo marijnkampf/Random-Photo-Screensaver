@@ -29,6 +29,8 @@ namespace RPS {
         public const string UpdateCheckURL = "http://www.abscreensavers.com/abdownloads/rps/latestversion.php";
         public const string DownloadFolder = "downloads";
 
+        public const string NoImagesFound = "No images found in folder(s)\n\ror filter didn't return any results.\n\rPress 'S' key to enter setup";
+
         public enum Orientation {
             Horizontal = 1,
             Mirror_Horizontal = 2,

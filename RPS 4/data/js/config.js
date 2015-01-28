@@ -91,6 +91,7 @@ Filters.prototype.asText = function(filter) {
 Filters.prototype.asSql = function(filter) {
 	var s = "";
 	columns = this.getColumns();
+//	prompt("", JSON.stringify(columns));
 	for(var i = 0; i < filter.filterLines.length; i++) {
 		filterInfo = columns[filter.filterLines[i].column].filterInfo;
 
@@ -105,11 +106,13 @@ Filters.prototype.asSql = function(filter) {
 // select * from filenodes where not path LIKE '%marijn%'
 		//s +=  + "</strong> " + NaturalText[filter.filterLines[i].match].toLowerCase() + " <strong>'" + filter.filterLines[i].value + "'</strong>";
 
-		if (filter.filterLines[i].clude == "exclude") s += " NOT ";
-		s += "`" + filter.filterLines[i].column + "`";
-		//s += " " + filterInfo.varType + " ";
-
+		if (filterInfo.varType != 1) {
+			if (filter.filterLines[i].clude == "exclude") s += " NOT ";
+			s += "`" + filter.filterLines[i].column + "`";
+		}
 		switch(filterInfo.varType) {
+			case undefined:
+			break;
 			case 0:
 				var start = "%";
 				var end = "%";
@@ -122,6 +125,9 @@ Filters.prototype.asSql = function(filter) {
 				s += " LIKE '" + start + sqlite_escape_string(filter.filterLines[i].value) + end + "' ESCAPE '\\'";
 				//s += " LIKE '" + start + sqlite_escape_string(filter.filterLines[i].value) + end + "'";
 				//s += " LIKE '" + start + filter.filterLines[i].value + end + "'";
+			break;
+			case 1:
+				s += " " + filter.filterLines[i].value + " ";
 			break;
 			default:
 				var compare;
@@ -154,7 +160,7 @@ Filters.prototype.showFilterList = function() {
 				.append($("<div/>").addClass("actions").attr("data-name", filters.filters[i].name).html('<a class="selectFilter button" href="#">Select</a> <a class="removeFilter button" title="Remove filter button" href="#">X</a>'))
 				.append($("<div/>").addClass("name").html(filters.filters[i].name))
 				.append($("<div/>").addClass("content").html(this.asText(filters.filters[i])))
-				.append($("<div/>").addClass("sql").html(this.asSql(filters.filters[i])))
+				//.append($("<div/>").addClass("sql").html(this.asSql(filters.filters[i])))
 			)
 		;
 		$(".button").button()
@@ -163,6 +169,7 @@ Filters.prototype.showFilterList = function() {
 		filters.edit($(this).parent().attr("data-name"));
 		$("#filterName").val($(this).parent().attr("data-name"));
 		settingChanged($("#filterName")[0]);
+		if ($("#useFilter").prop("checked")) applyFilter();
 	});
 
 	$(".removeFilter").click(function() {
@@ -176,7 +183,14 @@ Filters.prototype.getColumns = function() {
 			//prompt("", window.external.jsGetFilterColumns());
 			this.columns = JSON.parse(window.external.jsGetFilterColumns());
 		} else {
-			this.columns = JSON.parse('{"id":{"type":"INTEGER PRIMARY KEY AUTOINCREMENT","filterInfo":{"name":"","searchable":false,"varType":0},"index":true,"unique":true,"searchable":false},"path":{"type":"TEXT UNIQUE","filterInfo":{"name":"paths","searchable":true,"varType":0},"index":true,"unique":true,"searchable":false},"parentpath":{"type":"TEXT","filterInfo":{"name":"parent paths","searchable":true,"varType":0},"index":true,"unique":false,"searchable":false},"filename":{"type":"TEXT","filterInfo":{"name":"filenames","searchable":true,"varType":0},"index":true,"unique":false,"searchable":false},"created":{"type":"DATETIME","filterInfo":{"name":"created date","searchable":true,"varType":2},"index":true,"unique":false,"searchable":false},"modified":{"type":"DATETIME","filterInfo":{"name":"modified date","searchable":true,"varType":2},"index":true,"unique":false,"searchable":false},"size":{"type":"INTEGER","filterInfo":{"name":"size","searchable":true,"varType":1},"index":true,"unique":false,"searchable":false},"metainfoindexed":{"type":"INTEGER DEFAULT 0","filterInfo":{"name":"","searchable":false,"varType":0},"index":false,"unique":false,"searchable":false},"all":{"type":"TEXT","filterInfo":{"name":"metadata","searchable":true,"varType":0},"index":false,"unique":false,"searchable":false},"width":{"type":"TEXT","filterInfo":{"name":"width","searchable":true,"varType":1},"index":false,"unique":false,"searchable":false},"height":{"type":"TEXT","filterInfo":{"name":"height","searchable":true,"varType":1},"index":false,"unique":false,"searchable":false},"area":{"type":"DATETIME","filterInfo":{"name":"area","searchable":true,"varType":1},"index":false,"unique":false,"searchable":false}}');
+			this.columns = JSON.parse('			{"id":{"type":"INTEGER PRIMARY KEY AUTOINCREMENT","filterInfo":{"name":"","searchable":false,"varType":0},"index":true,"unique":true,"searchable":false},"path":{"type":"TEXT UNIQUE","filterInfo":{"name":"paths","searchable":true,"varType":0},"index":true,"unique":true,"searchable":false},"parentpath":{"type":"TEXT","filterInfo":{"name":"parent paths","searchable":true,"varType":0},"index":true,"unique":false,"searchable":false},"filename":{"type":"TEXT","filterInfo":{"name":"filenames","searchable":true,"varType":0},"index":true,"unique":false,"searchable":false},"created":{"type":"DATETIME","filterInfo":{"name":"created date","searchable":true,"varType":3},"index":true,"unique":false,"searchable":false},"modified":{"type":"DATETIME","filterInfo":{"name":"modified date","searchable":true,"varType":3},"index":true,"unique":false,"searchable":false},"size":{"type":"INTEGER","filterInfo":{"name":"size","searchable":true,"varType":2},"index":true,"unique":false,"searchable":false},"metainfoindexed":{"type":"INTEGER DEFAULT 0","filterInfo":{"name":"","searchable":false,"varType":0},"index":false,"unique":false,"searchable":false},"all":{"type":"TEXT","filterInfo":{"name":"metadata","searchable":true,"varType":0},"index":false,"unique":false,"searchable":false},"width":{"type":"TEXT","filterInfo":{"name":"width","searchable":true,"varType":2},"index":false,"unique":false,"searchable":false},"height":{"type":"TEXT","filterInfo":{"name":"height","searchable":true,"varType":2},"index":false,"unique":false,"searchable":false},"area":{"type":"DATETIME","filterInfo":{"name":"area","searchable":true,"varType":2},"index":false,"unique":false,"searchable":false},"raw":{"filterInfo":{"name":"raw SQL","searchable":true}}}');
+		}
+	}
+	this.columns.raw = {
+		"filterInfo": {
+			"name": "raw SQL",
+			"searchable": true,
+			"varType": 1
 		}
 	}
 	return this.columns;
@@ -271,7 +285,7 @@ Filters.prototype.editorAddLine = function(line) {
 		.attr("id", "fl_" + this.editorCount)
 		.addClass("filterLine")
 		.append($("<div/>").addClass("line").attr("id", "l_" + this.editorCount)
-			.append($("<select id='clude_" + this.editorCount + "' class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'><option value='include'>Include</option><option value='exclude'>Exclude</option></select>"))
+			.append($("<select id='clude_" + this.editorCount + "' class='clude ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'><option value='include'>Include</option><option value='exclude'>Exclude</option></select>"))
 			.append($columnSelect)
 			.append($("<select id='match_text_" + this.editorCount + "' class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only match isText'>"
 									 + "<option value='contains'>" + NaturalText.contains + "</option>"
@@ -311,7 +325,8 @@ Filters.prototype.editorAddLine = function(line) {
 	$("#l_" + this.editorCount + " .columns").change(function() {
 		$("#l_" + $(this).attr("data-id")).removeClass();
 		var match = "Text";
-		if (columns[this.value].filterInfo.varType > 0) match = "Numeral";
+		if (columns[this.value].filterInfo.varType >= 2) match = "Numeral";
+		if (columns[this.value].filterInfo.varType == 1) match = "RawSQL";
 		$("#l_" + $(this).attr("data-id")).addClass("line set" + match);
 	});
 

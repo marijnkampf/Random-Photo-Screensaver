@@ -261,12 +261,14 @@ function showImage(source, displayPath, settings) {
 			mainClasses = '';
 			coverStyle = '';
 			coverClasses = '';
+
 			if ((settings.exifRotate != undefined && settings.exifRotate != 0) || (settings.resizeRatio != undefined && settings.resizeRatio != 1)) {
 				if (settings.exifRotate == undefined) settings.exifRotate = 0;
 				if (settings.resizeRatio == undefined) settings.resizeRatio = 1;
 				if (settings.resizeRatioCover == undefined) settings.resizeRatioCover = 1;
-				if (!settings["ignoreFit"]) {
-					mainStyle='transform:rotate(' + settings.exifRotate + 'deg) scale(' + settings.resizeRatio + ');';
+				mainStyle='transform:rotate(' + settings.exifRotate + 'deg)';
+				if (!settings["smallUnstretchedImage"]) {
+					mainStyle += ' scale(' + settings.resizeRatio + ');';
 				}
 				coverStyle='transform:rotate(' + settings.exifRotate + 'deg) scale(' + settings.resizeRatioCover + ');';
 			}
@@ -286,12 +288,9 @@ function showImage(source, displayPath, settings) {
 			if (settings["imageShadow"]) {
 				mainClasses += 'imageShadow ';
 			}
-			if (!settings["ignoreFit"]) {
-				mainClasses += settings["fitTo"] + "2" + settings["fitToDimension"];
-				mainClasses += " ";
-			}
 			coverClasses += "cover2" + settings["fitToDimension"];
 			coverClasses += " ";
+
 			html = '';
 			// Background image covering entire screen (don't show for cover image)
 			if (settings["backgroundImage"] && settings["fitTo"] != "cover") {
@@ -299,6 +298,11 @@ function showImage(source, displayPath, settings) {
 				if (coverStyle != '') html += 'style="' + coverStyle + '"';
 				html += 'class="image background ' + coverClasses + 'media" src="file://' + source + '"/>';
 			}
+			if (settings["fitTo"] == "cover") {
+				mainStyle = coverStyle;
+				mainClasses = coverClasses;
+			}
+
 			// Main image
 			html += '<img ';
 			if (mainStyle != '') html += 'style="' + mainStyle + '"';

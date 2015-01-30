@@ -386,21 +386,19 @@ function initFancyTreeFolder() {
 			}
 		},
 		lazyLoad: function(event, data) {
-			//$("body, html").css('cursor', 'wait');
-			//alert(data.node);
+			this.fixSelection3 = true;
 			if (typeof(window.external.getFolderJSON) !== "undefined") {
 				var json = window.external.getFolderJSON(getFullPathFromFancytreeNode(data.node));
 				data.result = JSON.parse(json);
 			} else {
-				data.result = [];
-				alert("Can't expand lazy nodes in browser preview mode");
+				data.result = $.getJSON("./js/fileSystemExample.json");
 			}
-
-			//$("body, html").css('cursor', 'auto');
 		},
 		loadChildren: function(event, ctx) {
+			if (this.fixSelection3) {
+				ctx.node.fixSelection3AfterClick();
+			}
 			updateExcludedFolders(ctx);
-			//ctx.node.fixSelection3AfterClick();
 		},
 		select: function(event, data) {
 			// Get a list of all selected nodes, and convert to a key array:

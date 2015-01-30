@@ -782,6 +782,8 @@ namespace RPS {
                                     this.monitors[i].rotateImage(deg);
                                 }
                             }
+                            //this.fileNodes.toggleMetadataTransaction();
+                            this.fileNodes.resetFilter();
                             this.startTimers();
                         break;
                         case Keys.Delete:

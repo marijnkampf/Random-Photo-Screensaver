@@ -951,7 +951,6 @@ namespace RPS {
             }
             return null;
         }
-
         
         private void webUpdateCheck_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e) {
             if (this.webUpdateCheck.Url.Equals(this.getUpdateUri())) {
@@ -959,7 +958,14 @@ namespace RPS {
                 if (he != null) {
                     Version ignore = null;
                     Version compareTo = this.screensaver.version;
-                    Version update = new Version(he.GetAttribute("data-version"));
+                    //he.Get
+                    Version update;
+                    try {
+                        update = new Version(he.GetAttribute("data-version"));
+                    } catch (Exception ex) {
+                        this.screensaver.showInfoOnMonitors("Error detecting latest version" + Environment.NewLine + ex.Message, true, true);
+                        return;
+                    }
                     if (this.getPersistantBool("ignoreUpdate")) {
                         try {
                             ignore = new Version(this.getPersistantString("ignoreVersion"));

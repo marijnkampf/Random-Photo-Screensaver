@@ -505,7 +505,9 @@ namespace RPS {
             string filename = "_M" + (this.id + 1) + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".html";
             string path = this.browser.Url.LocalPath.Replace(Constants.MonitorHtmlFile, filename);
             try {
-                File.WriteAllText(path, this.browser.Document.GetElementsByTagName("HTML")[0].OuterHtml);
+                string log;
+                log = "<!--" + Environment.NewLine + JsonConvert.SerializeObject(this.currentImage) + Environment.NewLine + "-->";
+                File.WriteAllText(path, this.browser.Document.GetElementsByTagName("HTML")[0].OuterHtml + Environment.NewLine + log);
             } catch (Exception) {
                 path = Path.Combine(Constants.getLocalAppDataFolder(), Constants.DataFolder, filename);
                 try {

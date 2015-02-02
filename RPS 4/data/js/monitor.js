@@ -9,6 +9,25 @@ if (typeof(window.external.RunningFromRPS)=== "undefined") {
 			"settings":{"animated": "true", "mediatype": "image"}
 		},
 		{
+			"source": "F:\\photos\\2014\\20140106 Big waves at Porthcawl lighthouse\\SX33381 Waves at Porthcawl lighthouse.jpg",
+			"metadata": "no meta",
+			"settings":{
+				"stretchSmallImages":true,
+				"mediatype":"image",
+				"width":3648,
+				"imageShadow":true,
+				"animated":"true",
+				"effect":'{"effect":"fade", "duration":1000}',
+				"ratio":0.75,
+				"fitToDimension":"width",
+				"height":2736,
+				"ignoreFit":false,
+				"resizeRatio":1,
+				"metadata":"...",
+				"backgroundImage":true,"fitTo":"cover"
+			}
+		},
+		{
 			"source": "F:\\tests\\panorama\\SX20484-94 Panorama inner court Harlech Castle.jpg",
 			"settings":{"stretchSmallImages":true,"mediatype":"image","width":2736,"imageShadow":true,"animated":"true","effect":'{"effect":"fade",  "duration":1000}',"ratio":0.75,"fitToDimension":"width","height":3648,"ignoreFit":false,"resizeRatio":1,"metadata":"1/640 | 4.0 | 80 | 5.0 mm | 2.9 MB","backgroundImage":true,"fitTo":"contain"}
 		},

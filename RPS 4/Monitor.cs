@@ -397,7 +397,7 @@ namespace RPS {
                                 }
                             }
                         }
-                        if (this.quickMetadata != null && this.quickMetadata.metadata.ContainsKey("imagewidth") && this.quickMetadata.metadata.ContainsKey("imageheight")) {
+                        if (rotate != 90 && rotate != 270 && this.quickMetadata != null && this.quickMetadata.metadata.ContainsKey("imagewidth") && this.quickMetadata.metadata.ContainsKey("imageheight")) {
                             int width = Convert.ToInt32(this.quickMetadata.metadata["imagewidth"]);
                             int height = Convert.ToInt32(this.quickMetadata.metadata["imageheight"]);
                             float imgRatio = (float)width / (float)height;
@@ -426,7 +426,7 @@ namespace RPS {
 
                             }*/
 
-                            if (this.screensaver.config.getPersistantBool("stretchPanoramas") && imgRatio >= this.screensaver.desktopRatio) {
+                            if (this.screensaver.getNrMonitors() > 1 && this.screensaver.config.getPersistantBool("stretchPanoramas") && imgRatio >= this.screensaver.desktopRatio) {
                                 if (this.screensaver.config.getPersistantBool("stretchSmallImages") || width > this.Bounds.Width || height > this.Bounds.Height) {
                                     //this.imageSettings["fitToDimension"] = "width";
                                     this.imageSettings["pano"] = true;

@@ -22,7 +22,6 @@ using System.Collections;
 using Newtonsoft.Json;
 using Microsoft.Win32;
 using System.Net;
-using System.Web;
 /***
  * 
  * TODO: Reflect changes made in config.html into this.persistant!!!
@@ -307,9 +306,9 @@ namespace RPS {
             hec = this.browser.Document.GetElementsByTagName("textarea");
             foreach (HtmlElement e in hec) {
                 if (this.persistant.ContainsKey(e.GetAttribute("id"))) {
-                    e.SetAttribute("value", HttpUtility.HtmlDecode(Convert.ToString(this.persistant[e.GetAttribute("id")])));
+                    e.SetAttribute("value", Utils.HtmlDecode(Convert.ToString(this.persistant[e.GetAttribute("id")])));
                 } else {
-                    this.persistant[e.GetAttribute("id")] = HttpUtility.HtmlDecode(this.getDomValue(e.GetAttribute("id")));
+                    this.persistant[e.GetAttribute("id")] = Utils.HtmlDecode(this.getDomValue(e.GetAttribute("id")));
                 }
             }
 
@@ -722,7 +721,7 @@ namespace RPS {
             if (he != null) {
                 switch (he.TagName.ToLower()) {
                     case "textarea":
-                        he.InnerHtml = HttpUtility.HtmlDecode(value);
+                        he.InnerHtml = Utils.HtmlDecode(value);
                     break;
                     default:
                         switch (he.GetAttribute("type").ToLower()) {
@@ -756,7 +755,7 @@ namespace RPS {
             try {
                 switch (he.TagName.ToLower()) {
                     case "textarea":
-                        return HttpUtility.HtmlDecode(he.InnerHtml);
+                        return Utils.HtmlDecode(he.InnerHtml);
                         //return he.InnerHtml;
                         break;
                     default:

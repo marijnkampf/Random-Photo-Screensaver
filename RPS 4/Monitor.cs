@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
@@ -16,7 +17,6 @@ using System.Collections;
 using Newtonsoft.Json;
 using System.Security.Principal;
 using Microsoft.VisualBasic;
-using System.Web;
 
 namespace RPS {
     [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
@@ -289,9 +289,10 @@ namespace RPS {
                 int width;
                 int height;
                 try {
-                    width = Convert.ToInt32(this.quickMetadata.metadata["imagewidth"]);
-                    height = Convert.ToInt32(this.quickMetadata.metadata["imageheight"]);
-                } catch (System.FormatException e) {
+                    width = Convert.ToInt32(Regex.Match(this.quickMetadata.metadata["imagewidth"], @"\d+").Value);
+                    height = Convert.ToInt32(Regex.Match(this.quickMetadata.metadata["imageheight"], @"\d+").Value);
+                } catch (Exception e) {
+                    this.showInfoOnMonitor("Error determining width/height of media:" + Environment.NewLine + e.Message);
                     return 1;
                 }
 
@@ -371,7 +372,7 @@ namespace RPS {
                     }
                 }
                 if (rawMetadata != null && rawMetadata != "") {
-                    this.quickMetadata = new MetadataTemplate(rawMetadata, HttpUtility.HtmlDecode(this.screensaver.config.getPersistantString("quickMetadata")));
+                    this.quickMetadata = new MetadataTemplate(rawMetadata, Utils.HtmlDecode(this.screensaver.config.getPersistantString("quickMetadata")));
                     this.imageSettings["metadata"] = this.quickMetadata.fillTemplate();
                 }
                 this.imageSettings["mediatype"] = "image";
@@ -407,8 +408,16 @@ namespace RPS {
                             this.imageSettings["exifRotate"] = rotate;
                         }
                         if (this.quickMetadata != null && this.quickMetadata.metadata.ContainsKey("imagewidth") && this.quickMetadata.metadata.ContainsKey("imageheight")) {
-                            int width = Convert.ToInt32(this.quickMetadata.metadata["imagewidth"]);
-                            int height = Convert.ToInt32(this.quickMetadata.metadata["imageheight"]);
+                            int width;
+                            int height;
+                            try { 
+                                width = Convert.ToInt32(Regex.Match(this.quickMetadata.metadata["imagewidth"], @"\d+").Value);
+                                height = Convert.ToInt32(Regex.Match(this.quickMetadata.metadata["imageheight"], @"\d+").Value);
+                            } catch (Exception e) {
+                                this.showInfoOnMonitor("Error determining width/height of media:" + Environment.NewLine + e.Message);
+                                return;
+                            }
+
                             float imgRatio = (float)width / (float)height;
                             this.imageSettings["width"] = width;
                             this.imageSettings["height"] = height;

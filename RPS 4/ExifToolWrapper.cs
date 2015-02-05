@@ -196,8 +196,7 @@ namespace ExifTool
         // seprate method for each line in function to determine where it goes wrong.
         public string SendCommand(string cmd)
         {
-            if(Status != Statuses.Ready)
-                throw new InvalidOperationException("Process must be ready");
+            if(Status != Statuses.Ready) throw new InvalidOperationException("Process must be ready");
 
             waitHandle.Reset();
             this.proc.StandardInput.WriteLine("{0}\n-execute{1}", cmd, cmdCnt);
@@ -207,7 +206,6 @@ namespace ExifTool
 
             string r = output.ToString();
             output.Clear();
-
             return r;
         }
 

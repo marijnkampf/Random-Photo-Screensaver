@@ -664,6 +664,9 @@ function persistantConfigLoaded() {
 	checkRawConverter();
 	$("#backgroundColour").spectrum("set", $("#backgroundColour").val());
 	$("#wallpaperBackgroundColour").spectrum("set", $("#wallpaperBackgroundColour").val());
+	$(".subOptions").each(function() {
+		$(this).change();
+	});
 }
 
 function settingChanged(object) {
@@ -793,16 +796,12 @@ $(function(){
 	$(".subOptions").change(function() {
 		$("input[type=radio]", this).each(function() {
 			var disabled = false;
-			if ($("input:radio[name=rawLocation]:checked").attr("id") != undefined) disabled = (this.id != $("input:radio[name=rawLocation]:checked").attr("id").toString());
+			if ($("input:radio[name=" + $(this).attr("name") + "]:checked").attr("id") != undefined) disabled = (this.id != $("input:radio[name=" + $(this).attr("name") + "]:checked").attr("id").toString());
 			$("." + this.id + " input").each(function() { $(this).attr("disabled", disabled); });
 			$("." + this.id).each(function() {
 				$(this).toggleClass("disabled", disabled);
 		});
 		});
-	});
-
-	$(".subOptions").each(function() {
-		$(this).change();
 	});
 
 	$(".browseFile .button").click(function() {
@@ -813,6 +812,15 @@ $(function(){
 			$("#" + id).val(window.external.jsFileBrowserDialog($("#" + id).val(), $("#" + id).attr("data-filter")));
 		}
 	});
+
+	$("#debugLogLocation").click(function() {
+		try {
+			window.external.jsOpenLocalAppDataFolder();
+		} catch(e) {
+		}
+	});
+
+
 
 	$("#add_filter_dimension").click(function() {
 		filters.editorAddLine();

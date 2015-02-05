@@ -326,6 +326,7 @@ function showImage(source, displayPath, settings) {
 			html += '<img ';
 			if (mainStyle != '') html += 'style="' + mainStyle + '"';
 			html += 'class="image front ' + mainClasses +'media" src="file://' + source + '"/>';
+			//document.getElementById("debug").innerText = "settings.exifRotate" + settings["settings.exifRotate"];
 		break;
 		case "video":
 			if (settings.stretchSmallVideos) stretch = " stretch";

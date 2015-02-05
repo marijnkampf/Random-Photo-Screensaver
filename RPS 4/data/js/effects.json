@@ -1,145 +1,437 @@
+
+
 {
-"selected": false,
-"expanded": false,
-"unselectable": false,
-"key": "root",
-"title": "Root",
-"lazy": false,
-"folder": true,
-"children": [
-  {
-    "selected": true,
-    "expanded": true,
-    "unselectable": false,
-    "key": "fade",
-    "title": "Fade in",
-    "lazy": false,
-    "folder": true
-  },
-  {
-    "selected": false,
-    "expanded": false,
-    "unselectable": false,
-    "key": "bounce",
-    "title": "Bounce",
-    "lazy": false,
-    "folder": true,
-		"children": [
-			{ "selected": false, "title": "Up" },
-			{ "selected": false, "title": "Down" },
-			{ "selected": false, "title": "Left" },
-			{ "selected": false, "title": "Right" }
-		]
-  },
-  {
-    "selected": true,
-    "expanded": false,
-    "unselectable": false,
-    "key": "blind",
-    "title": "Blind",
-    "lazy": false,
-    "folder": true,
-		"children": [
-			{ "selected": true, "title": "Up" },
-			{ "selected": true, "title": "Down" },
-			{ "selected": true, "title": "Left" },
-			{ "selected": true, "title": "Right" }
-		]
-  },
-  {
-    "selected": true,
-    "expanded": false,
-    "unselectable": false,
-    "key": "clip",
-    "title": "Clip",
-    "lazy": false,
-    "folder": true,
-		"children": [
-			{ "selected": true, "title": "Vertical" },
-			{ "selected": true, "title": "Horizontal" }
-		]
-  },
-  {
-    "selected": true,
-    "expanded": false,
-    "unselectable": false,
-    "key": "drop",
-    "title": "Drop",
-    "lazy": false,
-    "folder": true,
-		"children": [
-			{ "selected": true, "title": "Up" },
-			{ "selected": true, "title": "Down" },
-			{ "selected": true, "title": "Left" },
-			{ "selected": true, "title": "Right" }
-		]
-  },
-  {
-    "selected": true,
-    "expanded": false,
-    "unselectable": false,
-    "key": "fold",
-    "title": "Fold",
-    "lazy": false,
-    "folder": true,
-		"children": [
-			{ "selected": true, "title": "Vertical" },
-			{ "selected": true, "title": "Horizontal" }
-		]
-  },
-  {
-    "selected": true,
-    "expanded": true,
-    "unselectable": false,
-    "key": "puff",
-    "title": "Puff",    
-    "lazy": false,
-    "folder": true
-  },
-  {
-    "selected": false,
-    "expanded": true,
-    "unselectable": false,
-    "key": "pulsate",
-    "title": "Pulsate",    
-    "lazy": false,
-    "folder": true
-  },
-  {
-    "selected": true,
-    "expanded": true,
-    "unselectable": false,
-    "key": "scale",
-    "title": "Scale",    
-    "lazy": false,
-    "folder": true
-  },
-  {
-    "selected": false,
-    "expanded": false,
-    "unselectable": false,
-    "key": "shake",
-    "title": "Shake",
-    "lazy": false,
-    "folder": true,
-		"children": [
-			{ "selected": false, "key": "up", "title": "Vertical" },
-			{ "selected": false, "key": "left", "title": "Horizontal" }
-		]
-  },
-  {
-    "selected": true,
-    "expanded": false,
-    "unselectable": false,
-    "key": "slide",
-    "title": "Slide",
-    "lazy": false,
-    "folder": true,
-		"children": [
-			{ "selected": true, "title": "Up" },
-			{ "selected": true, "title": "Down" },
-			{ "selected": true, "title": "Left" },
-			{ "selected": true, "title": "Right" }
-		]
-  },
-]}
+  "folder": true,
+  "children": [
+    {
+      "folder": true,
+      "children": [
+        
+      ],
+      "selected": true,
+      "expanded": true,
+      "unselectable": false,
+      "extraClasses": null,
+      "key": "fade",
+      "title": "Fade in",
+      "lazy": false
+    },
+    {
+      "folder": true,
+      "children": [
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": false,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": null,
+          "title": "Up",
+          "lazy": false
+        },
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": false,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": null,
+          "title": "Down",
+          "lazy": false
+        },
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": false,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": null,
+          "title": "Left",
+          "lazy": false
+        },
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": false,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": null,
+          "title": "Right",
+          "lazy": false
+        }
+      ],
+      "selected": false,
+      "expanded": false,
+      "unselectable": false,
+      "extraClasses": null,
+      "key": "bounce",
+      "title": "Bounce",
+      "lazy": false
+    },
+    {
+      "folder": true,
+      "children": [
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": true,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": null,
+          "title": "Up",
+          "lazy": false
+        },
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": true,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": null,
+          "title": "Down",
+          "lazy": false
+        },
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": true,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": null,
+          "title": "Left",
+          "lazy": false
+        },
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": true,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": null,
+          "title": "Right",
+          "lazy": false
+        }
+      ],
+      "selected": true,
+      "expanded": false,
+      "unselectable": false,
+      "extraClasses": null,
+      "key": "blind",
+      "title": "Blind",
+      "lazy": false
+    },
+    {
+      "folder": true,
+      "children": [
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": true,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": null,
+          "title": "Vertical",
+          "lazy": false
+        },
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": true,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": null,
+          "title": "Horizontal",
+          "lazy": false
+        }
+      ],
+      "selected": true,
+      "expanded": false,
+      "unselectable": false,
+      "extraClasses": null,
+      "key": "clip",
+      "title": "Clip",
+      "lazy": false
+    },
+    {
+      "folder": true,
+      "children": [
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": true,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": null,
+          "title": "Up",
+          "lazy": false
+        },
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": true,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": null,
+          "title": "Down",
+          "lazy": false
+        },
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": true,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": null,
+          "title": "Left",
+          "lazy": false
+        },
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": true,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": null,
+          "title": "Right",
+          "lazy": false
+        }
+      ],
+      "selected": true,
+      "expanded": false,
+      "unselectable": false,
+      "extraClasses": null,
+      "key": "drop",
+      "title": "Drop",
+      "lazy": false
+    },
+    {
+      "folder": true,
+      "children": [
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": true,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": null,
+          "title": "Vertical",
+          "lazy": false
+        },
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": true,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": null,
+          "title": "Horizontal",
+          "lazy": false
+        }
+      ],
+      "selected": true,
+      "expanded": false,
+      "unselectable": false,
+      "extraClasses": null,
+      "key": "fold",
+      "title": "Fold",
+      "lazy": false
+    },
+    {
+      "folder": true,
+      "children": [
+        
+      ],
+      "selected": true,
+      "expanded": true,
+      "unselectable": false,
+      "extraClasses": null,
+      "key": "puff",
+      "title": "Puff",
+      "lazy": false
+    },
+    {
+      "folder": true,
+      "children": [
+        
+      ],
+      "selected": false,
+      "expanded": true,
+      "unselectable": false,
+      "extraClasses": null,
+      "key": "pulsate",
+      "title": "Pulsate",
+      "lazy": false
+    },
+    {
+      "folder": true,
+      "children": [
+        
+      ],
+      "selected": true,
+      "expanded": true,
+      "unselectable": false,
+      "extraClasses": null,
+      "key": "scale",
+      "title": "Scale",
+      "lazy": false
+    },
+    {
+      "folder": true,
+      "children": [
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": false,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": "up",
+          "title": "Vertical",
+          "lazy": false
+        },
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": false,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": "left",
+          "title": "Horizontal",
+          "lazy": false
+        }
+      ],
+      "selected": false,
+      "expanded": false,
+      "unselectable": false,
+      "extraClasses": null,
+      "key": "shake",
+      "title": "Shake",
+      "lazy": false
+    },
+    {
+      "folder": true,
+      "children": [
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": true,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": null,
+          "title": "Up",
+          "lazy": false
+        },
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": true,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": null,
+          "title": "Down",
+          "lazy": false
+        },
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": true,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": null,
+          "title": "Left",
+          "lazy": false
+        },
+        {
+          "folder": true,
+          "children": [
+            
+          ],
+          "selected": true,
+          "expanded": false,
+          "unselectable": false,
+          "extraClasses": null,
+          "key": null,
+          "title": "Right",
+          "lazy": false
+        }
+      ],
+      "selected": true,
+      "expanded": false,
+      "unselectable": false,
+      "extraClasses": null,
+      "key": "slide",
+      "title": "Slide",
+      "lazy": false
+    }
+  ],
+  "selected": false,
+  "expanded": false,
+  "unselectable": false,
+  "extraClasses": null,
+  "key": "root",
+  "title": "Root",
+  "lazy": false
+}
+

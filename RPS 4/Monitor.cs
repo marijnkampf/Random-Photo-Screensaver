@@ -16,6 +16,7 @@ using System.Collections;
 using Newtonsoft.Json;
 using System.Security.Principal;
 using Microsoft.VisualBasic;
+using System.Web;
 
 namespace RPS {
     [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
@@ -221,7 +222,7 @@ namespace RPS {
         public void rotateImage(int deg) {
             //deg = ;
             this.imageSettings["exifRotate"] = (deg + Convert.ToInt32(this.imageSettings["exifRotate"])) % 360;
-            this.resizeRatioRotate90(Convert.ToInt32(this.imageSettings["exifRotate"]));
+            this.resizeRatio(Convert.ToInt32(this.imageSettings["exifRotate"]));
             this.browser.Document.InvokeScript("setImageRotation", new Object[] { Convert.ToString(this.imageSettings["exifRotate"]), this.imageSettings["resizeRatio"] });
 
             if (this.screensaver.config.getPersistantBool("saveExifOnRotation")) {
@@ -282,11 +283,17 @@ namespace RPS {
             }
         }
 
-        public double resizeRatioRotate90(int rotate) {
+        public double resizeRatio(int rotate) {
             this.imageSettings["resizeRatio"] = 1;
             if (this.quickMetadata != null && this.quickMetadata.metadata.ContainsKey("imagewidth") && this.quickMetadata.metadata.ContainsKey("imageheight")) {
-                int width = Convert.ToInt32(this.quickMetadata.metadata["imagewidth"]);
-                int height = Convert.ToInt32(this.quickMetadata.metadata["imageheight"]);
+                int width;
+                int height;
+                try {
+                    width = Convert.ToInt32(this.quickMetadata.metadata["imagewidth"]);
+                    height = Convert.ToInt32(this.quickMetadata.metadata["imageheight"]);
+                } catch (System.FormatException e) {
+                    return 1;
+                }
 
                 Rectangle newR = Constants.FitIntoBounds(new Rectangle(this.Bounds.Location, new Size(width, height)), this.Bounds, false, false);
                 Rectangle oldR;
@@ -358,11 +365,13 @@ namespace RPS {
                             rawMetadata = this.screensaver.fileNodes.exifToolGetMetadata(Convert.ToString(this.currentImage["path"]) + Constants.ExifToolMetadataOptions, Convert.ToInt32(this.currentImage["id"]));
                         } catch (System.IO.FileNotFoundException fnfe) {
                             this.imageSettings["metadata"] = "ExifTool not found: '" + this.screensaver.config.getPersistant("exifTool") + "'";
+                        } catch (Exception e) {
+                            this.imageSettings["metadata"] = e.Message;
                         }
                     }
                 }
                 if (rawMetadata != null && rawMetadata != "") {
-                    this.quickMetadata = new MetadataTemplate(rawMetadata, this.screensaver.config.getPersistantString("quickMetadata"));
+                    this.quickMetadata = new MetadataTemplate(rawMetadata, HttpUtility.HtmlDecode(this.screensaver.config.getPersistantString("quickMetadata")));
                     this.imageSettings["metadata"] = this.quickMetadata.fillTemplate();
                 }
                 this.imageSettings["mediatype"] = "image";
@@ -391,13 +400,13 @@ namespace RPS {
                                         rotate = 270; 
                                     break;
                                 }
-                                this.resizeRatioRotate90(rotate);
-                                if (rotate != 0) {
-                                    this.imageSettings["exifRotate"] = rotate;
-                                }
                             }
                         }
-                        if (rotate != 90 && rotate != 270 && this.quickMetadata != null && this.quickMetadata.metadata.ContainsKey("imagewidth") && this.quickMetadata.metadata.ContainsKey("imageheight")) {
+                        this.resizeRatio(rotate);
+                        if (rotate != 0) {
+                            this.imageSettings["exifRotate"] = rotate;
+                        }
+                        if (this.quickMetadata != null && this.quickMetadata.metadata.ContainsKey("imagewidth") && this.quickMetadata.metadata.ContainsKey("imageheight")) {
                             int width = Convert.ToInt32(this.quickMetadata.metadata["imagewidth"]);
                             int height = Convert.ToInt32(this.quickMetadata.metadata["imageheight"]);
                             float imgRatio = (float)width / (float)height;
@@ -426,7 +435,7 @@ namespace RPS {
 
                             }*/
 
-                            if (this.screensaver.getNrMonitors() > 1 && this.screensaver.config.getPersistantBool("stretchPanoramas") && imgRatio >= this.screensaver.desktopRatio) {
+                            if (rotate != 90 && rotate != 270 && this.screensaver.getNrMonitors() > 1 && this.screensaver.config.getPersistantBool("stretchPanoramas") && imgRatio >= this.screensaver.desktopRatio) {
                                 if (this.screensaver.config.getPersistantBool("stretchSmallImages") || width > this.Bounds.Width || height > this.Bounds.Height) {
                                     //this.imageSettings["fitToDimension"] = "width";
                                     this.imageSettings["pano"] = true;

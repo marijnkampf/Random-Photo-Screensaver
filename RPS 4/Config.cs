@@ -22,6 +22,7 @@ using System.Collections;
 using Newtonsoft.Json;
 using Microsoft.Win32;
 using System.Net;
+using System.Web;
 /***
  * 
  * TODO: Reflect changes made in config.html into this.persistant!!!
@@ -56,7 +57,10 @@ namespace RPS {
            {"excludedSubfolders", null},
            {"excludeAllSubfolders", null},
            {"ignoreHiddenFiles", null},
-           {"ignoreHiddenFolders", null}
+           {"ignoreHiddenFolders", null},
+           {"imageExtensions", null},
+           {"videoExtensions", null},
+           {"rawExtensions", null},
         };
 
         public long maxMonitorDimension = 0;
@@ -159,7 +163,11 @@ namespace RPS {
         }
 
         public string jsGetFilters() {
-            return this.getPersistantString("filters");
+            try {
+                return this.getPersistantString("filters");
+            } catch(System.Collections.Generic.KeyNotFoundException e) {
+                return null;
+            }
         }
 
         public string jsGetFilterColumns() {
@@ -168,6 +176,12 @@ namespace RPS {
                 .ToLookup(pair => pair.Key, pair => pair.Value)
                 .ToDictionary(group => group.Key, group => group.First());
             return JsonConvert.SerializeObject(columns/*, Newtonsoft.Json.Formatting.Indented*/);
+        }
+
+        public void jsOpenLocalAppDataFolder() {
+            if (Utils.RunTaskScheduler(@"OpenInExplorer", "explorer.exe", "\"" + Constants.getLocalAppDataFolder() + "\"")) {
+                //this.monitors[i].showInfoOnMonitor("Opened in Explorer Window", false, true);
+            }
         }
 
         public void setBrowserBodyClasses(WebBrowser browser, Screensaver.Actions action) {
@@ -293,9 +307,9 @@ namespace RPS {
             hec = this.browser.Document.GetElementsByTagName("textarea");
             foreach (HtmlElement e in hec) {
                 if (this.persistant.ContainsKey(e.GetAttribute("id"))) {
-                    e.SetAttribute("value", Convert.ToString(this.persistant[e.GetAttribute("id")]));
+                    e.SetAttribute("value", HttpUtility.HtmlDecode(Convert.ToString(this.persistant[e.GetAttribute("id")])));
                 } else {
-                    this.persistant[e.GetAttribute("id")] = this.getDomValue(e.GetAttribute("id"));
+                    this.persistant[e.GetAttribute("id")] = HttpUtility.HtmlDecode(this.getDomValue(e.GetAttribute("id")));
                 }
             }
 
@@ -708,7 +722,7 @@ namespace RPS {
             if (he != null) {
                 switch (he.TagName.ToLower()) {
                     case "textarea":
-                        he.InnerHtml = value;
+                        he.InnerHtml = HttpUtility.HtmlDecode(value);
                     break;
                     default:
                         switch (he.GetAttribute("type").ToLower()) {
@@ -742,7 +756,8 @@ namespace RPS {
             try {
                 switch (he.TagName.ToLower()) {
                     case "textarea":
-                        return he.InnerHtml;
+                        return HttpUtility.HtmlDecode(he.InnerHtml);
+                        //return he.InnerHtml;
                         break;
                     default:
                         return he.GetAttribute("value");

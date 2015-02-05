@@ -178,6 +178,7 @@
 						<div class="set">
 							<h3>Debug</h3>
 							<input type="checkbox" id="debugLog"/> <label for="debugLog" class="tooltip" data-title="Keep debug log of files loaded. Stored in 'C:\Users\[user name]\AppData\Local\Random Photo Screensaver\debug_#date#.txt'">Debug log</label>
+							<a id="debugLogLocation" href="#" class="button">Open log location in Explorer</a>
 							<div class="keywords">debugging</div>
 						</div>
 					</div>
@@ -276,13 +277,15 @@
 					<h1 id="images">Media</h1>
 					<div class="set">
 						<h2 id="images">Images</h2>
-						<label for="stretchSmallImages"><input type="checkbox" id="stretchSmallImages"/> Stretch small images</label>
-						<div id="fitTo" class="inline"><label>Fit images to</label>
-							<label for="fitToContain" class="tooltip" data-title="Scale image so it fits entirely on the display (background visible)."><input type="radio" id="fitToContain" name="fitTo" value="contain" checked /> contain (?)</label>
-							<label for="fitToCover" class="tooltip"  data-title="Scale image so that it covers the entiry display (no background visisble).">						<input type="radio" id="fitToCover" name="fitTo" value="cover"/> cover (?)</label>
-						</div>
-						<label for="exifRotate"><input type="checkbox" id="exifRotate" checked/> Rotate image based on EXIF orientation (if available<span class="multiOnly">, not applied to panoramas</span>)</label>
-						<div class="keywords">photos photographs pictures</div>
+							<div id="fitTo" class="inline subOptions"><label>Fit images to</label>
+								<div class="fitToContain">
+									<label for="stretchSmallImages" class="tooltip"  data-title="Can only be set if fit to contain is selected. With fit to cover images are automatically stretched."><input type="checkbox" id="stretchSmallImages"/> Stretch small images (?)</label>
+								</div>
+								<label for="fitToContain" class="tooltip" data-title="Scale image so it fits entirely on the display (background visible)."><input type="radio" id="fitToContain" name="fitTo" value="contain" checked /> contain (?)</label>
+								<label for="fitToCover" class="tooltip"  data-title="Scale image so that it covers the entiry display (no background visisble).">						<input type="radio" id="fitToCover" name="fitTo" value="cover"/> cover (?)</label>
+							</div>
+							<label for="exifRotate"><input type="checkbox" id="exifRotate" checked/> Rotate image based on EXIF orientation <span class="multiOnly"><br/></span>(if available<span class="multiOnly">, not applied to multi monitor panoramas</span>)</label>
+							<div class="keywords">photos photographs pictures</div>
 					</div>
 					<div class="set">
 						<h2>Videos</h2>
@@ -624,7 +627,7 @@
 					<h2>
 					<a id="user-content-license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h2>
 
-					<p>Copyright (C) 2005-2014 Marijn Kampf </p>
+					<p>Copyright (C) 2005-2015 Marijn Kampf </p>
 
 					<p>Random Photo Screensaver is free software (<a href="http://www.gnu.org/philosophy/free-sw.html">http://www.gnu.org/philosophy/free-sw.html</a>); you can redistribute it and/or modify it under the terms of the GNU General Public License (<a href="http://www.gnu.org/licenses/gpl.html">http://www.gnu.org/licenses/gpl.html</a>) as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.</p>
 

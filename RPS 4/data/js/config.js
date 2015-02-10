@@ -1,3 +1,9 @@
+if (typeof(window.external.InvokeScriptOnMonitor) === "undefined") {
+	if (parent.window.location.href == location.href) {
+		location.href = location.href.replace("abdownloads/rps/data/config.html", "random-photo-screensaver/configuration/")
+	}
+}
+
 var NaturalText = {
 	"contains": "Containing",
 	"begin": "Begining with",

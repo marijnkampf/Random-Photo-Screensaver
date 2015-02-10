@@ -245,7 +245,11 @@ CREATE UNIQUE INDEX `keys` ON `Setting` (`key` ASC);
         }
 
         public static string getNiceVersion() {
-            return Application.ProductVersion.Replace(".1.", " RC ").Replace(".0.", " Beta ").Replace(".0", "");
+            Version version = new Version(Application.ProductVersion);
+            if (version.Revision == 0) {
+                if (version.Build == 0) return new Version(version.Major, version.Minor).ToString();
+                else return new Version(version.Major, version.Minor, version.Build).ToString();
+            } else return Application.ProductVersion;
         }
 
 /*         	

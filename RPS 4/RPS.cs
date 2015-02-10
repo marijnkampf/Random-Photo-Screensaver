@@ -796,7 +796,7 @@ namespace RPS {
                                         if (filename != null && filename.Length > 0 && File.Exists(filename)) {
                                             Cursor.Show();
                                             this.monitors[i].Focus();
-                                            if (DialogResult.Yes == MessageBox.Show("Are you sure you want to sent '" + Path.GetFileName(filename) + "' to the Recycle Bin?", "Confirm File Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation)) {
+                                            if (DialogResult.Yes == MessageBox.Show("Are you sure you want to delete '" + Path.GetFileName(filename) + "'?", "Confirm File Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation)) {
                                                 deleteFile = true;
                                             } else {
                                                 deleteFile = false;

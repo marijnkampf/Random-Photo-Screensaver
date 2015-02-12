@@ -438,7 +438,7 @@
 							<div class="set">
 								<div class="set">
 									<h3>Information</h3>
-									<label for="showFilenameM1" class="tooltip" data-title="Toggle with F key whilst screensaver is running"><input type="checkbox" id="showFilenameM1" checked /> Show filename</label><br/>
+									<label for="showFilenameM1" class="tooltip" data-title="Toggle with F key whilst screensaver is running. Show advanced settings to set which parts of the filepath to show."><input type="checkbox" id="showFilenameM1" checked /> Show filename</label><br/>
 									<label for="showQuickMetadataM1" class="tooltip" data-title="Toggle with N key whilst screensaver is running"><input type="checkbox" id="showQuickMetadataM1" checked /> Show quick metadata</label><br/>
 									<label for="showIndexProgressM1" class="tooltip" data-title="Show info on number of files: in database, selected by filter, metadata queue and files/folders scanned"><input type="checkbox" id="showIndexProgressM1" checked /> Show database / index / filter info</label>
 								</div>
@@ -449,15 +449,28 @@
 										<label for="currentClockM1"><input id="currentClockM1" type="radio" name="clockM1" value="current"/>Current time</label>
 										<label for="elapsedClockM1"><input id="elapsedClockM1" type="radio" name="clockM1" value="elapsed"/>Screensaver running time</label>
 									</div>
+									<label for="clockFormatM1" data-title="Toggle with F key whilst screensaver is running">Clock format: <span id="clockPreviewM1">14:23:01</span></label>
+									<!--input type="text" id="clockFormatM1" class="clockFormat" value="HH:mm:ss" /-->
+									<textarea id="clockFormatM1" class="clockFormat">HH:mm:ss</textarea>
 								</div>
 							</div>
 						</div>
 					</div>
 					<div class="clear"></div>
+					<div class="note">Clock format examples:<br/>Use hh:mm:ss for 12 hour clock<br/>Example of date and escaping text try: To\d\ay i\s D MMM YYYY<br/><a class="external" href="http://momentjs.com/docs/#year-month-and-day-tokens">See momentjs.com for date/time formatting info.</a></div>
 					<div class="set multiOnly">
 						<h2>Multi monitors</h2>
 						<label for="stretchPanoramas" title="Panoramas are only stretched to higher numbered monitors"><input type="checkbox" id="stretchPanoramas" checked /> Stretch panoramas accross multiple monitors</label>
 						<label for="sameImage"><input type="checkbox" id="sameImage"/> Same image/video on each monitor</label>
+					</div>
+					<div class="pathParts advanced">
+						<h3>Show filename parts</h3>
+						<!--div id="pathExample">Example: <span class="showPathRoot">C:\my photos\</span><span class="showPathSubfolders">sub\folder\</span><span class="showPathFilename">img_0001</span><span class="showPathExtension">.jpg</span></div-->
+						<label for="showPathRoot"><input type="checkbox" id="showPathRoot" data-value="root" checked /> Photos folder (C:\my photos\)</label>
+						<label for="showPathSubfolders"><input type="checkbox" id="showPathSubfolders" data-value="subfolders" checked /> Sub folder(s) (sub\folder\)</label>
+						<label for="showPathFilename"><input type="checkbox" id="showPathFilename" data-value="filename" checked /> Filename (img_0001)</label>
+						<label for="showPathExtension"><input type="checkbox" id="showPathExtension" data-value="extension" checked /> Extension (.jpg)</label>
+						<div class="keywords">paths filenames</div>
 					</div>
 				</li>
 
@@ -499,11 +512,9 @@
 						</div>
 					</div>
 					<label for="disableGoAn" class="tooltip" data-title="Disable tracking of update page"><input type="checkbox" id="disableGoAn"/>Don't track downloads with Google Analytics</label>
+					<label for="betaVersion"><input type="checkbox" id="betaVersion"/>Include beta and release candidate versions</label>
+					<label for="ignoreUpdate"><input type="checkbox" id="ignoreUpdate"/>Ignore latest update (version: <input type="text" id="ignoreVersion"/>)</label>
 					<div class="clear"></div>
-					<div class="advanced">
-						<label for="betaVersion"><input type="checkbox" id="betaVersion" checked/>Include beta and release candidate versions</label>
-						<label for="ignoreUpdate"><input type="checkbox" id="ignoreUpdate"/>Ignore latest update (version: <input type="text" id="ignoreVersion"/>)</label>
-					</div>
 					<div class="keywords">previous old</div>
 				</li>
 
@@ -602,6 +613,8 @@
 					<li><a target="_top" href="https://github.com/mar10/fancytree">Fancytree</a></li>
 					<li><a target="_top" href="http://johannburkard.de/blog/programming/javascript/highlight-javascript-text-higlighting-jquery-plugin.html">Highlight text</a></li>
 					<li><a target="_top" href="http://bgrins.github.io/spectrum/">Colour picker</a></li>
+					<li><a target="_top" href="http://momentjs.com/">Moment.js</a></li>
+
 					</ul>
 					</li>
 					<li>CSS

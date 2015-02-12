@@ -207,40 +207,64 @@ CREATE UNIQUE INDEX `keys` ON `Setting` (`key` ASC);
             );
         }
 
-        public static string getDataFolder(string filename) {
-            /* 1. user folder (C:\Users\[user name]\AppData\Local\Random Photo Screensaver)
-             * 2. executable folder
-             * 3. development folder */
+        public static string getProgramDataFolder() {
+            return Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                Constants.AppFolderName
+            );
+        }
+
+        public static string selectProgramAppDataFolder(string filename) {
+            /**
+             * 1. If filename exists in user folder (C:\Users\[user name]\AppData\Local\Random Photo Screensaver\filename) return full path
+             * 2. Otherwise return full path to program data folder (C:\ProgramData\Random Photo Screensaver\filename)
+             **/
+            Console.WriteLine("findOrInitInDataFolder: " + filename);
+            string fullPath;
+
+            fullPath = Path.Combine(Constants.getLocalAppDataFolder(), filename);
 
             /* 1 */
+            if (!File.Exists(fullPath)) {
+                /* 2 */
+                fullPath = Path.Combine(Constants.getProgramDataFolder(), filename);
+            }
+            return fullPath;
+        }
+
+        public static string getDataFolder(string filename) {
+            /** 
+             * 1. development folder 
+             * 2. user folder (C:\Users\[user name]\AppData\Local\Random Photo Screensaver)
+             * 3. program data folder (C:\ProgramData\Random Photo Screensaver)
+             * 4. executable folder
+             **/
+            Console.WriteLine("getDataFolder: " + filename);
             string notFound = "";
-            string fullPath = Path.Combine(Constants.getLocalAppDataFolder(), Constants.DataFolder, filename);
-            
+            string fullPath;
+
+            /* 1 */
+            fullPath = Path.Combine(Application.StartupPath, Constants.devDataFolder, filename);
+
             /* 2 */
             if (!File.Exists(fullPath)) {
                 notFound += fullPath + "\r\n";
-                //MessageBox.Show(fullPath + " not found");
-                fullPath = Path.Combine(
-                    Application.StartupPath,
-                    Constants.DataFolder,
-                    filename
-                );
+                fullPath = Path.Combine(Constants.getLocalAppDataFolder(), Constants.DataFolder, filename);
+
                 /* 3 */
                 if (!File.Exists(fullPath)) {
                     notFound += fullPath + "\r\n";
-                    //MessageBox.Show(fullPath + " not found");
-                    fullPath = Path.Combine(
-                        Application.StartupPath,
-                        Constants.devDataFolder,
-                        filename
-                    );
-                    requireFile(fullPath);
-/*                    if (!File.Exists(fullPath)) {
+                    fullPath = Path.Combine(Constants.getProgramDataFolder(), Constants.DataFolder, filename);
+
+                    /* 4 */
+                    if (!File.Exists(fullPath)) {
                         notFound += fullPath + "\r\n";
-                        Constants.requiredFileMissing(filename, notFound);
-                    }*/
+                        fullPath = Path.Combine(Application.StartupPath, Constants.DataFolder, filename);
+                        requireFile(fullPath);
+                    }
                 }
             }
+
             return fullPath;
         }
 

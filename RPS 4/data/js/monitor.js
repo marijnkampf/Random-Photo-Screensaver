@@ -10,8 +10,11 @@ if (typeof(window.external.RunningFromRPS)=== "undefined") {
 		},
 		{
 			"source": "F:\\photos\\2014\\20140106 Big waves at Porthcawl lighthouse\\SX33381 Waves at Porthcawl lighthouse.jpg",
-			"metadata": "no meta",
 			"settings":{
+				"path.root": "F:\\photos\\",
+				"path.subfolders": "2014\\20140106 Big waves at Porthcawl lighthouse\\",
+				"path.filename": "SX33381 Waves at Porthcawl lighthouse",
+				"path.extension": ".jpg",
 				"stretchSmallImages":true,
 				"mediatype":"image",
 				"width":3648,
@@ -23,7 +26,7 @@ if (typeof(window.external.RunningFromRPS)=== "undefined") {
 				"height":2736,
 				"ignoreFit":false,
 				"resizeRatio":1,
-				"metadata":"...",
+				"metadata":"no\nmeta",
 				"backgroundImage":true,"fitTo":"cover"
 			}
 		},
@@ -192,7 +195,7 @@ function showInfo(info, fade) {
 
 // identify monitor nr
 function showPriorityInfo(info, fade) {
-	document.getElementById("showpriorityinfo").innerText = info;
+	document.getElementById("showpriorityinfo").innerHTML = info;
 	//$("#showpriorityinfo").stop(true, true);
 	$("#showpriorityinfo").show();
 	if (fade.toLowerCase() == "true") $("#showpriorityinfo").stop().fadeOut(5000);
@@ -212,11 +215,11 @@ function hideUpdateInfo(info) {
 
 
 function showMetadata(metadata) {
-	document.getElementById("quickMetadata").innerText = metadata;
+	document.getElementById("quickMetadata").innerHTML = metadata;
 }
 
 function showIndexProgress(info) {
-	document.getElementById("indexprogress").innerText = info;
+	document.getElementById("indexprogress").innerHTML = info;
 }
 
 function setImageRotation(deg, scale) {
@@ -326,7 +329,7 @@ function showImage(source, displayPath, settings) {
 			html += '<img ';
 			if (mainStyle != '') html += 'style="' + mainStyle + '"';
 			html += 'class="image front ' + mainClasses +'media" src="file://' + source + '"/>';
-			//document.getElementById("debug").innerText = "settings.exifRotate" + settings["settings.exifRotate"];
+			//document.getElementById("debug").innerHTML = "settings.exifRotate" + settings["settings.exifRotate"];
 		break;
 		case "video":
 			if (settings.stretchSmallVideos) stretch = " stretch";
@@ -386,8 +389,11 @@ function showImage(source, displayPath, settings) {
 			}
 		}
 
-		document.getElementById("filename").innerText = displayPath;
-		document.getElementById("quickMetadata").innerText = settings["metadata"];
+		$("#filename .root")[0].innerHTML = settings["path.root"];
+		$("#filename .subfolders")[0].innerHTML = settings["path.subfolders"];
+		$("#filename .filename")[0].innerHTML = settings["path.filename"];
+		$("#filename .extension")[0].innerHTML = settings["path.extension"];
+		document.getElementById("quickMetadata").innerHTML = settings["metadata"];
 
 		if (settings["pano"] != undefined && settings["pano"] == true) {
 	//				window.prompt("Copy to clipboard: Ctrl+C, Enter", html);
@@ -405,15 +411,21 @@ function setClockType(type) {
 	$("#clock").toggle(clockType != "no" && clockType != "none");
 }
 
+function setClockFormat(format) {
+	clockFormat = format;
+	clockTick();
+}
+
 var startTime = new moment();
 var clockType = "current";
+var clockFormat = "HH:mm:ss";
 function clockTick() {
 	//window.onclick();
 	var m = new moment();
 	if (clockType == "elapsed") {
-		document.getElementById('clock').innerText = m.subtract(startTime).format("HH:mm:ss");
+		document.getElementById('clock').innerHTML = m.subtract(startTime).format(clockFormat.replace("\n", "<br/>"));
 	} else { // current
-		document.getElementById('clock').innerText = m.format("HH:mm:ss");
+		document.getElementById('clock').innerHTML = m.format(clockFormat.replace("\n", "<br/>"));
 	}
 	var t = setTimeout(function(){clockTick()},100);
 }

@@ -98,12 +98,17 @@ namespace RPS {
             this.InvokeScript("setBackgroundColour", new string[] { Convert.ToString(this.screensaver.config.getPersistant("backgroundColour")) });
             this.InvokeScript("toggle", new string[] { "#quickMetadata", Convert.ToString(this.screensaver.config.getPersistantBool("showQuickMetadataM" + (this.id + 1))) });
             this.InvokeScript("toggle", new string[] { "#filename", Convert.ToString(this.screensaver.config.getPersistantBool("showFilenameM" + (this.id + 1))) });
+            this.InvokeScript("toggle", new string[] { "#filename .root", Convert.ToString(this.screensaver.config.getPersistantBool("showPathRoot")) });
+            this.InvokeScript("toggle", new string[] { "#filename .subfolders", Convert.ToString(this.screensaver.config.getPersistantBool("showPathSubfolders")) });
+            this.InvokeScript("toggle", new string[] { "#filename .filename", Convert.ToString(this.screensaver.config.getPersistantBool("showPathFilename")) });
+            this.InvokeScript("toggle", new string[] { "#filename .extension", Convert.ToString(this.screensaver.config.getPersistantBool("showPathExtension")) });
             this.InvokeScript("toggle", new string[] { "#indexprogress", Convert.ToString(this.screensaver.config.getPersistantBool("showIndexProgressM" + (this.id + 1))) });
 
             string clockType = this.screensaver.config.getPersistantString("clockM" + (this.id + 1));
             if (clockType == null) clockType = "none";
             this.InvokeScript("toggle", new string[] { "#clock", Convert.ToString(!clockType.Equals("none")) });
             this.InvokeScript("setClockType", new string[] { clockType });
+            this.InvokeScript("setClockFormat", new string[] { this.screensaver.config.getPersistantString("clockFormatM" + (this.id + 1)) });
         }
 
         private void DocumentCompleted(object sender, System.Windows.Forms.WebBrowserDocumentCompletedEventArgs e) {
@@ -356,6 +361,25 @@ namespace RPS {
                 this.imageSettings.Clear();
                 this.imageSettings["metadata"] = "";
 
+                string path = Convert.ToString(this.currentImage["path"]);
+                string root = "";
+                string filename = Path.GetFileNameWithoutExtension(path);
+                string extension = Path.GetExtension(path);
+                List<string> folders = Utils.stringToList(Convert.ToString(this.screensaver.config.getPersistant("folders")));
+                foreach (string folder in folders) {
+                    if (path.StartsWith(folder)) {
+                        root = folder;
+                        break;
+                    }
+                }
+                // Whatever is leftover are the subfolders
+                string subfolders = path.Substring(root.Length, path.Length - root.Length - filename.Length - extension.Length);
+
+                this.imageSettings["path.root"] = root;
+                this.imageSettings["path.subfolders"] = subfolders;
+                this.imageSettings["path.filename"] = filename;
+                this.imageSettings["path.extension"] = extension;
+
                 if (this.currentImage.Table.Columns.Contains("all")) {
                     rawMetadata = Convert.ToString(this.currentImage["all"]);
                 }
@@ -505,7 +529,7 @@ namespace RPS {
                             Environment.UserName + Environment.NewLine +
                             this.imageSettings["metadata"];*/
                         //this.showInfoOnMonitor(this.info, false, true);
-                        this.browser.Document.InvokeScript("showImage", new Object[] { e.Result, Convert.ToString(this.currentImage["path"]), JsonConvert.SerializeObject(this.imageSettings) });
+                        this.browser.Document.InvokeScript("showImage", new Object[] { e.Result, "<span class='folder'>" + Convert.ToString(this.currentImage["path"]) + "</span>", JsonConvert.SerializeObject(this.imageSettings) });
                     };
                     string path = "";
                     object[] prms = new object[] { path };
@@ -527,7 +551,7 @@ namespace RPS {
                 log = "<!--" + Environment.NewLine + JsonConvert.SerializeObject(this.currentImage) + Environment.NewLine + "-->";
                 File.WriteAllText(path, this.browser.Document.GetElementsByTagName("HTML")[0].OuterHtml + Environment.NewLine + log);
             } catch (Exception) {
-                path = Path.Combine(Constants.getLocalAppDataFolder(), Constants.DataFolder, filename);
+                path = Path.Combine(Constants.getProgramDataFolder(), Constants.DataFolder, filename);
                 try {
                     File.WriteAllText(path, this.browser.Document.GetElementsByTagName("HTML")[0].OuterHtml);
                 } catch (Exception e) {

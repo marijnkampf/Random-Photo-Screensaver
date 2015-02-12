@@ -23,19 +23,10 @@ namespace RPS {
 
         public FileDatabase(bool readOnly) {
             this.readOnly = readOnly;
-            this.dbConnector = new DBConnector(
-                Path.Combine(
-                    Constants.getLocalAppDataFolder(),
-                    Constants.DbFileName
-                ),
-                Constants.FileNodesDefinition
-            );
+            this.dbConnector = new DBConnector(Constants.selectProgramAppDataFolder(Constants.DbFileName), Constants.FileNodesDefinition);
 
             // Connect to metadata regardless so it can be switched on whilst running
-            string mdbPath = Path.Combine(
-                Constants.getLocalAppDataFolder(),
-                Constants.MetadataFileName
-            );
+            string mdbPath = Constants.selectProgramAppDataFolder(Constants.MetadataFileName);
             this.metaDataDbConnector = new DBConnector(
                 mdbPath, 
                 Constants.MetadataDefinition, 
@@ -257,7 +248,11 @@ namespace RPS {
             int r = command.ExecuteNonQuery();
             command = new SQLiteCommand("DELETE FROM `Metadata` WHERE id = @id;", this.metaDataDbConnector.connection);
             command.Parameters.AddWithValue("@id", id);
-            r += command.ExecuteNonQuery();
+            try { 
+                r += command.ExecuteNonQuery();
+            } catch (Exception e) {
+                Debug.WriteLine("Error on deleteFromDB " + e.Message);
+            }
             return r;
         }
 
@@ -318,7 +313,11 @@ namespace RPS {
 
             command = new SQLiteCommand("DELETE FROM `FileNodes` " + where + ";", this.dbConnector.connection);
             Debug.WriteLine(command.CommandText);
-            r += command.ExecuteNonQuery();
+            try {
+                r += command.ExecuteNonQuery();
+            } catch (Exception e) {
+                return -1;
+            }
             return r;
         }
 
@@ -332,7 +331,11 @@ namespace RPS {
             int r = 0;
             command = new SQLiteCommand("DELETE FROM `FileNodes` " + where + ";", this.dbConnector.connection);
             Debug.WriteLine(command.CommandText);
-            r += command.ExecuteNonQuery();
+            try {
+                r += command.ExecuteNonQuery();
+            } catch (Exception e) {
+                return -1;
+            }
 
             Debug.WriteLine(this.nrImagesInDB());
             

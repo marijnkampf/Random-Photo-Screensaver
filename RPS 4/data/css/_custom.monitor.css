@@ -1,8 +1,10 @@
 /****
  * Rename this file custom.monitor.css and customise the look and feel of RPS 4.
  *
- * If you make your own customistions please let send me your custom.monitor.css at marijn@abscreensavers.com 
- * I might include it as default or alternative settings in next versions
+ * If you make your own customistions please send me your custom.monitor.css at marijn@abscreensavers.com 
+ * I might include it as default or alternative settings in a future versions
+ *
+ * For quick testing open %programdata%\Random Photo Screensaver\data\monitor.html in your browser and use F5 to refresh page after making changes.
  *
  * Multi monitor systems
  * To target a specific monitor use .monitor#, for example to show the filename on monitor 2 in the top right corner use:
@@ -19,17 +21,23 @@
  * Make changes you want to apply to all info text in here (colour / font type / ...)
  ***/
 .info {
-
+	font-family: "Century Gothic";
+	background-color: rgba(0, 0, 0, 0.5);
+	padding: 0 0.25em;
+	color: white;
 }
 
 /*** Clock ***/
-#clock { 
-
+#clock {
+	left: 0px; /* Move to the left of the screen */
+	right: auto; /* Disable default alignment */
+	font-size: 7.5em; /* Make clock bigger */
 }
 
 /*** Current filename ***/
 #filename { 
-
+	left: auto; /* Disable default alignment */
+	right: 0.25em; /* Align from right side */
 }
 
 /*** Database and file/folder scanning progress ***/
@@ -39,7 +47,9 @@
 
 /*** Database and file/folder scanning progress ***/
 #quickMetadata { 
-
+	top: 2em;
+	bottom: auto;
+	right: 0.25em; 
 }
 
 /*** Used to identify monitor (multi screen) ***/

@@ -88,11 +88,7 @@ namespace RPS {
         }
 
         public SQLiteConnection connectToDB() {
-            this.dbConnector = new DBConnector(
-                Path.Combine(Constants.getLocalAppDataFolder(), Constants.PersistantConfigFileName),
-                Constants.SettingsDefinition,
-                false
-            );
+            this.dbConnector = new DBConnector(Constants.selectProgramAppDataFolder(Constants.PersistantConfigFileName), Constants.SettingsDefinition, false);
             //return new SQLiteConnection("Data Source=" + path + ";Version=3;");
             return this.dbConnector.connection;
         }
@@ -177,8 +173,8 @@ namespace RPS {
             return JsonConvert.SerializeObject(columns/*, Newtonsoft.Json.Formatting.Indented*/);
         }
 
-        public void jsOpenLocalAppDataFolder() {
-            if (Utils.RunTaskScheduler(@"OpenInExplorer", "explorer.exe", "\"" + Constants.getLocalAppDataFolder() + "\"")) {
+        public void jsOpenProgramAppDataFolder() {
+            if (Utils.RunTaskScheduler(@"OpenInExplorer", "explorer.exe", "\"" + Constants.selectProgramAppDataFolder("") + "\"")) {
                 //this.monitors[i].showInfoOnMonitor("Opened in Explorer Window", false, true);
             }
         }

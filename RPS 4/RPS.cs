@@ -109,10 +109,7 @@ namespace RPS {
 
         public void appendDebugFile(int monitor, string log) {
             if (this.config.getPersistantBool("debugLog")) {
-                string path = Path.Combine(
-                    Constants.getLocalAppDataFolder(),
-                    "debug_" + DateTime.Now.ToString("yyyyMMdd") + ".txt"
-                );
+                string path = Constants.selectProgramAppDataFolder("debug_" + DateTime.Now.ToString("yyyyMMdd") + ".txt");
                 try {
                     File.AppendAllText(path, DateTime.Now.ToString("yyyyMMddhhmmss") + "\t" + Convert.ToString(monitor + 1) + "\t" + log + Environment.NewLine);
                 } catch (Exception e) {
@@ -638,6 +635,7 @@ namespace RPS {
                                     this.config.setPersistant("clockM" + (i + 1), clockType);
                                     this.monitors[i].InvokeScript("setClockType", new string[] { clockType  });
                                     this.monitors[i].InvokeScript("toggle", new string[] { "#clock", display });
+                                    this.monitors[i].InvokeScript("setClockFormat", new string[] { this.config.getPersistantString("clockFormatM" + (i + 1)) });
                                 }
                             }
                         break;

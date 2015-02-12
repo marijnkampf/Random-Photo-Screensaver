@@ -1,8 +1,10 @@
 if (typeof(window.external.InvokeScriptOnMonitor) === "undefined") {
 	if (parent.window.location.href == location.href) {
-		location.href = location.href.replace("abdownloads/rps/data/config.html", "random-photo-screensaver/configuration/")
+		redirect = location.href.replace("abdownloads/rps/data/config.html", "random-photo-screensaver/configuration/");
+		if (redirect != location.href) location.href = redirect;
 	}
 }
+
 
 var NaturalText = {
 	"contains": "Containing",
@@ -821,12 +823,10 @@ $(function(){
 
 	$("#debugLogLocation").click(function() {
 		try {
-			window.external.jsOpenLocalAppDataFolder();
+			window.external.jsOpenProgramAppDataFolder();
 		} catch(e) {
 		}
 	});
-
-
 
 	$("#add_filter_dimension").click(function() {
 		filters.editorAddLine();
@@ -949,6 +949,13 @@ $(function(){
 		}
 	});
 
+	$(".pathParts input").change(function() {
+		if (typeof(window.external.InvokeScriptOnMonitor) !== "undefined") {
+			var params = [ "." + $(this).data("value"), this.checked ];
+			window.external.InvokeScriptOnMonitor(-1, "toggle", params.join(";"));
+		}
+	});
+
 	$(".external, .external a").click(function(event) {
 		if (typeof(window.external.jsOpenExternalLink) !== "undefined") {
 			window.external.jsOpenExternalLink($(this).attr("href"));
@@ -1005,7 +1012,7 @@ function initMonitors(count) {
 			$(h.replace(/M1/g, "M" + i).replace("Monitor 1", "Monitor " + i)).insertAfter("#M1");
 		}
 	}
-	$(".multimonitor input").change(function() {
+	$(".multimonitor input, .multimonitor textarea").bind('change keyup input', function() {
 		if (typeof(window.external.InvokeScriptOnMonitor)=== "undefined") {
 			alert("Not support on browser preview");
 			return;
@@ -1043,6 +1050,18 @@ function initMonitors(count) {
 					window.external.InvokeScriptOnMonitor(monitor, "setClockType", params.join(";"));
 				}
 			break;
+			case "clockFormat":
+				if (typeof(window.external.InvokeScriptOnMonitor) !== "undefined") {
+					window.external.InvokeScriptOnMonitor(monitor, "setClockFormat", $(this).val());
+				}
+			break;
+/*
+	$(".clockFormat").bind('change keyup input', function() {
+		if (typeof(window.external.InvokeScriptOnMonitor) !== "undefined") {
+			window.external.InvokeScriptOnMonitor(-1, "setClockFormat", $(this).val());
+		}
+	});*/
+
 		}
 	});
 

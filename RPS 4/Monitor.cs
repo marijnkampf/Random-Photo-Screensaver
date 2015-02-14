@@ -224,6 +224,22 @@ namespace RPS {
             return this.browser.Document.InvokeScript(script, parameters);
         }
 
+        public bool backupImageCheck(bool backItUp) {
+            bool backedUp = true; // default to true to enable save without backup option
+            if (backItUp) {
+                if (!File.Exists(Convert.ToString(this.currentImage["path"]) + ".bak")) {
+                    try {
+                        // Copy if file doesn't exists
+                        File.Copy(Convert.ToString(this.currentImage["path"]), Convert.ToString(this.currentImage["path"]) + ".bak");
+                    } catch (Exception e) {
+                        this.showInfoOnMonitor(e.Message, true);
+                        backedUp = false;
+                    }
+                }
+            }
+            return backedUp;
+        }
+
         public void rotateImage(int deg) {
             //deg = ;
             this.imageSettings["exifRotate"] = (deg + Convert.ToInt32(this.imageSettings["exifRotate"])) % 360;
@@ -231,22 +247,11 @@ namespace RPS {
             this.browser.Document.InvokeScript("setImageRotation", new Object[] { Convert.ToString(this.imageSettings["exifRotate"]), this.imageSettings["resizeRatio"] });
 
             if (this.screensaver.config.getPersistantBool("saveExifOnRotation")) {
-                bool backedUp = true; // default to true to enable save without backup option
-                if (this.screensaver.config.getPersistantBool("backupExifOnRotation")) {
-                    if (!File.Exists(Convert.ToString(this.currentImage["path"]) + ".bak")) {
-                        try {
-                            // Copy if file doesn't exists
-                            File.Copy(Convert.ToString(this.currentImage["path"]), Convert.ToString(this.currentImage["path"]) + ".bak");
-                        } catch (Exception e) {
-                            this.showInfoOnMonitor(e.Message, true);
-                            backedUp = false;
-                        }
-                    }
+                bool backedUp = backupImageCheck(this.screensaver.config.getPersistantBool("backupExifOnRotation"));
 
-                }
                 if (backedUp) {
-                    int[] rotate90 = {1, 8, 3, 6, 1, 0, 2, 7, 4, 5, 2};
-			        int[] rotate180 = {1, 3, 1, 2, 4, 2, 5, 7, 5, 6, 8, 6};
+                    int[] rotate90 = { 1, 8, 3, 6, 1, 0, 2, 7, 4, 5, 2 };
+                    int[] rotate180 = { 1, 3, 1, 2, 4, 2, 5, 7, 5, 6, 8, 6 };
                     int orientation = 1;
                     // Try reading orientation from file to ensure it's up to date
                     try {
@@ -269,7 +274,7 @@ namespace RPS {
                         if (i < 0) i = 3;
                         newOrientation = rotate90[i];
                     }
-                    try { 
+                    try {
                         // Save orientation to file
                         this.screensaver.fileNodes.exifToolCommand(Convert.ToString(this.currentImage["path"]) + "\n-P\n-overwrite_original\n-n\n-Orientation=" + newOrientation);
                         if (this.imageSettings.ContainsKey("rawCached")) {
@@ -285,6 +290,43 @@ namespace RPS {
                     }
                     this.showInfoOnMonitor(this.info + "\r\nFile saved", true);
                 }
+            }
+        }
+
+        public void rateImage(int rating) {
+            //deg = ;
+            if (this.screensaver.config.getPersistantBool("saveExifRating")) {
+                bool backedUp = backupImageCheck(this.screensaver.config.getPersistantBool("backupOnExifRating"));
+
+                if (backedUp) {
+                    try {
+                        int ratingPercent = 0;
+                        switch (rating) {
+                            case 1: ratingPercent = 1; break;
+                            case 2: ratingPercent = 25; break;
+                            case 3: ratingPercent = 50; break;
+                            case 4: ratingPercent = 75; break;
+                            case 5: ratingPercent = 99; break;
+                        }
+                        // Save orientation to file
+                        this.screensaver.fileNodes.exifToolCommand(Convert.ToString(this.currentImage["path"]) + "\n-P\n-overwrite_original\n-n\n-RatingPercent=" + ratingPercent + "\n-Rating=" + rating);
+                        if (this.imageSettings.ContainsKey("rawCached")) {
+                            File.Delete(Convert.ToString(this.imageSettings["rawCached"]));
+                        } else {
+                            // Update metadata in DB
+                            string meta = this.screensaver.fileNodes.exifToolGetMetadata(Convert.ToString(this.currentImage["path"]) + Constants.ExifToolMetadataOptions, Convert.ToInt32(this.currentImage["id"]));
+                            this.screensaver.fileNodes.addMetadataToDB(Convert.ToInt32(this.currentImage["id"]), meta);
+                        }
+                        this.showInfoOnMonitor("Star rating set to<br/><div class='rating r" + rating + "'>" + rating + " stars</div>", true);
+                    } catch (Exception e) {
+                        this.showInfoOnMonitor(e.Message, true);
+                        backedUp = false;
+                    }
+                } else {
+                    this.showInfoOnMonitor("Backup failed<br/>Star rating not set", true);
+                }
+            } else {
+                this.showInfoOnMonitor("Ratings not enabled in settings<br/>[S > Metadata > Image rating]", true);
             }
         }
 

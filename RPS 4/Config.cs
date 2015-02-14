@@ -950,7 +950,7 @@ namespace RPS {
 
         private Uri getUpdateUri() {
             string param = "?v=" + Constants.getNiceVersion();
-            if (this.screensaver.config.getPersistantBool("disableGoAn")) param = "&track=no";
+            if (this.screensaver.config.getPersistantBool("disableGoAn")) param = "?track=no";
             return new Uri(Constants.UpdateCheckURL + param);
         }
 

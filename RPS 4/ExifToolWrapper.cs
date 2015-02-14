@@ -17,7 +17,6 @@ namespace ExifTool
     public class Wrapper : IDisposable
     {
         private readonly string exe;
-        //private const string ExeName = "exiftool(-k).exe";
         private const string Arguments = "-fast -m -q -q -stay_open True -@ - -common_args -s -d \"%Y.%m.%d %H:%M:%S\" -t";   //-g for groups
 
         public enum Statuses { Stopped, Starting, Ready, Stopping };

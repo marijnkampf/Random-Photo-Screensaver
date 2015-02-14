@@ -51,6 +51,11 @@ h4 {
 	background-color: #ffffe1;
 }
 
+.note.important {
+	background-color: #eebfd9;
+}
+
+
 .todo {
 	background-color: #eeeeee;
 	font-style: italic;

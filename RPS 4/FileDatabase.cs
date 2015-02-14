@@ -43,7 +43,7 @@ namespace RPS {
         }
 
         public void setFilterSQL(string sql) {
-            this.filterSQL = sql;
+            this.filterSQL = sql.Replace("\\t", "\t").Replace("\\n", "\n");
             this.useFilter = true;
             this.filterReady(true);
         }

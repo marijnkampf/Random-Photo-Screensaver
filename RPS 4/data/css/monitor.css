@@ -146,8 +146,6 @@ html, body {
 	bottom: 2.5em;
 }
 
-
-
 #showinfo {
 	z-index: 80;
 	text-align: center;
@@ -172,6 +170,22 @@ html, body {
 	text-shadow: none;
 	display:none;
 }
+
+.rating {
+	width: 200px;
+	height: 33px;
+	overflow: none;
+	margin: auto;
+	background: url(../images/stars.png) no-repeat -200px 0px;
+	color: transparent;
+	text-shadow: none;
+}
+
+.rating.r1 { background-position: -160px 0; }
+.rating.r2 { background-position: -120px 0; }
+.rating.r3 { background-position:  -80px 0; }
+.rating.r4 { background-position:  -40px 0; }
+.rating.r5 { background-position:    0px 0; }
 
 .info .closeX {
 	float: right;

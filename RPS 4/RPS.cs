@@ -478,7 +478,19 @@ namespace RPS {
 				            break;
 			            }
 		            }
-                    switch (KeyCode) {
+                    if (e.Control && KeyCode >= Keys.D0 && KeyCode <= Keys.D5) {
+                        // Control + 0 ... 5 set Rating
+                        this.stopTimers();
+                        int rating = KeyCode - Keys.D0;
+
+                        for (int i = 0; i < this.monitors.Length; i++) {
+                            if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
+                                this.monitors[i].rateImage(rating);
+                            }
+                        }
+                        this.fileNodes.resetFilter();
+                        this.startTimers();
+                    } else switch (KeyCode) {
                         case Keys.Escape:
                             if (!this.configHidden) {
                                 this.OnExit();

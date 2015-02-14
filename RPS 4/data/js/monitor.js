@@ -186,19 +186,22 @@ function beep() {
 function showInfo(info, fade) {
 	document.getElementById("showinfo").innerHTML = info;
 	$("#showinfo").stop(true, true);
-	$("#showinfo").show();
 	if (fade.toLowerCase() == "true") {
-		$("#showinfo").stop().fadeOut(5000);
+		$("#showinfo").stop().show().fadeOut(5000);
+	} else {
+		$("#showinfo").show();
 	}
 	return true;
 }
 
-// identify monitor nr
 function showPriorityInfo(info, fade) {
 	document.getElementById("showpriorityinfo").innerHTML = info;
-	//$("#showpriorityinfo").stop(true, true);
-	$("#showpriorityinfo").show();
-	if (fade.toLowerCase() == "true") $("#showpriorityinfo").stop().fadeOut(5000);
+	$("#showpriorityinfo").stop(true, true);
+	if (fade.toLowerCase() == "true") {
+		$("#showpriorityinfo").stop().show().fadeOut(5000);
+	} else {
+		$("#showpriorityinfo").show();
+	}
 }
 
 function showUpdateInfo(info) {

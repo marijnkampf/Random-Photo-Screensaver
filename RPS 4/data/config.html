@@ -374,20 +374,35 @@
 					<div class="set">
 						<h2>ExifTool</h2>
 							<label for="exifTool">Location of ExifTool</label>
-						<input type="text" id="exifTool" value=".\vendor\exiftool(-k).exe" />
+						<input type="text" id="exifTool" value=".\vendor\exiftool.exe" />
 					</div>
 
 					<div class="set">
 						<h3>Image rotation</h3>
 						<label for="saveExifOnRotation"><input type="checkbox" id="saveExifOnRotation" checked/> Save Orientation to Exif in file</label>
 						<label for="backupExifOnRotation"><input type="checkbox" id="backupExifOnRotation" checked/> Backup before rotation (filename.bak)</label>
-						<div class="clear note">Use following keys to rotate images(s)<br/>
+						<div class="clear note important">
+							Please note: if filename.bak exists it isn't overwritten.
+						</div>
+						<div class="clear note">
+							Use following keys to rotate images(s)<br/>
 							[ rotate image 270&deg; CW<br/>
 							] rotate image 90&deg; CW<br/>
 							+ rotate image 180&deg;<br/>
-							Please note: if filename.bak exists it isn't overwritten.
 							<span class="mutliOnly"><br/>For multi monitors: select monitors with 1 ... 9 or 0 for all.</span>
 						<div class="keywords">turning rotate rotating</div>
+					</div>
+
+					<div class="set">
+						<h3>Image rating</h3>
+						<label for="saveExifRating"><input type="checkbox" id="saveExifRating" checked/> Save Rating to Exif in file</label>
+						<label for="backupOnExifRating"><input type="checkbox" id="backupOnExifRating" checked/> Backup before rotation (filename.bak)</label>
+						<div class="clear note important">
+							Please note: if filename.bak exists it isn't overwritten.
+						</div>
+						<div class="clear note">Use Control + 0 ... 5 keys to rate images(s)<br/>
+							<span class="mutliOnly"><br/>For multi monitors: select monitors with 1 ... 9 or 0 for all.</span>
+						<div class="keywords">add starring make favourite rate</div>
 					</div>
 					<div class="keywords">metadata iptc xmp exif</div>
 				</li>
@@ -463,7 +478,7 @@
 						<label for="stretchPanoramas" title="Panoramas are only stretched to higher numbered monitors"><input type="checkbox" id="stretchPanoramas" checked /> Stretch panoramas accross multiple monitors</label>
 						<label for="sameImage"><input type="checkbox" id="sameImage"/> Same image/video on each monitor</label>
 					</div>
-					<div class="pathParts advanced">
+					<div class="pathParts">
 						<h3>Show filename parts</h3>
 						<!--div id="pathExample">Example: <span class="showPathRoot">C:\my photos\</span><span class="showPathSubfolders">sub\folder\</span><span class="showPathFilename">img_0001</span><span class="showPathExtension">.jpg</span></div-->
 						<label for="showPathRoot"><input type="checkbox" id="showPathRoot" data-value="root" checked /> Photos folder (C:\my photos\)</label>
@@ -512,7 +527,7 @@
 						</div>
 					</div>
 					<label for="disableGoAn" class="tooltip" data-title="Disable tracking of update page"><input type="checkbox" id="disableGoAn"/>Don't track downloads with Google Analytics</label>
-					<label for="betaVersion"><input type="checkbox" id="betaVersion"/>Include beta and release candidate versions</label>
+					<label for="betaVersion"><input type="checkbox" id="betaVersion"/>Include minor updates, beta and release candidate versions</label>
 					<label for="ignoreUpdate"><input type="checkbox" id="ignoreUpdate"/>Ignore latest update (version: <input type="text" id="ignoreVersion"/>)</label>
 					<div class="clear"></div>
 					<div class="keywords">previous old</div>

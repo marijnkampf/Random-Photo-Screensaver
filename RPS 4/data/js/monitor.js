@@ -21,7 +21,7 @@ if (typeof(window.external.RunningFromRPS)=== "undefined") {
 				"imageShadow":true,
 				"animated":"true",
 				"effect":'{"effect":"fade", "duration":1000}',
-				"ratio":0.75,
+				"play.interval":10000,
 				"fitToDimension":"width",
 				"height":2736,
 				"ignoreFit":false,
@@ -31,31 +31,46 @@ if (typeof(window.external.RunningFromRPS)=== "undefined") {
 			}
 		},
 		{
-			"source": "F:\\tests\\panorama\\SX20484-94 Panorama inner court Harlech Castle.jpg",
-			"settings":{"stretchSmallImages":true,"mediatype":"image","width":2736,"imageShadow":true,"animated":"true","effect":'{"effect":"fade",  "duration":1000}',"ratio":0.75,"fitToDimension":"width","height":3648,"ignoreFit":false,"resizeRatio":1,"metadata":"1/640 | 4.0 | 80 | 5.0 mm | 2.9 MB","backgroundImage":true,"fitTo":"contain"}
-		},
-		{
-			"source": "F:\\photos\\2012\\20121117 Sunset over sea and cliffs by Llantwit Major\\SX25198 Reflection of sun and clouds on Llanwit Major beach.jpg",
-			"metadata": "no meta",
+			"source": "file://F:\\tests\\video\\5049 Gas cylinder going down the weir.avi",
 			"settings":{
 				"stretchSmallImages":true,
-				"mediatype":"image",
-				"width":2736,
+				"mediatype":"object",
 				"imageShadow":true,
 				"animated":"true",
 				"effect":'{"effect":"slide", "direction":"down", "duration":1000}',
-				"ratio":0.75,
-				"fitToDimension":"width",
-				"height":3648,
-				"ignoreFit":false,
-				"resizeRatio":1,
-				"metadata":"1/640 | 4.0 | 80 | 5.0 mm | 2.9 MB",
-				"backgroundImage":true,"fitTo":"contain"
+				"play.interval":10000,
+				"metadata":"Vid",
+				"backgroundImage":true,"fitTo":"contain",
+				"play.interval":"10000",
 			}
 		},
 		{
-			"source": "F:\\tests\\stretch\\FZ004390-403 View of moat and tower.jpg",
-			"settings":{"animated": "true", "mediatype": "image", "stretch": true, "stretchSmallImages":false, "backgroundImage": true, "imageShadow": true		}
+			"source": "F:\\tests\\video\\MVI_9642.AVI",
+			"settings":{
+				"stretchSmallImages":true,
+				"mediatype":"object",
+				"imageShadow":true,
+				"animated":"true",
+				"effect":'{"effect":"slide", "direction":"down", "duration":1000}',
+				"ignoreFit":false,
+				"metadata":"MVI_9642.AVI",
+				"backgroundImage":true,"fitTo":"contain",
+				"play.interval":"10000",
+			}
+		},
+		{
+			"source": "F:\\tests\\video\\		FZ006251 Duck diving Tufted duckling (Aythya fuligula) diving.mp4",
+			"settings":{
+				"stretchSmallImages":true,
+				"mediatype":"video",
+				"imageShadow":true,
+				"animated":"true",
+				"effect":'{"effect":"slide", "direction":"down", "duration":1000}',
+				"play.interval":10000,
+				"metadata":"Vid",
+				"backgroundImage":true,"fitTo":"contain",
+				"play.interval":"10000",
+			}
 		},
 		{
 			"source": "F:\\tests\\panorama\\9227-9230 Wide view of the castle.jpg",
@@ -128,6 +143,12 @@ function getStyleSheetRule(stylesheet, selector) {
 function getRandomInt(min, max) {
 	return Math.floor(Math.random() * (max - min)) + min;
 }
+
+// Returns a random float between min (included) and max (excluded)
+function getRandomFloat(min, max) {
+	return Math.random() * (max - min) + min;
+}
+
 
 function setVisibility(id, visibility) {
 	if (visibility) {
@@ -236,28 +257,114 @@ function useBackupVideoSolution(me) {
 	showImage(g_source, g_displayPath, g_settings);
 }
 
-function getVideoObjectElement(source, settings) {
-	var playCount = 1;
-	var stretch = "";
-	if (settings.stretchSmallVideos) stretch = " stretch";
-	if (settings.loop) playCount = 9999;
-	html = '<object class="object media' + stretch + '" id="mediaPlayer" classid="CLSID:22D6F312-B0F6-11D0-94AB-0080C74C7E95"'
-			+ 'codebase="http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=5,1,52,701"'
-			+ 'standby="Loading Microsoft® Windows® Media Player components..." type="application/x-oleobject">'
-			+ '<param name="FileName" value="' + source + '" />'
-			+ '<param name="Mute" value="' + settings.mute + '"/>'
-			+ '<param name="playCount" value="' + playCount + '"/>'
-			+ '<param name="AutoStart" value="True" />'
-			+ '<param name="DefaultFrame" value="mainFrame" />'
-			+ '<param name="ShowStatusBar" value="0" />'
-			+ '<param name="windowlessVideo" value="true" />'
-			+ '<param name="ShowPositionControls" value="' + settings.showcontrols + '" />'
-			+ '<param name="showcontrols" value="' + settings.showcontrols + '" />'
-			+ '<param name="ShowAudioControls" value="' + settings.showcontrols + '" />'
-			+ '<param name="ShowTracker" value="0" />'
-			+ '<param name="EnablePositionControls" value="0" />'
-	html += '</object>';
-	return html;
+if(typeof getVideoHTML5 != 'function'){
+	function getVideoHTML5(source, settings) {
+		var stretch = "";
+		if (settings.stretchSmallVideos) stretch = " stretch";
+		html = '<video class="video media' + stretch + '" src="' + source + '" onerror="useBackupVideoSolution()" autoplay';
+		if (settings.loop) html += ' loop';
+		if (settings.mute) html += ' muted';
+		if (settings.showcontrols) html += ' controls';
+		html += '></video>';
+		return html;
+	}
+}
+
+function getStartPosition(duration, interval, settings) {
+	if (settings["videosPlay"] == "clip") {
+		if (this.duration > interval) return getRandomFloat(0, this.duration - interval);
+	} else {
+		if (interval < this.duration) {
+			if (typeof(window.external.jsOverrideTimerInterval) !== "undefined") {
+				window.external.jsOverrideTimerInterval(this.duration);
+			}
+		}
+	}
+	return false;
+}
+
+if(typeof getVideoHTML5OnLoaded != 'function'){
+	function getVideoHTML5OnLoaded(source, settings) {
+		$('.video').on('loadedmetadata', function() {
+			var interval = settings["play.interval"] / 1000;
+			var start = getStartPosition(this.duration, interval, settings);
+			if (start != false) this.currentTime = start;
+		});
+	}
+}
+
+var videoObjectLoading = false;
+
+if(typeof getVideoObject != 'function'){
+	function getVideoObject(source, settings) {
+		var playCount = 1;
+		var stretch = "";
+		if (settings.stretchSmallVideos) stretch = " stretch";
+		if (settings.loop) playCount = 9999;
+		html = '<object class="object media' + stretch + '" id="mediaPlayer" classid="CLSID:22D6F312-B0F6-11D0-94AB-0080C74C7E95"'
+				+ 'codebase="http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=5,1,52,701"'
+				+ 'standby="Loading Microsoft Windows Media Player components..." type="application/x-oleobject">'
+				+ '<param name="FileName" value="' + source + '" />'
+				+ '<param name="Mute" value="' + settings.mute + '"/>'
+				+ '<param name="playCount" value="' + playCount + '"/>'
+				+ '<param name="AutoStart" value="True" />'
+				+ '<param name="AutoSize" value="True" />'
+				+ '<param name="DefaultFrame" value="mainFrame" />'
+				+ '<param name="ShowStatusBar" value="0" />'
+				+ '<param name="AllowScan" value="true" />'
+				+ '<param name="CanSeek" value="true" />'
+				+ '<param name="windowlessVideo" value="true" />'
+				+ '<param name="ShowPositionControls" value="' + settings.showcontrols + '" />'
+				+ '<param name="SendPlayStateChangeEvents" value="true">'
+				+ '<param name="showcontrols" value="' + settings.showcontrols + '" />'
+				+ '<param name="ShowAudioControls" value="' + settings.showcontrols + '" />'
+				+ '<param name="ShowTracker" value="0" />'
+				+ '<param name="EnablePositionControls" value="0" />'
+				+ '<embed type="application/x-mplayer2"'
+				+ 'name="mediaplayer"'
+				+ 'pluginspage="http://www.microsoft.com/Windows/MediaPlayer"'
+				+ 'src="' + source + '"'
+				+ '</embed>'
+				+ '</object>';
+		window.settings = settings;
+		window.mediaPlayerFileName = source;
+		window.timeOut = 1;
+
+		oldPlayer = document.getElementById('mediaPlayer');
+		if (oldPlayer != null) {
+			try {
+				oldPlayer.PlayState = 0;
+				oldPlayer.pause();
+			} catch(e) {
+			}
+		}
+		$("#mediaPlayer").remove();
+		return html;
+	}
+}
+
+if(typeof getVideoObjectOnLoaded != 'function'){
+	function getVideoObjectOnLoaded() {
+		if (document.getElementById('mediaPlayer') != null) {
+			duration = document.getElementById('mediaPlayer').Duration;
+			var interval = window.settings["play.interval"] / 1000;
+			var start = getStartPosition(duration, interval, window.settings);
+			if (start != false) document.getElementById('mediaPlayer').currentPosition = start;
+		}
+	}
+}
+
+// PlayStateChange(newstate) is unreliable. Use good old fashioned polling instead
+function mediaPlayerVideoObjectLoaded() {
+	window.setTimeout(function() {
+		if (window.timeOut < window.settings["play.interval"] && (document.getElementById('mediaPlayer') == null || document.getElementById('mediaPlayer').Duration == 0 || document.getElementById('mediaPlayer').FileName != window.mediaPlayerFileName)) {
+			window.timeOut *= 2;
+			mediaPlayerVideoObjectLoaded();
+		} else {
+			getVideoObjectOnLoaded();
+			window.videoObjectLoading = false;
+		}
+	}, window.timeOut);
 }
 
 // Fix video pausing after show animation completes
@@ -272,7 +379,7 @@ function showImage(source, displayPath, settings) {
 	if (typeof settings == "string") settings = JSON.parse(settings);
 
 	var html = '';
-	var stretch = false;
+	//var stretch = false;
 	if (settings.mediatype == undefined) settings.mediatype = "image";
 
 	g_source = source;
@@ -281,7 +388,7 @@ function showImage(source, displayPath, settings) {
 
 	switch(settings.mediatype) {
 		case "image":
-			if (settings.stretchSmallImages) stretch = true;
+			//if (settings.stretchSmallImages) stretch = true;
 			mainStyle = '';
 			mainClasses = '';
 			coverStyle = '';
@@ -298,7 +405,7 @@ function showImage(source, displayPath, settings) {
 				coverStyle='transform:rotate(' + settings.exifRotate + 'deg) scale(' + settings.resizeRatioCover + ');';
 			}
 			if (settings["pano"] != undefined && settings["pano"] == true) {
-				stretch = false;
+				//stretch = false;
 				mainClasses += 'pano ';
 				coverClasses += 'pano ';
 				mainStyle +=  'width: ' + settings["pano.width"] + 'px;'+
@@ -332,25 +439,27 @@ function showImage(source, displayPath, settings) {
 			html += '<img ';
 			if (mainStyle != '') html += 'style="' + mainStyle + '"';
 			html += 'class="image front ' + mainClasses +'media" src="file://' + source + '"/>';
-			//document.getElementById("debug").innerHTML = "settings.exifRotate" + settings["settings.exifRotate"];
 		break;
 		case "video":
-			if (settings.stretchSmallVideos) stretch = " stretch";
-			html = '<video class="video media' + stretch + '" src="' + source + '" onerror="useBackupVideoSolution()" autoplay';
-			if (settings.loop) html += ' loop';
-			if (settings.mute) html += ' muted';
-			if (settings.showcontrols) html += ' controls';
-			html += '></video>';
-			// ToDo fix video effects in jQuery UI
-			//if (settings.effect != undefined && settings.effect.length > 0) settings.effect = '{"effect":"fade", "duration":1000}';
-
+			html = getVideoHTML5(source, settings);
 		break;
 		case "object":
-			html = getVideoObjectElement(source, settings);
+			html = getVideoObject(source, settings);
 		break;
 	}
 	card = $("<div class='card stretch'>" + html + "</div>").hide();
+	window.videoObjectLoading = true;
 	$("#rolodex").append(card);
+		switch(settings.mediatype) {
+			case "video":
+				getVideoHTML5OnLoaded(source, settings);
+			break;
+			case "object":
+				mediaPlayerVideoObjectLoaded(source, settings);
+			break;
+		}
+
+//	getVideoObjectOnLoaded(source, settings);
 
 	// Fix video pausing after show animation completes
 	if (settings.mediatype == "video") $("video",card).on(videoFixEvents.join(" "), function (e) { }).one("suspend pause",function(){this.play()})
@@ -370,7 +479,7 @@ function showImage(source, displayPath, settings) {
 			first = $("#rolodex .card").first();
 			if ($(first.get(0).childNodes[0]).hasClass("video")) {
 				if(typeof first.get(0).childNodes[0].pause === 'function') {
-					//Pausing don't work, video sound is continued mystriously on showImage exit
+					//Pausing doesn't work, video sound is continued on showImage exit
 					first.get(0).childNodes[0].pause();
 					first.remove();
 				}

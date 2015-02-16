@@ -289,11 +289,19 @@
 					</div>
 					<div class="set">
 						<h2>Videos</h2>
+						<div class="onlyIE8 note">Not all video types will play in IE8.</div>
 						<label for="stretchSmallVideos"><input type="checkbox" id="stretchSmallVideos" /> Stretch small videos</label>
 						<label for="showControls"><input type="checkbox" id="showControls" checked /> Show controls</label>
+						<div class="note">Enable '<a class="goToTab" data-highlight="#ignoreMouseLine, #mouseSensitivity" href="#input">Ignore mouse clicks</a>' in 'Keyboard and mouse' tab to allow control of videos<!--/a--></div>
 						<label for="videosLoop"><input type="checkbox" id="videosLoop" checked /> Loop videos</label>
 						<label for="videosMute"><input type="checkbox" id="videosMute" checked /> Mute videos</label>
-						<div class="note"><!--a href=";tabInput;ignoreMouseClick"-->Enable 'Ignore mouse clicks' in 'Keyboard and mouse' tab to allow control of videos<!--/a--></div>
+						<div id="videosPlay" class="inline">
+							<label>Play:</label>
+							<label class="notIE8" for="videosPlayWhole"><input type="radio" id="videosPlayEntire" name="videosPlay" value="entire"/> entire video</label>
+							<label class="notIE8" for="videosPlayClip"><input type="radio" id="videosPlayClip" name="videosPlay" value="clip" checked/> random section of video</label>
+							<div class="onlyIE8 note">option not supported in IE8</div>
+						</div>
+						<div class="multiOnly note">When entire video is selected other screens wait for video to end when '<a class="goToTab" data-highlight="#syncScreens" href="#slideshow">Synchronise monitors</a>' is enabled</a>.</div>
 						<div class="keywords">videos movies films</div>
 						<div class="clear"></div>
 					</div>
@@ -511,7 +519,7 @@
 						</div>
 					</div>
 					<div class="clear"></div>
-					<div class="line"><input type="checkbox" id="ignoreMouseClick" /> <label for="ignoreMouseClick" class="tooltip">Ignore mouse clicks (allow video control)</label></div>
+					<div class="line" id="ignoreMouseLine"><input type="checkbox" id="ignoreMouseClick" /> <label for="ignoreMouseClick" class="tooltip" data-title="Clicking mouse button won't exit.">Ignore mouse clicks (<a class="goToTab" data-highlight="label[for=showControls]" href="#media">allow video control</a>)</label></div>
 					<div class="line"><input type="checkbox" id="browseMouse" /> <label for="browseMouse" class="tooltip" data-title="Left button: next; Right button: previous.">Use mouse to browse (?)</label></div>
 				</li>
 
@@ -565,6 +573,7 @@
 	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>F2</td><td></td><td>Rename current media file<span class="multiOnly">(s)</span></td></tr>
 	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>Delete</td><td></td><td>Place media in recycling bin</td></tr>
 	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>W</td><td></td><td>Set current image<span class="multiOnly">(s)</span> as wallpaper</td></tr>
+	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>Control + 0...5</td><td></td><td>Set rating for current image<span class="multiOnly">(s)</span></td></tr>
 <tr><td class='header' colspan='4'>Rotate image</td></tr>
 	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>[</td><td></td><td>Rotate image 270° clock wise</td></tr>
 	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>]</td><td></td><td>Rotate image 90° clock wise</td></tr>

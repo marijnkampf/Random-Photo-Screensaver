@@ -699,6 +699,14 @@ function settingChanged(object) {
 	}
 }
 
+jQuery.fn.highlightSlow = function () {
+	$(this).each(function () {
+		$(this).animate({ backgroundColor: "#ffff99" }, 500 )
+					 .animate({ backgroundColor: "#ffff99" }, 2000 )
+					 .animate({ backgroundColor: "white" }, 1500 )
+	});
+}
+
 $(function(){
 	if ($('html').is('.lowIE')) {
 		alert('Please update to Internet Explorer 8 or newer');
@@ -726,6 +734,19 @@ $(function(){
 	} else {
 		tabs.first().click();
 	}
+
+	// Select a tab and highlights a field
+	$(".goToTab").click(function() {
+		var highlight = null;
+		var tab = this.href.slice(this.href.lastIndexOf('#')+1);
+		highlight = $(this).data("highlight");//hash[1];//.split(",");
+
+		tab = "tab" + tab.charAt(0).toUpperCase() + tab.substr(1).toLowerCase();
+		$("#tabs").find("[data-tab='" + tab + "']").click();
+		if (highlight != null) {
+			$(highlight).highlightSlow();
+		}
+	});
 
 	//$("#tabs").find("[data-tab='tabFilters']").click();
 

@@ -288,7 +288,7 @@ namespace RPS {
                         this.showInfoOnMonitor(e.Message, true);
                         backedUp = false;
                     }
-                    this.showInfoOnMonitor(this.info + "\r\nFile saved", true);
+                    this.showInfoOnMonitor(this.info + "<br/>File saved", true);
                 }
             }
         }
@@ -538,11 +538,13 @@ namespace RPS {
                             }
                         }
                     break;
-                    case "object": case "video":
+                    case "object": 
+                    case "video":
                         this.imageSettings["stretchSmallVideos"] = this.screensaver.config.getPersistantBool("stretchSmallVideos");
                         this.imageSettings["showcontrols"] = this.screensaver.config.getPersistantBool("showControls");
                         this.imageSettings["loop"] = this.screensaver.config.getPersistantBool("videosLoop");
                         this.imageSettings["mute"] = this.screensaver.config.getPersistantBool("videosMute");
+                        this.imageSettings["videosPlay"] = this.screensaver.config.getPersistantString("videosPlay");
                     break;
                 }
             }
@@ -550,6 +552,7 @@ namespace RPS {
 
         public void showImage(bool animated) {
             if (this.currentImage != null) {
+                this.imageSettings["play.interval"] = this.timer.Interval;
                 this.imageSettings["animated"] = Convert.ToString(animated).ToLower();
                 if (animated) {
                     this.imageSettings["effect"] = this.screensaver.config.getRandomEffect();
@@ -814,6 +817,23 @@ namespace RPS {
             return false;
         }
 
+        public void jsOverrideTimerInterval(float duration) {
+            duration *= 1000;
+            if (duration > this.timer.Interval && this.screensaver.config.getPersistantString("videosPlay") == "entire") {
+                int monitorID = this.id;
+                if (this.screensaver.config.syncMonitors()) monitorID = Screensaver.CM_ALL;
+                for (int i = 0; i < this.screensaver.monitors.Length; i++) {
+                    if (this.screensaver.monitors[i] != null) {
+                        if (monitorID == Screensaver.CM_ALL || monitorID == i) {
+                            this.screensaver.monitors[i].timer.Stop();
+                            if (i <= this.id || this.screensaver.monitors[i].timer.Interval < Convert.ToInt32(duration)) this.screensaver.monitors[i].timer.Interval = Convert.ToInt32(duration);
+                            this.screensaver.monitors[i].timer.Start();
+                        }
+                    }
+                }
+            }
+        }
+
         public void setTimerInterval() {
             if (this.id == 0 || !this.screensaver.config.syncMonitors()) {
                 int timeout;
@@ -861,8 +881,8 @@ namespace RPS {
                     this.setTimerInterval();
                 }
             } else {
-                this.showImage(true);
                 this.setTimerInterval();
+                this.showImage(true);
                 if (this.id == 0 && this.screensaver.config.syncMonitors()) {
                     for (int i = 1; i < this.screensaver.monitors.Length; i++) {
                         if (this.screensaver.currentMonitor == Screensaver.CM_ALL || this.screensaver.currentMonitor == i) {

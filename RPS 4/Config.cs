@@ -753,10 +753,10 @@ namespace RPS {
                     case "textarea":
                         return Utils.HtmlDecode(he.InnerHtml);
                         //return he.InnerHtml;
-                        break;
+                    break;
                     default:
                         return he.GetAttribute("value");
-                        break;
+                    break;
                 }
             } catch (System.Runtime.InteropServices.COMException co) {
                 //this.screensaver.showInfoOnMonitors("Error getPersistant(" + id + ")\n" + Convert.ToString(co.Message));
@@ -795,7 +795,6 @@ namespace RPS {
                     this.setInnerHTML("version", Constants.getNiceVersion());
                     this.browser.Document.InvokeScript("initFancyTreeFolder");
                     this.browser.Document.InvokeScript("initFancyTreeTransitions");
-                    this.browser.Document.InvokeScript("hideWaiting");
                     this.configInitialised = true;
                 }
             }

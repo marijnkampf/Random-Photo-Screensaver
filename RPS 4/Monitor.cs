@@ -734,45 +734,79 @@ namespace RPS {
         /**
          * Note step parameter for prevoiusImage is always positive unlike offset which indicates direction.
          **/
-        public DataRow previousImage(int step, bool panoramaShownPreviously) {
+        public DataRow previousImage(int step, bool panoramaShownPreviously) { 
+            return this.previousImage(step, panoramaShownPreviously, true); 
+        }
+        public DataRow previousImage(int step, bool panoramaShownPreviously, bool setCurrentImage) {
+            DataRow currentImage = this.currentImage;
+            long seedImageId = this.seedImageId;
+            int historyPointer = this.historyPointer;
+
             if (this.screensaver.config.getOrder() == Config.Order.Random) {
                 if (this.id == 0 || this.id > 0 && !panoramaShownPreviously) {
-                    this.historyPointer -= step;
-                    if (this.historyPointer < 0 || this.history.Count < this.historyPointer) {
-                        this.historyPointer = 0;
+                    historyPointer -= step;
+                    if (historyPointer < 0) {
+                        historyPointer = 0;
                         this.showInfoOnMonitor("You've reached the first image");
+                    }
+                    if (!setCurrentImage && this.history.Count <= historyPointer) {
+                        historyPointer = this.history.Count-1;
+                        this.showInfoOnMonitor("You've reached the last image");
                     }
                     long imageId = -1;
                     if (this.history.Count > 0)
-                        imageId = this.history[this.historyPointer];
-                    this.currentImage = this.screensaver.fileNodes.getImageById(imageId, this.offset);
-                    this.seedImageId = imageId;
+                        imageId = this.history[historyPointer];
+                    currentImage = this.screensaver.fileNodes.getImageById(imageId, this.offset);
+                    seedImageId = imageId;
                 }
                 isMonitor0PanoramaImage(true);
             } else {
-                if (this.id == 0 && this.currentImage != null) {
+                if (this.id == 0 && currentImage != null) {
                     // Previous navigation is flawwed only possible fix is keep record of which images shown
                     // If panorama found, there is no way to tell whether it was shown on screen 2 only or across screens 1 + 2
 
                     // Optimised panoramas 
                     //this.currentImage = this.screensaver.fileNodes.getSequentialImage(Convert.ToInt32(this.currentImage["id"]), (step * -1));
                     // Optimised for displaying regular images (skips some panoramas)
-                    this.currentImage = this.screensaver.fileNodes.getSequentialImage(Convert.ToInt32(this.currentImage["id"]), (step + this.screensaver.monitors.Length - 1) * -1);
+                    int stepBy = (step + this.screensaver.monitors.Length - 1) * -1;
+                    if (this.screensaver.config.getPersistantString("mmImages") == "same" || (setCurrentImage && this.screensaver.config.getPersistantString("mmImages") == "slide")) {
+                        stepBy = step * -1;
+                    }
+                    currentImage = this.screensaver.fileNodes.getSequentialImage(Convert.ToInt32(currentImage["id"]), stepBy, !setCurrentImage);
                 } else {
                     if (!isMonitor0PanoramaImage(true)) {
-                        this.currentImage = this.screensaver.fileNodes.getSequentialImage(1);
+                        currentImage = this.screensaver.fileNodes.getSequentialImage(1, !setCurrentImage);
                     }
                 }
             }
-            if (!fileExistsOnDisk(this.currentImage)) return this.previousImage(1, panoramaShownPreviously);
-            this.readMetadataImage();
-            return this.currentImage;
+            if (!fileExistsOnDisk(currentImage)) return this.previousImage(1, panoramaShownPreviously, setCurrentImage);
+            if (setCurrentImage) {
+                this.currentImage = currentImage;
+                this.seedImageId = seedImageId;
+                this.historyPointer = historyPointer;
+                this.readMetadataImage();
+                return this.currentImage;
+            } else {
+                return currentImage;
+            }
+            
         }
 
         public DataRow nextImage(int step, bool panoramaShownPreviously) {
-            if (this.id != 0 && this.screensaver.config.getPersistantBool("sameImage")) {
-                this.currentImage = this.screensaver.monitors[0].currentImage;
-                return this.currentImage;
+            if (this.id != 0) {
+                // Note check for same / slide previousImage is performed in RPS.cs
+                if (this.screensaver.config.getPersistantString("mmImages") == "same") {
+                    this.currentImage = this.screensaver.monitors[0].currentImage;
+                    this.readMetadataImage();
+                    return this.currentImage;
+                }
+                if (this.screensaver.config.getPersistantString("mmImages") == "slide") {
+                    int extra;
+                    if (this.screensaver.config.getOrder() == Config.Order.Random) extra = 0; else extra = -1;
+                    this.currentImage = this.screensaver.monitors[0].previousImage(this.id + extra, panoramaShownPreviously, false);
+                    this.readMetadataImage();
+                    return this.currentImage;
+                }
             }
             if (this.id == 0 || !this.isMonitor0PanoramaImage(true)) {
                 if (this.screensaver.fileNodes == null) return null;

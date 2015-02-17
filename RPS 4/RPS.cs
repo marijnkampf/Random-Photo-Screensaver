@@ -394,7 +394,18 @@ namespace RPS {
                     string s = "";
                     if (step > 1) s = " x " + step;
                     this.monitors[i].showInfoOnMonitor("<<" + s);
-                    this.monitors[i].previousImage(step, panoramaShownPreviously);
+                    // Note check for same / slide nextImage is performed in Monitor.cs
+                    if (this.currentMonitor == CM_ALL && i != 0 && this.config.getPersistantString("mmImages") == "same") {
+                        this.monitors[i].currentImage = this.monitors[0].currentImage;
+                        this.monitors[i].readMetadataImage();
+                    } else if (this.currentMonitor == CM_ALL && i != 0 && this.config.getPersistantString("mmImages") == "slide") {
+                        int extra;
+                        if (this.config.getOrder() == Config.Order.Random) extra = 0; else extra = -1;
+                        this.monitors[i].currentImage = this.monitors[0].previousImage(i + extra, panoramaShownPreviously, false);
+                        this.monitors[i].readMetadataImage();
+                    } else {
+                        this.monitors[i].previousImage(step, panoramaShownPreviously);
+                    }
                     this.monitors[i].showImage(this.config.getPersistantBool("useTransitionsOnInput"));
                 }
             }
@@ -498,8 +509,10 @@ namespace RPS {
                             this.configHidden = false;
                         break;
                         case Keys.A:
+                            Utils.RunTaskScheduler(@"OpenUrl", "http://www.abscreensavers.com");                    
+                        break;
                         case Keys.B:
-                            Utils.RunTaskScheduler(@"OpenUrl", "http://www.abscreensavers.com");
+                            Utils.RunTaskScheduler(@"OpenUrl", "http://www.abscreensavers.com/random-photo-screensaver/version-information/");
                             //this.monitors[i].showInfoOnMonitor("Opened in Explorer Window", false, true);
                             //Process.Start("http://www.abscreensavers.com");
                         break;

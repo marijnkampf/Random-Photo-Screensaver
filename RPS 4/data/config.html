@@ -20,7 +20,6 @@
 	<link rel="stylesheet" href="css/config.css"/>
 </head>
 <body class="">
-	<!--div id="waiting"></div-->
 	<div id="donation"><a class="hideMessage" href="#">[X]</a>
 		<a id="donate" class="linkButton external" target="_top" href="http://www.abscreensavers.com/random-photo-screensaver/donation?source=RPS4">Donate</a>
 		Random Photo Screensaver is <strong>donationware</strong>, you are <strong>required</strong> to make a <a class="external" target="_top" href="http://www.abscreensavers.com/random-photo-screensaver/donation?source=RPS4">donation to the author</a> is you continue using this software after your 30 days trail ends.
@@ -484,7 +483,12 @@
 					<div class="set multiOnly">
 						<h2>Multi monitors</h2>
 						<label for="stretchPanoramas" title="Panoramas are only stretched to higher numbered monitors"><input type="checkbox" id="stretchPanoramas" checked /> Stretch panoramas accross multiple monitors</label>
-						<label for="sameImage"><input type="checkbox" id="sameImage"/> Same image/video on each monitor</label>
+						<label>Images on monitors</label>
+						<div id="mmImages">
+							<label for="mmImagesNormal"><input type="radio" id="mmImagesNormal" name="mmImages" value="normal" checked/> Different images on each monitor</label>
+							<label for="mmImagesSame"><input type="radio" id="mmImagesSame" name="mmImages" value="same"/> Same image on each monitor</label>
+							<label for="mmImagesSlide" class="tooltip" data-title="Show image on monitor 1 then on monitor 2, ..."><input type="radio" id="mmImagesSlide" name="mmImages" value="slide"/> Slide images across each monitor in sequence</label>
+						</div>
 					</div>
 					<div class="pathParts">
 						<h3>Show filename parts</h3>
@@ -551,7 +555,8 @@
 <tr><td class='header' colspan='4'>General</td></tr>
 	<tr><td></td><td>Escape</td><td></td><td>Exit screensaver</td></tr>
 	<tr><td></td><td>S</td><td></td><td>Show settings screen</td></tr>
-	<tr><td></td><td>A/B</td><td></td><td>Open <a class="external" target="_top" href="http://www.abscreensavers.com">www.abscreensavers.com</a> in browser</td></tr>
+	<tr><td></td><td>A</td><td></td><td>Open <a class="external" target="_top" href="http://www.abscreensavers.com">www.abscreensavers.com</a> in browser</td></tr>
+	<tr><td></td><td>B</td><td></td><td>Open <a class="external" target="_top" href="http://www.abscreensavers.com/random-photo-screensaver/version-information/">view version info</a> in browser</td></tr>
 	<tr><td></td><td></td><td></td><td></td></tr>
 <tr><td class='header' colspan='4'>Slideshow</td></tr>
 	<tr><td></td><td>&uarr;</td><td>Numpad 8</td><td>Next sequential image</td></tr>

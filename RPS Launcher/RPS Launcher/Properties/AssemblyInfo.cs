@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Random Photo Screensaver Launcher")]
-[assembly: AssemblyDescription("Launcher for Random Photo Screensaver")]
+[assembly: AssemblyTitle("Random Photo Screensaver Launcher")]              // Change name on third party release
+[assembly: AssemblyDescription("Launcher for Random Photo Screensaver")]    // Change name on third party release
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("www.abscreensavers.com")]
-[assembly: AssemblyProduct("RPS Launcher")]
-[assembly: AssemblyCopyright("Copyright ©  2010-2014")]
+[assembly: AssemblyCompany("www.abscreensavers.com")]                       // Change name on third party release
+[assembly: AssemblyProduct("RPS Launcher")]                                 // Change name on third party release
+[assembly: AssemblyCopyright("Copyright ©  2010-2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -1,4 +1,4 @@
-Random Photo Screensaver 4 (Beta)
+Random Photo Screensaver(tm) 4 (Beta)
 ==========================
 
 Random Photo Screensaver 4 (RPS4) is a photo slideshow screensaver written in Visual Studio C#.
@@ -87,9 +87,9 @@ License
 -------
 Copyright (C) 2005-2014 Marijn Kampf <marijn (at) abscreensavers (dot) com>
 
-Random Photo Screensaver is free software (http://www.gnu.org/philosophy/free-sw.html); you can redistribute it and/or modify it under the terms of the GNU General Public License (http://www.gnu.org/licenses/gpl.html) as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
+Random Photo Screensaver(tm) is free software (http://www.gnu.org/philosophy/free-sw.html); you can redistribute it and/or modify it under the terms of the GNU General Public License (http://www.gnu.org/licenses/gpl.html) as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
 
-You may use this software on a trial basis free of charge for up to thirty (30) days in order to ascertain its usefulness for your purposes. Beyond that time, you are required to either remit payment (http://www.abscreensavers.com/rps/donation) for its use, or remove it from your computer. 
+The Random Photo Screensaver, abScreensavers.com names and logos are trademarks and may not be used in third party releases without written permission. See [list of trademarks](http://www.abscreensavers.com/random-photo-screensaver/open-source/trademarks). In short, if you release a separate version you have to change the name and logos of your screensaver.
 
 Alternatively, Random Photo Screensaver is also available with a commercial license, which allows it to be used in closed-source projects. Contact me (http://www.abscreensavers.com/contact) for more information.
 

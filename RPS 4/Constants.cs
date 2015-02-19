@@ -18,7 +18,7 @@ namespace RPS {
         public const string EffectsJsonFile = "js/effects.json";
         
         public const int reloadFilters = 500;
-        public const string AppFolderName = "Random Photo Screensaver";
+        public const string AppName = "Random Photo Screensaver";
         public const string DbFileName = "store.sqlite";
         public const string MetadataFileName = "meta.sqlite";
         public const string PersistantConfigFileName = "settings.sqlite";
@@ -203,21 +203,21 @@ CREATE UNIQUE INDEX `keys` ON `Setting` (`key` ASC);
         public static string getLocalAppDataFolder() {
             return Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                Constants.AppFolderName
+                Constants.AppName
             );
         }
 
         public static string getProgramDataFolder() {
             return Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                Constants.AppFolderName
+                Constants.AppName
             );
         }
 
         public static string selectProgramAppDataFolder(string filename) {
             /**
-             * 1. If filename exists in user folder (C:\Users\[user name]\AppData\Local\Random Photo Screensaver\filename) return full path
-             * 2. Otherwise return full path to program data folder (C:\ProgramData\Random Photo Screensaver\filename)
+             * 1. If filename exists in user folder (C:\Users\[user name]\AppData\Local\[Random Photo Screensaver]\filename) return full path
+             * 2. Otherwise return full path to program data folder (C:\ProgramData\[Random Photo Screensaver]\filename)
              **/
             Console.WriteLine("findOrInitInDataFolder: " + filename);
             string fullPath;
@@ -235,8 +235,8 @@ CREATE UNIQUE INDEX `keys` ON `Setting` (`key` ASC);
         public static string getDataFolder(string filename) {
             /** 
              * 1. development folder 
-             * 2. user folder (C:\Users\[user name]\AppData\Local\Random Photo Screensaver)
-             * 3. program data folder (C:\ProgramData\Random Photo Screensaver)
+             * 2. user folder (C:\Users\[user name]\AppData\Local\[Random Photo Screensaver])
+             * 3. program data folder (C:\ProgramData\[Random Photo Screensaver])
              * 4. executable folder
              **/
             Console.WriteLine("getDataFolder: " + filename);

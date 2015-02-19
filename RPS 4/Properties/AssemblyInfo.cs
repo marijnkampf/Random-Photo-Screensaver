@@ -5,12 +5,13 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("RPS4")]
-[assembly: AssemblyDescription("Random Photo Screensaver")]
+
+[assembly: AssemblyTitle("RPS4")]                                   // You are required to change this information if you publicly release your project
+[assembly: AssemblyDescription("Random Photo Screensaver")]         // You are required to change this information if you publicly release your project
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("www.abscreensavers.com")]
-[assembly: AssemblyProduct("RPS 4")]
-[assembly: AssemblyCopyright("Copyright ©  2014")]
+[assembly: AssemblyCompany("www.abscreensavers.com")]               // You are required to change this information if you publicly release your project
+[assembly: AssemblyProduct("RPS 4")]                                // You are required to change this information if you publicly release your project
+[assembly: AssemblyCopyright("Copyright ©  2005-2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -33,4 +34,4 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("0.0.0.0")]
-[assembly: AssemblyFileVersion("4.4.1.0")]
+[assembly: AssemblyFileVersion("4.5.0.0")]

@@ -235,7 +235,7 @@ namespace RPS {
             if (!this.persistant.ContainsKey("rawFolder") || this.persistant["rawFolder"] == null || Convert.ToString(this.persistant["rawFolder"]).Trim().Length == 0) {
                 string path = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), 
-                    Constants.AppFolderName,
+                    Constants.AppName,
                     Constants.RawCacheFolder
                 );
                     

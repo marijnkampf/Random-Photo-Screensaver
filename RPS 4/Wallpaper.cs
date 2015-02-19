@@ -8,7 +8,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Data;
-//using System.Windows.Media;
 using System.IO;
 
 namespace RPS {
@@ -41,6 +40,26 @@ namespace RPS {
                 break;
             }
             return true;
+        }
+
+        public void setWallpaperFromSQL(string sql) {
+            string[] paths = new string[Screen.AllScreens.Length];
+            // Run SQL limit = 10 * Screen.AllScreens.Length;
+
+            DataTable dt = this.screensaver.fileNodes.runSQLByPassFilter(sql + " ORDER BY RANDOM() LIMIT 10");
+            int m = 0;
+            int i = 0;
+            while (dt.Rows.Count > i && m < Screen.AllScreens.Length && paths[m] == null) {
+                paths[m] = Convert.ToString(dt.Rows[i]["path"]);
+                if (!File.Exists(paths[m])) paths[m] = null;
+                else {
+                    if (Convert.ToString(this.screensaver.config.getPersistant("videoExtensions")).ToLower().IndexOf(new FileInfo(paths[m]).Extension.ToLower()) > -1) {
+                        paths[m] = null;
+                    } else m++;
+                }
+                i++;
+            }
+            this.setWallpaper(paths);
         }
 
         public void setWallpaper() {

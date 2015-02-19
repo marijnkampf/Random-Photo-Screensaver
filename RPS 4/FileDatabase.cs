@@ -86,6 +86,14 @@ namespace RPS {
             return "Filter";
         }
 
+        public DataTable runSQLByPassFilter(string subQuery) {
+            SQLiteCommand sqlCommand = new SQLiteCommand("SELECT * FROM `FileNodes` LEFT JOIN mdb.Metadata USING (id) WHERE " + subQuery, this.dbConnector.connection);
+            SQLiteDataReader sqlReader = sqlCommand.ExecuteReader();
+            DataTable dt = new DataTable();
+            dt.Load(sqlReader);
+            return dt;
+        }
+
         public void addFileToDB(FileInfo fi) {
             /****
              * 	New DB	Existing DB

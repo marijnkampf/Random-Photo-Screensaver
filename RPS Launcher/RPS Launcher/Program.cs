@@ -17,14 +17,15 @@ namespace RPS_Launcher {
             const string HKLM = "HKEY_LOCAL_MACHINE\\";
             const string HKCU = "HKEY_LOCAL_USER\\";
             string installOrDownload = "Please download the latest verson from www.abscreensavers.com and try re-installing the screensaver.";
-            string regSubKey = "Software\\abScreensavers.com\\Random Photo Screensaver";
+            string appName = "Random Photo Screensaver";
+            string regSubKey = "Software\\abScreensavers.com\\" + appName;
             string regName = "installFolder";
             string installDir = (string)Registry.GetValue(HKLM + regSubKey, regName, null);
             if (installDir == null) {
                 installDir = (string)Registry.GetValue(HKCU + regSubKey, regName, null);
             }
             if (installDir == null) {
-                MessageBox.Show("No registry entries found for Random Photo Screensaver." + Environment.NewLine +
+                MessageBox.Show("No registry entries found for " + appName + "." + Environment.NewLine +
                     "(Missing key: " + HKLM + regSubKey + "\\" + regName + Environment.NewLine + 
                     "or " + HKCU + regSubKey + "\\" + regName + ")" + Environment.NewLine + Environment.NewLine +
                     installOrDownload, "No Registry Entry Found",
@@ -33,7 +34,7 @@ namespace RPS_Launcher {
                 return 3;
             }
             if (!Directory.Exists(installDir)) {
-                MessageBox.Show("The Random Photo Screensaver installation folder does not exists:" + Environment.NewLine +
+                MessageBox.Show("The " + appName + " installation folder does not exists:" + Environment.NewLine +
                     "(" + installDir + ")" + Environment.NewLine + Environment.NewLine +
                     installOrDownload, "Installation Folder Not Found",
                     MessageBoxButtons.OK,
@@ -47,9 +48,9 @@ namespace RPS_Launcher {
                 p.WaitForExit();
                 // Check for updated version
             } else {
-                MessageBox.Show("No Random Photo Screensaver executable found in:" + Environment.NewLine +
+                MessageBox.Show("No " + appName + " executable found in:" + Environment.NewLine +
                     "(" + installDir + ")" + Environment.NewLine + Environment.NewLine +
-                    installOrDownload, "Random Photo Screensaver Not Found",
+                    installOrDownload, appName + " Not Found",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
                 return 2;

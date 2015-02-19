@@ -22,8 +22,8 @@
 <body class="">
 	<div id="donation"><a class="hideMessage" href="#">[X]</a>
 		<a id="donate" class="linkButton external" target="_top" href="http://www.abscreensavers.com/random-photo-screensaver/donation?source=RPS4">Donate</a>
-		Random Photo Screensaver is <strong>donationware</strong>, you are <strong>required</strong> to make a <a class="external" target="_top" href="http://www.abscreensavers.com/random-photo-screensaver/donation?source=RPS4">donation to the author</a> is you continue using this software after your 30 days trail ends.
-		<div><strong>Thank you for your support!</strong></div>
+		Random Photo Screensaver is <strong>karamaware</strong> which can only exist with your support. You are <strong>urged</strong> to make a <a class="external" target="_top" href="http://www.abscreensavers.com/random-photo-screensaver/donation?source=RPS4">donation to the author</a> if you continue to use this software.
+		<div class="thankyou"><strong>Thank you for your support!</strong></div>
 	</div>
 	<div class="previewTip tips">Tip: You can also access the settings menu by pressing the 'S' key when the screensaver is running</div>
 	<div class="lowIEWarning tips">Internet Explorer 8 or greater is required, please <a class="external" target="_top" href="http://windows.microsoft.com/en-us/internet-explorer/download-ie">upgrade Internet Explorer</a>!</div>
@@ -224,7 +224,9 @@
 							</div>
 						</div>
 					</div>
-					<label for="filterName">Filter name: </label><input type="text" id="filterName" value="Filter"/> <a id="saveFilter" class="button" href="#">Save filter</a>
+					<div class="filterSaving">
+						<label for="filterName">Filter name: </label><input type="text" id="filterName" value="Filter"/> <a id="saveFilter" class="button" href="#">Save filter</a>
+					</div>
 					<div id="filterHeading">
 						<div class="filter heading">
 							<div class="name">Filter name</div>
@@ -232,21 +234,6 @@
 						</div>
 					</div>
 					<div id="filters">
-						<!--div class="filter">
-							<div class="actions"><a class="applyFilter button" href="#">Apply</a> <a class="editFilter button" href="#">Edit</a> <a class="removeFilter button" title="Remove filter button" href="#">X</a></div>
-							<div class="name">Panorama</div>
-							<div class="content">Include filenames containing 'pano'.</div>
-						</div>
-						<div class="filter">
-							<div class="actions"><a class="applyFilter button" href="#">Apply</a> <a class="editFilter button" href="#">Edit</a> <a class="removeFilter button" title="Remove filter button" href="#">X</a></div>
-							<div class="name">Polar planets</div>
-							<div class="content">Include filenames containing 'polar'.</div>
-						</div>
-						<div class="filter">
-							<div class="actions"><a class="applyFilter button" href="#">Apply</a> <a class="editFilter button" href="#">Edit</a> <a class="removeFilter button" title="Remove filter button" href="#">X</a></div>
-							<div class="name">Jenni and Marijn</div>
-							<div class="content">Include filenames containing <strong>'jenni'</strong> and include filenames containing <strong>'marijn'</strong>.</div>
-						</div-->
 					</div>
 
 					<div class="advanced">
@@ -396,7 +383,7 @@
 							[ rotate image 270&deg; CW<br/>
 							] rotate image 90&deg; CW<br/>
 							+ rotate image 180&deg;<br/>
-							<span class="mutliOnly"><br/>For multi monitors: select monitors with 1 ... 9 or 0 for all.</span>
+							<span class="mutliOnly"><br/>Select monitors with 1 ... 9 or 0 for all.</span>
 						<div class="keywords">turning rotate rotating</div>
 					</div>
 
@@ -408,7 +395,7 @@
 							Please note: if filename.bak exists it isn't overwritten.
 						</div>
 						<div class="clear note">Use Control + 0 ... 5 keys to rate images(s)<br/>
-							<span class="mutliOnly"><br/>For multi monitors: select monitors with 1 ... 9 or 0 for all.</span>
+							<span class="mutliOnly"><br/>Select monitors with 1 ... 9 or 0 for all.</span>
 						<div class="keywords">add starring make favourite rate</div>
 					</div>
 					<div class="keywords">metadata iptc xmp exif</div>
@@ -435,8 +422,15 @@
 					<label for="wallpaperFilenames"><input type="checkbox" id="wallpaperFilenames" checked /> Include filename(s) on wallpaper</label>
 					<div class="set radioGroup">
 						<h2>Wallpaper source</h2>
-						<div id="wallpaperSource" class="radioGroup">
-							<label for="wallpaperSourceDB"><input type="radio" name="wallpaperSource" id="wallpaperSourceDB" checked /> Pick from files</label>
+						<div id="wallpaperSource" class="radioGroup subOptions">
+							<label for="wallpaperSourceDB"><input type="radio" name="wallpaperSource" value="current" id="wallpaperSourceDB" checked /> From current folders</label>
+							<label for="wallpaperSourceFilter"><input type="radio" name="wallpaperSource" value="filter" id="wallpaperSourceFilter"/> Use filter: </label>
+							<div class="subOption wallpaperSourceFilter">
+								<select id="wallpaperSourceFilterDropdown"/>
+							</div>
+							<div class="clear"></div>
+							<input type="hidden" id="wallpaperSourceFilterValue"/>
+							<input type="hidden" id="wallpaperSourceFilterSQL"/>
 							<!--input type="radio" name="wallpaperSource" id="wallpaperSourceFolder" titel="Not implemented yet" disabled/> <label for="wallpaperSourceFolder" titel="Not implemented yet" >Use separate wallpaper folder</label>
 							<input type="file" id="wallpaperFolder" value="Not implemented yet"  titel="Not implemented yet" disabled/>
 							<input type="radio" name="wallpaperSource" id="wallpaperSourceFilter"  titel="Not implemented yet" disabled/> <label for="wallpaperSourceFolder" titel="Not implemented yet" >Use filter</label>
@@ -444,7 +438,10 @@
 						</div>
 						<input type="hidden" id="wallpaperLastChange"/>
 					</div>
+					<div class="note"><a class="goToTab" data-highlight=".filterSaving" href="#filters">Create filters here</a></div>
+
 					<div class="set">
+						<div class="clear"></div>
 						<a id="clearWallpaper" class="button" href="#" title="Clear current wallpaper and reset to Windows default">Clear Wallpaper</a>
 						<div class="keywords">remove reset</div>
 					</div>
@@ -471,7 +468,7 @@
 										<label for="currentClockM1"><input id="currentClockM1" type="radio" name="clockM1" value="current"/>Current time</label>
 										<label for="elapsedClockM1"><input id="elapsedClockM1" type="radio" name="clockM1" value="elapsed"/>Screensaver running time</label>
 									</div>
-									<label for="clockFormatM1" data-title="Toggle with F key whilst screensaver is running">Clock format: <span id="clockPreviewM1">14:23:01</span></label>
+									<label for="clockFormatM1" data-title="Toggle with F key whilst screensaver is running">Clock format <!--span id="clockPreviewM1">14:23:01</span--></label>
 									<!--input type="text" id="clockFormatM1" class="clockFormat" value="HH:mm:ss" /-->
 									<textarea id="clockFormatM1" class="clockFormat">HH:mm:ss</textarea>
 								</div>
@@ -539,7 +536,7 @@
 						</div>
 					</div>
 					<label for="disableGoAn" class="tooltip" data-title="Disable tracking of update page"><input type="checkbox" id="disableGoAn"/>Don't track downloads with Google Analytics</label>
-					<label for="betaVersion"><input type="checkbox" id="betaVersion"/>Include minor updates, beta and release candidate versions</label>
+					<label for="betaVersion"><input type="checkbox" id="betaVersion"/>Include revision updates, beta and release candidate versions</label>
 					<label for="ignoreUpdate"><input type="checkbox" id="ignoreUpdate"/>Ignore latest update (version: <input type="text" id="ignoreVersion"/>)</label>
 					<div class="clear"></div>
 					<div class="keywords">previous old</div>

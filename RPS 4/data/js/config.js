@@ -92,8 +92,12 @@ FilterLine.prototype.getEditorValues = function(id) {
 	return this;
 }
 
+function getSqlFilter(filterName) {
+	var key = filters.findKey(filterName);
+	return filters.asSql(filters.filters[key]);
+}
+
 function getJsonFilters() {
-//	alert(filters.filters.length);
 	filters.saveCurrentFilter(NaturalText.currentFilter);
 	return JSON.stringify(filters);
 }
@@ -173,11 +177,29 @@ Filters.prototype.asSql = function(filter) {
 	return s;
 }
 
+Filters.prototype.setFilterListValue = function(filterName) {
+	$("#wallpaperSourceFilterValue").val(filterName);
+	$("#wallpaperSourceFilterDropdown").val(filterName);
+	var key = filters.findKey(filterName);
+	if (key != undefined) {
+		$("#wallpaperSourceFilterSQL").val(this.asSql(filters.filters[key]));
+		//alert($("#wallpaperSourceFilterSQL").val());
+	}
+}
+
 Filters.prototype.showFilterList = function() {
 	$("#filters").empty();
+	$("#wallpaperSourceFilterDropdown").empty();
+	var selected = "";
 	for(var i = 0; i < filters.filters.length; i++) {
 		var currentFilter = "";
 		if (filters.filters[i].name == NaturalText.currentFilter) currentFilter = " currentFilter";
+		else {
+			var selected = "";
+			if ($("#wallpaperSourceFilterValue").val() == filters.filters[i].name) selected = " selected";
+			//$("#wallpaperSourceFilterDropdown").append($("<option/>").addClass("filter" + currentFilter).attr("value", filters.filters[i].name).html(filters.filters[i].name));
+			$("#wallpaperSourceFilterDropdown").append($('<option class="' + currentFilter + '" value="' + filters.filters[i].name + '"' + selected + ">" + filters.filters[i].name + "</option>"));
+		}
 		$("#filters")
 			.append($("<div/>").addClass("filter" + currentFilter)
 				.append($("<div/>").addClass("actions").attr("data-name", filters.filters[i].name).html('<a class="selectFilter button" href="#">Select</a> <a class="removeFilter button" title="Remove filter button" href="#">X</a>'))
@@ -188,6 +210,7 @@ Filters.prototype.showFilterList = function() {
 		;
 		$(".button").button()
 	}
+
 	$(".selectFilter").click(function() {
 		filters.edit($(this).parent().attr("data-name"));
 		$("#filterName").val($(this).parent().attr("data-name"));
@@ -198,6 +221,13 @@ Filters.prototype.showFilterList = function() {
 	$(".removeFilter").click(function() {
 		filters.remove($(this).parent().attr("data-name"));
 	});
+
+	var key = filters.findKey($("#wallpaperSourceFilterValue").val());
+	if (key != undefined) {
+		$("#wallpaperSourceFilterSQL").val(filters.asSql(filters.filters[key]));
+		//alert($("#wallpaperSourceFilterSQL").val());
+	}
+
 }
 
 Filters.prototype.getColumns = function() {
@@ -392,7 +422,6 @@ function beep() {
 
 // Called from C# when config form is first shown.
 function initFancyTreeFolder() {
-	//alert("function initFancyTreeFolder()");
 	$("#foldersFancyTree").fancytree({
 		extensions: ["menu", "rps"/*"excludedSubfolders"/*, "filter"*/],
 		checkbox: true,
@@ -686,6 +715,7 @@ function persistantConfigLoaded() {
 	$(".subOptions").each(function() {
 		$(this).change();
 	});
+	filters.setFilterListValue($("#wallpaperSourceFilterValue").val());
 }
 
 function settingChanged(object) {
@@ -777,8 +807,6 @@ $(function(){
 	});
 	/** End Advanced **/
 
-
-//alert($("#backgroundColour").val());
 	$("#backgroundColour, #wallpaperBackgroundColour").spectrum({
 			showInput: true,
 			className: "full-spectrum",
@@ -837,12 +865,14 @@ $(function(){
 		$("input[type=radio]", this).each(function() {
 			var disabled = false;
 			if ($("input:radio[name=" + $(this).attr("name") + "]:checked").attr("id") != undefined) disabled = (this.id != $("input:radio[name=" + $(this).attr("name") + "]:checked").attr("id").toString());
-			$("." + this.id + " input").each(function() { $(this).attr("disabled", disabled); });
+			$("." + this.id + " input, ." + this.id + " select, ." + this.id + " textarea").each(function() { $(this).attr("disabled", disabled); });
 			$("." + this.id).each(function() {
 				$(this).toggleClass("disabled", disabled);
 		});
 		});
 	});
+
+	$(".subOptions").change();
 
 	$(".browseFile .button").click(function() {
 		var id = this.id.replace("Browse", "");
@@ -980,6 +1010,20 @@ $(function(){
 			window.external.InvokeScriptOnMonitor(-1, "setBackgroundColour", $("#backgroundColour").val());
 		}
 	});
+
+	$("#wallpaperSourceFilterDropdown").change(function() {
+		$("#wallpaperSourceFilterValue").val(this.value);
+		var key = filters.findKey(this.value);
+		if (key != undefined) {
+				$("#wallpaperSourceFilterSQL").val(filters.asSql(filters.filters[key]));
+				//alert($("#wallpaperSourceFilterSQL").val());
+		}
+
+		settingChanged($("#wallpaperSourceFilterValue")[0]);
+		settingChanged($("#wallpaperSourceFilterSQL")[0]);
+	});
+
+
 
 	$(".pathParts input").change(function() {
 		if (typeof(window.external.InvokeScriptOnMonitor) !== "undefined") {

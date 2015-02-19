@@ -451,9 +451,13 @@ namespace RPS {
         public DataRow getRandomImage(long offset) {
             return fileDatabase.getRandomImage(offset);
         }
-        
+
         public string getMetadataById(long id) {
             return this.fileDatabase.getMetadataById(id);
+        }
+
+        public DataTable runSQLByPassFilter(string subQuery) {
+            return this.fileDatabase.runSQLByPassFilter(subQuery);
         }
 
         public int deleteFromDB(string path) {
@@ -496,7 +500,7 @@ namespace RPS {
             this.bwSender = sender;
             this.bwEvents = e;
             if (!this.screensaver.readOnly) {
-                var folders = Utils.stringToList(Convert.ToString(this.config.getPersistant("folders")));
+                var folders = Utils.stringToList(this.config.getPersistantString("folders"));
                 this.swFileScan = new System.Diagnostics.Stopwatch();
                 this.swMetadata = new System.Diagnostics.Stopwatch();
                 // Folder purge done in main thread
@@ -513,8 +517,20 @@ namespace RPS {
             if (!this.backgroundWorker.CancellationPending) this.fileDatabase.purgeMetadata();
             //if (Convert.ToDateTime(this.config.setValue("wallpaperLastChange")).Equals(DateTime.Today));
             if (!this.backgroundWorker.CancellationPending) {
+
                 Wallpaper wallpaper = new Wallpaper(this.screensaver);
-                if (wallpaper.changeWallpaper()) wallpaper.setWallpaper();
+                if (wallpaper.changeWallpaper()) {
+                    switch (this.config.getPersistantString("wallpaperSource")) {
+                        case "on": // Backwards compatability old settings
+                        case "current": 
+                            wallpaper.setWallpaper();
+                        break;
+                        case "filter":
+                            string sql = this.config.getPersistantString("wallpaperSourceFilterSQL");
+                            if (sql != "") wallpaper.setWallpaperFromSQL(sql);
+                        break;
+                    }
+                }
             }
 
             //this.cancelCompleteEvent.Set();

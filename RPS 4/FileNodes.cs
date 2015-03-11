@@ -552,7 +552,8 @@ namespace RPS {
                 info += String.Format("DB {0:##,#} images; ", nrImagesInDb);
             }
             if (this.screensaver.config.getPersistantBool("useFilter")) {
-                info += String.Format("filtered {0:##,#} images; ", nrImagesFiltered);
+                if (nrImagesFiltered == 0) info += " filter: no images found; ";
+                else info += String.Format("filtered {0:##,#} images; ", nrImagesFiltered);
             }
             if (this.nrUnprocessedMetadata > 0) {
                 info += String.Format(" Metadata queue {0:##,#} files", this.nrUnprocessedMetadata);

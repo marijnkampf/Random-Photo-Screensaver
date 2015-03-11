@@ -202,7 +202,7 @@ Filters.prototype.showFilterList = function() {
 		}
 		$("#filters")
 			.append($("<div/>").addClass("filter" + currentFilter)
-				.append($("<div/>").addClass("actions").attr("data-name", filters.filters[i].name).html('<a class="selectFilter button" href="#">Select</a> <a class="removeFilter button" title="Remove filter button" href="#">X</a>'))
+				.append($("<div/>").addClass("actions").attr("data-name", filters.filters[i].name).html('<a class="selectFilter button" title="Set this filter as current filter. Remember to click \'Apply filter\'!" href="#">Select</a> <a class="addFilter button" title="Add to current filter list. Remember to click \'Apply filter\'!" href="#">Add</a> <a class="removeFilter button" title="Remove filter" href="#">X</a>'))
 				.append($("<div/>").addClass("name").html(filters.filters[i].name))
 				.append($("<div/>").addClass("content").html(this.asText(filters.filters[i])))
 				//.append($("<div/>").addClass("sql").html(this.asSql(filters.filters[i])))
@@ -211,8 +211,8 @@ Filters.prototype.showFilterList = function() {
 		$(".button").button()
 	}
 
-	$(".selectFilter").click(function() {
-		filters.edit($(this).parent().attr("data-name"));
+	$(".selectFilter, .addFilter").click(function() {
+		filters.edit($(this).parent().attr("data-name"), !$(this).hasClass("addFilter"));
 		$("#filterName").val($(this).parent().attr("data-name"));
 		settingChanged($("#filterName")[0]);
 		if ($("#useFilter").prop("checked")) applyFilter();
@@ -286,14 +286,17 @@ Filters.prototype.remove = function(name) {
 	}
 }
 
-Filters.prototype.edit = function(name) {
+Filters.prototype.edit = function(name, reset) {
+	if (reset == undefined) reset = true;
 	this.currentFilter = this.findKey(name);
 	if (this.currentFilter == undefined) {
 		alert("Filter '" + name + "' not found.");
 		return undefined;
 	}
-	$("#filterLines").empty();
-	this.editorCount = 0;
+	if (reset) {
+		$("#filterLines").empty();
+		this.editorCount = 0;
+	}
 //	$("#filterNrLines").val(this.filters[key].filterLines.length);
 	for(var i = 0; i < this.filters[this.currentFilter].filterLines.length; i++) {
 		this.editorAddLine(this.filters[this.currentFilter].filterLines[i]);

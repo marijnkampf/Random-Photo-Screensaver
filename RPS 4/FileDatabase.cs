@@ -432,9 +432,17 @@ namespace RPS {
         public bool addMetadataToDB(long id, string metadata) {
             if (this.readOnly) return false;
             try {
-                SQLiteCommand command = new SQLiteCommand("INSERT OR REPLACE INTO `Metadata` (`id`, `all`) VALUES (@id, @metadata);", this.metaDataDbConnector.connection);
+                long width=0, height=0, area=0;
+                MetadataTemplate mt = new MetadataTemplate(metadata);
+                if (mt.metadata.ContainsKey("imagewidth")) width = Convert.ToInt32(mt.metadata["imagewidth"]);
+                if (mt.metadata.ContainsKey("imageheight")) height = Convert.ToInt32(mt.metadata["imageheight"]);
+                area = width * height;
+                SQLiteCommand command = new SQLiteCommand("INSERT OR REPLACE INTO `Metadata` (`id`, `all`, `width`, `height`, `area`) VALUES (@id, @metadata, @width, @height, @area);", this.metaDataDbConnector.connection);
                 command.Parameters.AddWithValue("@id", id);
                 command.Parameters.AddWithValue("@metadata", metadata);
+                command.Parameters.AddWithValue("@width", width);
+                command.Parameters.AddWithValue("@height", height);
+                command.Parameters.AddWithValue("@area", area);
                 command.ExecuteNonQuery();
             
                 command = new SQLiteCommand("UPDATE `FileNodes` SET `metainfoindexed` = 1 WHERE id = @id;", this.dbConnector.connection);

@@ -107,9 +107,9 @@ CREATE TABLE `Metadata` (
             new Dictionary<string, ColumnInfo> {
                 {"id",              new ColumnInfo("INTEGER PRIMARY KEY", false, false) },
                 {"all",             new ColumnInfo("TEXT", new FilterInfo("metadata", true, FilterInfo.VarType.text))},
-                {"width",           new ColumnInfo("TEXT", new FilterInfo("width", true, FilterInfo.VarType.numeral))},
-                {"height",          new ColumnInfo("TEXT", new FilterInfo("height", true, FilterInfo.VarType.numeral))},
-                {"area",            new ColumnInfo("DATETIME", new FilterInfo("area", true, FilterInfo.VarType.numeral))},
+                {"width",           new ColumnInfo("INTEGER", new FilterInfo("width", true, FilterInfo.VarType.numeral))},
+                {"height",          new ColumnInfo("INTEGER", new FilterInfo("height", true, FilterInfo.VarType.numeral))},
+                {"area",            new ColumnInfo("INTEGER", new FilterInfo("area", true, FilterInfo.VarType.numeral))},
             }
         );
 

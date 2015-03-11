@@ -60,31 +60,7 @@ Structure
 
 Credits
 -------
-ToDo update all external libraries
-The following (free) libraries and programs have been used in/ship with RPS4:
-- [Microsoft Visual Studio 2013 C# Express Edition](http://www.visualstudio.com/downloads/download-visual-studio-vs)
-    - [ExifTool by Phil Harvey](http://www.sno.phy.queensu.ca/~phil/exiftool/)
-    - [UFRaw](http://ufraw.sourceforge.net/)
-    - [SQLite](http://www.sqlite.org/)
-    - [Virtual Machine used for testing](https://www.virtualbox.org/)
-    	- [Windows XP/Vista](https://www.modern.ie/en-us/virtualization-tools#downloads)
-    	- [Windows 7](http://www.microsoft.com/en-us/evalcenter/evaluate-windows-7-enterprise)
-    	- [Windows 8](http://www.microsoft.com/en-us/evalcenter/evaluate-windows-8-1-enterprise)
-    	- [Windows 8.1](http://www.microsoft.com/en-us/evalcenter/evaluate-windows-8-enterprise)
-- JavaScript 
-    - [jQuery](http://jquery.com/)
-    - [jQuery UI](http://jqueryui.com/)
-    - [Fancytree](https://github.com/mar10/fancytree)
-    - [Highlight text](http://johannburkard.de/blog/programming/javascript/highlight-javascript-text-higlighting-jquery-plugin.html)
-    - <del>[Object fit by Steve Workman/Simon Schmid](https://github.com/steveworkman/jquery-object-fit)</del>
-    - [Colour picker](http://bgrins.github.io/spectrum/)
-- CSS
-		- [Pure CSS speech bubbles](nicolasgallagher.com/pure-css-speech-bubbles/)
-- Miscellaneous
-		- [Waiting image spinners](http://preloaders.net/en/circular)
-		- [Windows icons converted with iconverticons](http://iconverticons.com/online/)
-- [NSIS installer](http://nsis.sourceforge.net/Main_Page)
-	- [StdUtils NSIS](http://muldersoft.com/docs/stdutils_readme.html#e5717960)
+See http://www.abscreensavers.com/random-photo-screensaver/configuration/?tab=credits for a full list of credits of software, libraries and other code used in the making of RPS.
 
 License
 -------

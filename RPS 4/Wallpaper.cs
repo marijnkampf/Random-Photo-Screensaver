@@ -9,6 +9,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Data;
 using System.IO;
+using Microsoft.Win32;
 
 namespace RPS {
     class Wallpaper {
@@ -192,6 +193,9 @@ namespace RPS {
             if (File.Exists(wallpaperPath)) {
                 SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, wallpaperPath, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
                 this.screensaver.config.setPersistant("wallpaperLastChange", Convert.ToString(DateTime.Today));
+
+                Registry.SetValue("HKEY_CURRENT_USER\\Control Panel\\Desktop", "TileWallpaper", "1");
+                Registry.SetValue("HKEY_CURRENT_USER\\Control Panel\\Desktop", "WallpaperStyle", "0");
             }
         }
     }

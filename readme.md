@@ -1,4 +1,4 @@
-Random Photo Screensaver(tm) 4 (Beta)
+Random Photo Screensaver(tm) 4
 ==========================
 
 Random Photo Screensaver 4 (RPS4) is a photo slideshow screensaver written in Visual Studio C#.
@@ -11,7 +11,7 @@ The source for the previous version RPS3 written in Visual Studio C++, can be fo
 
 Structure
 ---------
-RPS consists of two programs. A [launcher]("ToDo: Make github project and insert link") that resides in the users' Windows folder and the actual program that resides in the installation folder including all required libraries. 
+RPS consists of two programs. A [launcher](https://github.com/marijnkampf/Random-Photo-Screensaver/tree/master/RPS%20Launcher) that resides in the users' Windows folder and the actual [Random Photo Screensaver](https://github.com/marijnkampf/Random-Photo-Screensaver/tree/master/RPS%204) program that resides in the installation folder including all required libraries. 
 
 I've chosen for this option as it avoids cluttering the Windows folder with loads of files, makes installation of library files easier and avoids creating conflicts with existing library files.
 
@@ -45,15 +45,18 @@ Structure
 ---------
 - Launcher
 - RPS 4
-    - data
-        - Settings
-            - html, js, css
-        - Monitor
-        - Vendor
-    - database (C:\Users\[username]\AppData\Local\Random Photo Screensaver)
+    - data (%programdata%\Random Photo Screensaver)
+    	- config.html
+    	- monitor.html
+    		- css
+    		- images
+    		- js
+    		- vendor
+    - database (%programdata%\Random Photo Screensaver)
         - settings.sqlite
         - store.sqlite
         - meta.sqlite
+    	Alternative location for personalised settings files is "%localappdata%\Random Photo Screensaver"
 
 Credits
 -------
@@ -85,7 +88,7 @@ The following (free) libraries and programs have been used in/ship with RPS4:
 
 License
 -------
-Copyright (C) 2005-2014 Marijn Kampf <marijn (at) abscreensavers (dot) com>
+Copyright (C) 2005-2015 Marijn Kampf <marijn (at) abscreensavers (dot) com>
 
 Random Photo Screensaver(tm) is free software (http://www.gnu.org/philosophy/free-sw.html); you can redistribute it and/or modify it under the terms of the GNU General Public License (http://www.gnu.org/licenses/gpl.html) as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
 
@@ -96,7 +99,3 @@ Alternatively, Random Photo Screensaver is also available with a commercial lice
 Random Photo Screensaver is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See http://www.abscreensavers.com for more information.
-
-ToDo
-----
-- Update GitHub URL after beta release becomes release version

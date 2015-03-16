@@ -701,6 +701,7 @@ function checkRawConverter() {
 	if (found) {
 		$("#rawUseConverter").attr("disabled", false);
 		$(".noRaw").hide();
+		//settingChanged($("#rawConverter")[0]);
 	} else {
 		$("#rawUseConverter").attr("disabled", true);
 		$("#rawUseConverter").attr("checked", false);
@@ -883,6 +884,7 @@ $(function(){
 			alert("Can't display folder browse dialog in browser preview mode");
 		} else {
 			$("#" + id).val(window.external.jsFileBrowserDialog($("#" + id).val(), $("#" + id).attr("data-filter")));
+			$("#" + id).change();
 		}
 	});
 
@@ -904,8 +906,13 @@ $(function(){
 
 	$("#save").click(function() {
 		try {
-			window.external.savePersistantConfig();
-			beep();
+			if (window.external.savePersistantConfig()) {
+				alert("Settings saved");
+			} else {
+				alert("An error occured whilst trying to save settings.");
+			}
+
+			//beep();
 		} catch(e) {
 			alert("Can't automatically save settings in browser preview mode");
 		}
@@ -918,6 +925,7 @@ $(function(){
 			path = window.external.jsGetUFRawLocation();
 			if (path.length > 0) {
 				$("#rawConverter").val(path);
+				settingChanged($("#rawConverter")[0]);
 			} else {
 				alert("UFRaw location not automatically detected. Set location of 'ufraw-batch.exe' manually?");
 			}
@@ -927,6 +935,7 @@ $(function(){
 
 	$("#rawConverter").on('change keyup' ,function(){
 		checkRawConverter();
+		settingChanged($("#rawConverter")[0]);
 	});
 
 	$(".hideMessage").click(function() {

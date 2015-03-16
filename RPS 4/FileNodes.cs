@@ -294,7 +294,8 @@ namespace RPS {
             if (File.Exists(jpgDest)) return true;
 
             if (!File.Exists(Convert.ToString(this.config.getPersistant("rawConverter")))) {
-                throw new FileNotFoundException("Raw converter: '" + this.config.getPersistant("rawConverter") + "' not found."); 
+                throw new FileNotFoundException("Raw converter: '" + this.config.getPersistant("rawConverter") + "' not found.");
+                return false;
             }
 
             if (!Directory.Exists(Path.GetDirectoryName(jpgDest))) {
@@ -329,7 +330,7 @@ namespace RPS {
                     fi.Attributes |= FileAttributes.Hidden;
                 }
             }
-            return false;
+            return true;
         }
 
         public string checkImageCache(string filename, long monitor, ref Hashtable settings) {

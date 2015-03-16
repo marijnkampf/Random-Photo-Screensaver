@@ -271,12 +271,13 @@ if(typeof getVideoHTML5 != 'function'){
 }
 
 function getStartPosition(duration, interval, settings) {
+	//document.getElementById("quickMetadata").innerHTML = document.getElementById("quickMetadata").innerHTML + " T(" + duration + "/" + interval + ")";
 	if (settings["videosPlay"] == "clip") {
-		if (this.duration > interval) return getRandomFloat(0, this.duration - interval);
+		if (duration > interval) return getRandomFloat(0, duration - interval);
 	} else {
-		if (interval < this.duration) {
+		if (interval < duration) {
 			if (typeof(window.external.jsOverrideTimerInterval) !== "undefined") {
-				window.external.jsOverrideTimerInterval(this.duration);
+				window.external.jsOverrideTimerInterval(duration);
 			}
 		}
 	}

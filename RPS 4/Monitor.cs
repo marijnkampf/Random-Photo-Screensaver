@@ -559,8 +559,16 @@ namespace RPS {
                 }
                 try {
                     var bgw = new BackgroundWorker();
+                    if (this.screensaver.config.getPersistantBool("rawUseConverter") && (Convert.ToString(this.screensaver.config.getPersistant("rawExtensions")).IndexOf(Path.GetExtension(Convert.ToString(this.currentImage["path"])).ToLower()) > -1)) {
+                        this.info = this.showInfoOnMonitor("Converting from RAW to JPEG <span class='wait'></span>", false, false);
+                    }
                     bgw.DoWork += (object sender, DoWorkEventArgs e) => {
-                        e.Result = this.screensaver.fileNodes.checkImageCache(Convert.ToString(this.currentImage["path"]), this.id, ref this.imageSettings);
+                        try {
+                            e.Result = this.screensaver.fileNodes.checkImageCache(Convert.ToString(this.currentImage["path"]), this.id, ref this.imageSettings);
+                        } catch (Exception f) {
+                            // Error message is never displayed?!?
+                            this.screensaver.monitors[this.id].showInfoOnMonitor(f.Message, true);
+                        }
                     };
                     bgw.RunWorkerCompleted += (object sender, RunWorkerCompletedEventArgs e) => {
                         if (this.imageSettings.ContainsKey("raw") && Convert.ToBoolean(this.imageSettings["raw"])) {
@@ -568,19 +576,15 @@ namespace RPS {
                             this.imageSettings["resizeRatio"] = 1;
                             this.imageSettings["rawCached"] = e.Result;
                         }
-                        //metadata += " " + this.imageSettings["exifRotate"] + " " + this.Bounds.ToString();
-/*                        this.imageSettings["metadata"] = 
-                            WindowsIdentity.GetCurrent().Name + Environment.NewLine +
-                            Environment.UserName + Environment.NewLine +
-                            this.imageSettings["metadata"];*/
-                        //this.showInfoOnMonitor(this.info, false, true);
-                        this.browser.Document.InvokeScript("showImage", new Object[] { e.Result, "<span class='folder'>" + Convert.ToString(this.currentImage["path"]) + "</span>", JsonConvert.SerializeObject(this.imageSettings) });
+                        this.showInfoOnMonitor(this.info, false, true);
+                        try {
+                            this.browser.Document.InvokeScript("showImage", new Object[] { e.Result, "<span class='folder'>" + Convert.ToString(this.currentImage["path"]) + "</span>", JsonConvert.SerializeObject(this.imageSettings) });
+                        } catch (Exception f) {
+                            this.showInfoOnMonitor(f.Message, true);
+                        }
                     };
                     string path = "";
                     object[] prms = new object[] { path };
-                    if (this.screensaver.config.getPersistantBool("rawUseConverter") && (Convert.ToString(this.screensaver.config.getPersistant("rawExtensions")).IndexOf(Path.GetExtension(Convert.ToString(this.currentImage["path"])).ToLower()) > -1)) {
-                        this.info = this.showInfoOnMonitor("Converting from RAW to JPEG <span class='wait'></span>", false, false);
-                    }
                     bgw.RunWorkerAsync(prms);
                 } catch (Exception e) {
                     this.showInfoOnMonitor(e.Message, true);

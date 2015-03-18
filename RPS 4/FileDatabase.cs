@@ -454,6 +454,8 @@ namespace RPS {
                     this.readOnly = true;
                     return false;
                 }
+            } catch (System.FormatException fe) {
+                return true;
             }
             return true;
         }

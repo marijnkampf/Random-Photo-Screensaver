@@ -46,7 +46,7 @@ namespace RPS {
         public DataRow currentImage;
         private int resetFilterCount = 0;
         //string metadata;
-        MetadataTemplate quickMetadata;
+        public MetadataTemplate quickMetadata;
         Hashtable imageSettings = new Hashtable();
 
         #region Win32 API functions
@@ -510,7 +510,7 @@ namespace RPS {
 
                             }*/
 
-                            if (rotate != 90 && rotate != 270 && this.screensaver.getNrMonitors() > 1 && this.screensaver.config.getPersistantBool("stretchPanoramas") && imgRatio >= this.screensaver.desktopRatio) {
+                            if (rotate != 90 && rotate != 270 && this.screensaver.getNrMonitors() > 1 && this.screensaver.config.getPersistantBool("stretchPanoramas") && imgRatio >= (this.screensaver.desktopRatio * (1 - Convert.ToDouble(this.screensaver.config.getPersistant("stretchPanoramaTolerance"))/100))) {
                                 if (this.screensaver.config.getPersistantBool("stretchSmallImages") || width > this.Bounds.Width || height > this.Bounds.Height) {
                                     //this.imageSettings["fitToDimension"] = "width";
                                     this.imageSettings["pano"] = true;

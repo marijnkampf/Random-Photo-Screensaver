@@ -139,7 +139,7 @@ namespace RPS {
                         // Panorama
                         Rectangle bounds;
                         Rectangle backgroundBounds;
-                        if (i == 0 && this.screensaver.config.getPersistantBool("stretchPanoramas") && imgRatio >= this.screensaver.desktopRatio) {
+                        if (i == 0 && this.screensaver.config.getPersistantBool("stretchPanoramas") && imgRatio >= (this.screensaver.desktopRatio * (1 - Convert.ToDouble(this.screensaver.config.getPersistant("stretchPanoramaTolerance"))/100))) {
                             // ToDo: Stretch wallpaper parts to fit monitor(s)
                             bounds = this.screensaver.Desktop;
                             i = Screen.AllScreens.Length;

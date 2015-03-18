@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using System.Diagnostics;
 
 namespace RPS {
-    class MetadataTemplate {
+    public class MetadataTemplate {
   //      string rxGroups = "<#[^#]*#>";
 //        string rxTags = "{[^}]*}"
         public string template { get; set; }
@@ -36,8 +36,15 @@ namespace RPS {
 
         public Dictionary<string, string> filter(string keyFilter) {
             Dictionary<string, string> md = new Dictionary<string, string>();
-
             return md;
+        }
+
+        public string getAsString() {
+            string r = "";
+            foreach (KeyValuePair<string, string> entry in this.metadata) {
+                r += entry.Key + "\t" + entry.Value + Environment.NewLine;
+            }
+            return r;
         }
 
         public string fillTemplate() {

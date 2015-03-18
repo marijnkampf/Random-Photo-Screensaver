@@ -517,15 +517,17 @@ namespace RPS {
                             //Process.Start("http://www.abscreensavers.com");
                         break;
                         case Keys.C:
-                            //this.showInfoOnMonitors("Calendar probably won' be implemented.");
                             string c;
-                            if (this.clipboardReady) c = Clipboard.GetText();
+                            if (!e.Control && this.clipboardReady ) c = Clipboard.GetText();
                             else c = "";
                             for (int i = 0; i < this.monitors.Length; i++) {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
                                     if (this.monitors[i].imagePath() != null) {
                                         c += this.monitors[i].imagePath() + Environment.NewLine;
-                                        this.monitors[i].showInfoOnMonitor("Image path added to clipboard");
+                                        if (e.Control) {
+                                            c += this.monitors[i].quickMetadata.getAsString() + Environment.NewLine + Environment.NewLine;
+                                            this.monitors[i].showInfoOnMonitor("Metadata copied to clipboard");
+                                        } else this.monitors[i].showInfoOnMonitor("Image path added to clipboard");
                                     }
                                 }
                             }

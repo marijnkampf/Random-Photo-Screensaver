@@ -362,7 +362,8 @@
 						<h2>Quick metadata</h2>
 						<textarea id="quickMetadata" wrap="off"><#{ExposureTime} | #><#{FNumber} | #><#{ISO} | #><#{FocalLength}#></textarea>
 						<!--input type="text" id="quickMetadata" value="<#{ExposureTime} | #><#{FNumber} | #><#{ISO} | #><#{FocalLength}#>"/-->
-						<div class="notes">See <a class="external" target="_top" href="http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/">ExifTool TagNames</a> for EXIF/IPTC and other metatagnames that may be used.</div>
+						<div class="notes">See <a class="external" target="_top" href="http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/">ExifTool TagNames</a> for EXIF/IPTC and other meta tag names that may be used.<br/>
+						Press Ctrl + C when screensaver is running to copy available meta tag names and metadata to clipboard (close configuration screen first).</div>
 						<div class="keywords">metadata iptc xmp exif</div>
 					</div>
 
@@ -481,6 +482,12 @@
 					<div class="set multiOnly">
 						<h2>Multi monitors</h2>
 						<label for="stretchPanoramas" title="Panoramas are only stretched to higher numbered monitors"><input type="checkbox" id="stretchPanoramas" checked /> Stretch panoramas accross multiple monitors</label>
+						<div class="set advanced">
+							<label for="stretchPanoramaTolerance">Panorama tolerance</label><input type="number" id="stretchPanoramaTolerance" value="15"/> %
+							<div class="note">Increase tolerance to include stretching of images with smaller width/height ratios.</div>
+							<!--div class="note">Panoramas are shown if image ratio >= total screens ratio * (1 - tolerance)</note-->
+						</div>
+
 						<label>Images on monitors</label>
 						<div id="mmImages">
 							<label for="mmImagesNormal"><input type="radio" id="mmImagesNormal" name="mmImages" value="normal" checked/> Different images on each monitor</label>
@@ -570,6 +577,7 @@
 	<tr><td></td><td></td><td></td><td></td></tr>
 <tr><td class='header' colspan='4'>Actions</td></tr>
 	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>C</td><td></td><td>Copy path<span class="multiOnly">(s)</span> of current media to clipboard</td></tr>
+	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>Ctrl+C</td><td></td><td>Copy available metadata information of current media to clipboard</td></tr>
 	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>E</td><td></td><td>Open windows explorer window<span class="multiOnly">(s)</span> with current media selected</td></tr>
 	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>Cltr+E</td><td></td><td>Open current media in external editor (if specified)</td></tr>
 	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>H</td><td></td><td>Set/clear hidden file attribute to media</td></tr>

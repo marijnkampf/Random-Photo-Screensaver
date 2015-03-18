@@ -400,9 +400,9 @@ function showImage(source, displayPath, settings) {
 				if (settings.resizeRatio == undefined) settings.resizeRatio = 1;
 				if (settings.resizeRatioCover == undefined) settings.resizeRatioCover = 1;
 				mainStyle='transform:rotate(' + settings.exifRotate + 'deg)';
-				if (!settings["smallUnstretchedImage"]) {
+/*				if (!settings["smallUnstretchedImage"]) {
 					mainStyle += ' scale(' + settings.resizeRatio + ');';
-				}
+				}*/
 				coverStyle='transform:rotate(' + settings.exifRotate + 'deg) scale(' + settings.resizeRatioCover + ');';
 			}
 			if (settings["pano"] != undefined && settings["pano"] == true) {

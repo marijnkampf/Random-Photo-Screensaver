@@ -9,6 +9,20 @@ if (typeof(window.external.RunningFromRPS)=== "undefined") {
 			"settings":{"animated": "true", "mediatype": "image"}
 		},
 		{
+			"source": "F:\\photos\\Wales 2003\\Angel\\2789 Angel Halo.jpg",
+			"settings":{
+				"effect":'{"effect":"fade", "duration":1000}',
+				"metadata": "no meta","animated": "true", "mediatype": "image"
+			}
+		},
+		{
+			"source": "F:\\photos\\Wales 2003\\Angel\\2788 Angel.jpg",
+			"settings":{
+				"effect":'{"effect":"fade", "duration":1000}',
+				"metadata": "no meta","animated": "true", "mediatype": "image"
+			}
+		},
+		{
 			"source": "F:\\photos\\2014\\20140106 Big waves at Porthcawl lighthouse\\SX33381 Waves at Porthcawl lighthouse.jpg",
 			"settings":{
 				"path.root": "F:\\photos\\",
@@ -20,7 +34,7 @@ if (typeof(window.external.RunningFromRPS)=== "undefined") {
 				"width":3648,
 				"imageShadow":true,
 				"animated":"true",
-				"effect":'{"effect":"fade", "duration":1000}',
+				"effect":'{"effect":"panzoom", "duration":1000}',
 				"play.interval":10000,
 				"fitToDimension":"width",
 				"height":2736,
@@ -59,7 +73,7 @@ if (typeof(window.external.RunningFromRPS)=== "undefined") {
 			}
 		},
 		{
-			"source": "F:\\tests\\video\\		FZ006251 Duck diving Tufted duckling (Aythya fuligula) diving.mp4",
+			"source": "F:\\tests\\video\\FZ006251 Duck diving Tufted duckling (Aythya fuligula) diving.mp4",
 			"settings":{
 				"stretchSmallImages":true,
 				"mediatype":"video",
@@ -91,14 +105,6 @@ if (typeof(window.external.RunningFromRPS)=== "undefined") {
 		{
 			"source": "F:\\photos\\2014\\20140201 Reel Big Fish and Less Than Jake\\20140201_212242 Reel Big Fish - Nirvana.mp4",
 			"settings":'{"metadata": "no meta","animated": "true", "mediatype": "video"}'
-		},
-		{
-			"source": "F:\\photos\\Wales 2003\\Angel\\thumbs\\2789 Angel Halo.jpg",
-			"settings":'{"metadata": "no meta","animated": "true", "mediatype": "image"}'
-		},
-		{
-			"source": "F:\\photos\\Wales 2003\\Angel\\thumbs\\2788 Angel.jpg",
-			"settings":'{"metadata": "no meta","animated": "true", "mediatype": "image"}'
 		}
 	);
 
@@ -400,9 +406,11 @@ function showImage(source, displayPath, settings) {
 				if (settings.resizeRatio == undefined) settings.resizeRatio = 1;
 				if (settings.resizeRatioCover == undefined) settings.resizeRatioCover = 1;
 				mainStyle='transform:rotate(' + settings.exifRotate + 'deg)';
-/*				if (!settings["smallUnstretchedImage"]) {
-					mainStyle += ' scale(' + settings.resizeRatio + ');';
-				}*/
+				if (!settings["smallUnstretchedImage"]) { // && (settings["pano"] != undefined || settings["pano"] == false)) {
+					if (settings["pano"] == undefined || settings["pano"] == false) {
+						mainStyle += ' scale(' + settings.resizeRatio + ');';
+					}
+				} else mainStyle+=';';
 				coverStyle='transform:rotate(' + settings.exifRotate + 'deg) scale(' + settings.resizeRatioCover + ');';
 			}
 			if (settings["pano"] != undefined && settings["pano"] == true) {
@@ -460,16 +468,34 @@ function showImage(source, displayPath, settings) {
 			break;
 		}
 
-//	getVideoObjectOnLoaded(source, settings);
-
 	// Fix video pausing after show animation completes
 	if (settings.mediatype == "video") $("video",card).on(videoFixEvents.join(" "), function (e) { }).one("suspend pause",function(){this.play()})
+	var effect = "";
+	effectCSS = "";
+	if (settings.animated == "true" && settings.effect != undefined) {
+		effect = JSON.parse(settings.effect);
+		if (effect.effect == "panzoom") {
+			effectCSS = " \
+				@keyframes panzoom { \
+					from { transform: scale(" + settings["panzoom.scale.from"] + ") " + settings["panzoom.offset.from"] + settings["panzoom.rotate"] + " } \
+					to { transform:  scale(" + settings["panzoom.scale.to"] + ") " + settings["panzoom.offset.to"] + settings["panzoom.rotate"] + " } \
+				} \
+				\
+				.front { \
+					animation: panzoom " + settings["panzoom.interval"] + "s linear alternate infinite; \
+				} \
+			";
+			effect.effect = "fade";
+		}
+	}
+	try {
+		$("#panzoom")[0].innerHTML = effectCSS;
+	} catch(e) { }
 
 	// ToDo: Wait for images to finish rendering before start show
 	$("#rolodex").waitForImages().done(function(source, settings) {
-		if (settings.animated == "true" && settings.effect != undefined) card.show(JSON.parse(settings.effect));
+		if (settings.animated == "true" && settings.effect != undefined) card.show(effect);
 		else card.show("fade", 250);
-
 		while($("#rolodex .card").length > 2) {
 			first = $("#rolodex .card").first();
 			first.hide();

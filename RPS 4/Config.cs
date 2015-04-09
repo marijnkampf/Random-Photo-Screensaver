@@ -246,20 +246,21 @@ namespace RPS {
                 }
             }
 
-            if (!this.persistant.ContainsKey("effects") || this.persistant["effects"] == null || Convert.ToString(this.persistant["effects"]) == "null" || Convert.ToString(this.persistant["effects"]).Trim().Length == 0) {
-                // Load from effects.json
-                string path = Constants.getDataFolder(Constants.EffectsJsonFile);
-                if (File.Exists(path)) {
-                    //this.effects = new jsonFolder();
-                    JsonSerializer serializer = new JsonSerializer();
-                    serializer.NullValueHandling = NullValueHandling.Ignore;
-                    using (StreamReader sr = new StreamReader(path))
-                    using (JsonReader reader = new JsonTextReader(sr)) {
-                        this.effects = serializer.Deserialize<jsonFolder>(reader);
-                    }
-                }
-            } else {
+            if (this.persistant.ContainsKey("effects") && this.persistant["effects"] != null && Convert.ToString(this.persistant["effects"]) != "null" && Convert.ToString(this.persistant["effects"]).Trim().Length > 0) {
                 this.effects = JsonConvert.DeserializeObject<jsonFolder>(Convert.ToString(this.persistant["effects"]));
+            } else {
+                this.effects = new jsonFolder();
+            }
+            string jsonPath = Constants.getDataFolder(Constants.EffectsJsonFile);
+            if (File.Exists(jsonPath)) {
+                //this.effects = new jsonFolder();
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.NullValueHandling = NullValueHandling.Ignore;
+                using (StreamReader sr = new StreamReader(jsonPath))
+                using (JsonReader reader = new JsonTextReader(sr)) {
+                    jsonFolder newEffects = serializer.Deserialize<jsonFolder>(reader);
+                    this.effects.mergeChildren(newEffects);
+                }
             }
 
             HtmlElementCollection hec = this.GetElementsByTagName("input");
@@ -336,7 +337,7 @@ namespace RPS {
             return null;
         }
 
-        public void savePersistantConfig() {
+        public bool savePersistantConfig() {
             if (this.persistant != null) {
                 this.persistant["effects"] = JsonConvert.SerializeObject(this.effects);
                 this.persistant["filters"] = Convert.ToString(this.browser.Document.InvokeScript("getJsonFilters"));
@@ -353,6 +354,7 @@ namespace RPS {
                     transaction = this.dbConnector.connection.BeginTransaction(true);
                 } catch (System.Data.SQLite.SQLiteException se) {
                     this.screensaver.showInfoOnMonitors("Error: " + se.Message, true);
+                    return false;
                 }
                 foreach (var p in this.persistant) {
                     SQLiteCommand insertSQL = new SQLiteCommand("INSERT OR REPLACE INTO Setting (key, value) VALUES (@key, @value);", this.dbConnector.connection);
@@ -362,6 +364,7 @@ namespace RPS {
                 }
                 transaction.Commit();
             }
+            return true;
         }
  
         public void Message(string Text) {
@@ -793,6 +796,7 @@ namespace RPS {
                 this.screensaver.initializeMonitors();
                 if (!this.configInitialised) {
                     this.setInnerHTML("version", Constants.getNiceVersion());
+                    this.setInnerHTML("versionIE", "(IE:" + this.browser.Version.Major.ToString() + "." + this.browser.Version.Minor.ToString() + ")");
                     this.browser.Document.InvokeScript("initFancyTreeFolder");
                     this.browser.Document.InvokeScript("initFancyTreeTransitions");
                     this.configInitialised = true;

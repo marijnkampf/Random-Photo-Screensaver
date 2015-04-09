@@ -53,6 +53,7 @@ namespace ExifTool
                 Arguments = Arguments,
                 CreateNoWindow = true,
                 UseShellExecute = false,
+                //StandardOutputEncoding = System.Text.Encoding.UTF8,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 RedirectStandardInput = true

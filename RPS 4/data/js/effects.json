@@ -1,12 +1,9 @@
-
-
 {
   "folder": true,
   "children": [
     {
       "folder": true,
       "children": [
-        
       ],
       "selected": true,
       "expanded": true,
@@ -14,6 +11,18 @@
       "extraClasses": null,
       "key": "fade",
       "title": "Fade in",
+      "lazy": false
+    },
+    {
+      "folder": true,
+      "children": [
+      ],
+      "selected": true,
+      "expanded": true,
+      "unselectable": false,
+      "extraClasses": null,
+      "key": "panzoom",
+      "title": "Zoom and pan / Ken Burns effect (IE10+)",
       "lazy": false
     },
     {
@@ -434,4 +443,3 @@
   "title": "Root",
   "lazy": false
 }
-

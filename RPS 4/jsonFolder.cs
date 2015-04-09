@@ -41,6 +41,22 @@ namespace RPS {
             }
             return null;
         }
+        
+        public jsonFolder mergeChildren(jsonFolder folder) {
+            return this.mergeChildren(folder, false);
+        }
+
+        public jsonFolder mergeChildren(jsonFolder folder, bool overwrite) {
+            for (int i = 0; i < folder.children.Count; i++) {
+                jsonFolder child = this.hasChild(folder.children[i].key);
+                if (child != null) {
+                    if (overwrite) child = folder.children[i];
+                } else {
+                    this.children.Add(folder.children[i]);
+                }
+            }
+            return this;
+        }
 
         public static jsonFolder getRandomSelected(List<jsonFolder> children) {
             List<int> effectIDs = new List<int>();

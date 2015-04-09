@@ -143,8 +143,40 @@ CREATE UNIQUE INDEX `keys` ON `Setting` (`key` ASC);
             return r;
         }
 
+        public static double ratioFitIntoBounds(Rectangle image, Rectangle boundingBox, bool stretchSmall, bool cover) {
+            double rw, rh;
+            rw = (double)boundingBox.Width / (double)image.Width;
+            rh = (double)boundingBox.Height / (double)image.Height;
+            if (!stretchSmall && rw > 1 && rh > 1) {
+                return 1;
+            } else {
+                if (cover) {
+                    if ((double)boundingBox.Width / (double)boundingBox.Height < (double)image.Width / (double)image.Height) {
+                        return rh;
+                    } else {
+                        return rw;
+                    }
+                } else {
+                    if (rw < rh) {
+                        return rw;
+                    } else {
+                        return rh;
+                    }
+                }
+            }
+            return 1;
+        }
+
         public static Rectangle FitIntoBounds(Rectangle image, Rectangle boundingBox, bool stretchSmall, bool cover) {
             Rectangle r = boundingBox;
+            double ratio = Constants.ratioFitIntoBounds(image, boundingBox, stretchSmall, cover);
+            r.Width = (int)Math.Round((double)image.Width * ratio);
+            r.Height = (int)Math.Round((double)image.Height * ratio);
+            r.X = boundingBox.X + (int)(boundingBox.Width - r.Width) / 2;
+            r.Y = boundingBox.Y + (int)(boundingBox.Height - r.Height) / 2;
+            return r;
+/*
+
             double rw, rh;
             rw = (double)boundingBox.Width / (double)image.Width;
             rh = (double)boundingBox.Height / (double)image.Height;
@@ -172,7 +204,7 @@ CREATE UNIQUE INDEX `keys` ON `Setting` (`key` ASC);
             }
             r.X = boundingBox.X + (int)(boundingBox.Width - r.Width) / 2;
             r.Y = boundingBox.Y + (int)(boundingBox.Height - r.Height) / 2;
-            return r;
+            return r;*/
         }
 
 

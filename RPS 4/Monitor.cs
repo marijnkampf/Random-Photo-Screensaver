@@ -359,7 +359,7 @@ namespace RPS {
                         this.imageSettings["resizeRatioCover"] = (float)coverR.Width / oldR.Height;
                     //} 
 
-                    //oldR = Constants.FitIntoBounds(new Rectangle(this.Bounds.Location, new Size(height, width)), this.Bounds, false, false);
+                            //oldR = Constants.FitIntoBounds(new Rectangle(this.Bounds.Location, new Size(height, width)), this.Bounds, false, false);
                     //coverR = Constants.FitIntoBounds(new Rectangle(this.Bounds.Location, new Size(width, height)), this.Bounds, false, true);
                     // Set reseizeRatioCover for stretched images
                     //if (this.imageSettings["resizeRatioCover"] == null) this.imageSettings["resizeRatioCover"] = (float)coverR.Width / oldR.Height;
@@ -575,6 +575,52 @@ namespace RPS {
                             this.imageSettings["exifRotate"] = 0;
                             this.imageSettings["resizeRatio"] = 1;
                             this.imageSettings["rawCached"] = e.Result;
+                        }
+                        if (animated && this.imageSettings["effect"].ToString().IndexOf("panzoom") > 0) {
+                            try {
+                                Rectangle covered = Constants.FitIntoBounds(new Rectangle(new Point(0, 0), new Size(Convert.ToInt32(this.imageSettings["width"]), Convert.ToInt32(this.imageSettings["height"]))), this.Bounds, true, false);
+                                Rectangle fit = Constants.FitIntoBounds(new Rectangle(new Point(0, 0), new Size(Convert.ToInt32(this.imageSettings["width"]), Convert.ToInt32(this.imageSettings["height"]))), this.Bounds, true, true);
+                                double ratio = Constants.ratioFitIntoBounds(covered, this.Bounds, true, true);
+                                //this.imageSettings["resizeRatioCover"] = ;
+
+                                double scaleFrom = (1 + rnd.NextDouble() * 0.5);
+                                double scaleTo = (1 + rnd.NextDouble() * 0.5);
+
+                                int horizontal = (this.Bounds.X - fit.X);
+                                int vertical = (this.Bounds.Y - fit.Y);
+                                /*
+                                int translateFromX = rnd.Next(horizontal * -1, horizontal);
+                                int translateFromY = rnd.Next(vertical * -1, vertical);
+                                int translateToX = rnd.Next(horizontal * -1, horizontal);
+                                int translateToY = rnd.Next(vertical * -1, vertical);
+                                */
+                                int translateFromX = rnd.Next(Convert.ToInt32((horizontal * -1) / (ratio * scaleFrom)), Convert.ToInt32(horizontal / (ratio * scaleFrom)));
+                                int translateFromY = rnd.Next(Convert.ToInt32((vertical * -1) / (ratio * scaleFrom)), Convert.ToInt32(vertical / (ratio * scaleFrom)));
+                                int translateToX = rnd.Next(Convert.ToInt32((horizontal * -1) / (ratio * scaleTo)), Convert.ToInt32(horizontal / (ratio * scaleTo)));
+                                int translateToY = rnd.Next(Convert.ToInt32((vertical * -1) / (ratio * scaleTo)), Convert.ToInt32(vertical / (ratio * scaleTo)));
+
+                                this.imageSettings["panzoom.interval"] = this.timer.Interval / 1000 + 2;
+                                this.imageSettings["panzoom.scale.from"] = ratio * scaleFrom;
+                                this.imageSettings["panzoom.scale.to"] = ratio * scaleTo;
+                                this.imageSettings["panzoom.offset.from"] = "";
+                                this.imageSettings["panzoom.offset.to"] = "";
+                                this.imageSettings["panzoom.rotate"] = "";
+
+                                if (Convert.ToInt16(this.imageSettings["exifRotate"]) != 0) this.imageSettings["panzoom.rotate"] = " rotate(" + this.imageSettings["exifRotate"] + "deg)";
+
+                                this.imageSettings["panzoom.offset.from"] = "translate(" + translateFromX + "px, " + translateFromY + "px)";
+                                this.imageSettings["panzoom.offset.to"] = "translate(" + translateToX + "px, " + translateToY + "px)";
+                                /*
+                                this.imageSettings["metadata"] =
+                                    "horz/vert: " + horizontal + ", " + vertical + "<br/>" +
+                                    "from: " + this.imageSettings["panzoom.offset.from"] + "<br/>" +
+                                    "to: " + this.imageSettings["panzoom.offset.to"] + "<br/>" +
+                                    "scale from: " + this.imageSettings["panzoom.scale.from"] + "<br/>" +
+                                    "scale to: " + this.imageSettings["panzoom.scale.to"] + "<br/>" +
+                                    this.imageSettings["metadata"];*/
+                            } catch (Exception ex) {
+                                this.imageSettings["effect"] = null;
+                            }
                         }
                         this.showInfoOnMonitor(this.info, false, true);
                         try {

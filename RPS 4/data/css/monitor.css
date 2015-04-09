@@ -67,13 +67,6 @@ video.stretch {
 	margin: 0px;
 }
 
-/*
-@keyframes zoomzoom {
-	5% { transform: scale(1); }
-	95% { transform:  scale(1.5) translate(480px, -270px); }
-	100% { transform:  scale(1.5) translate(480px, -270px); }
-}
-*/
 .image, .video, .object {
 	max-width:100%;
 	max-height:100%;
@@ -84,11 +77,6 @@ video.stretch {
 	right: 0;
 	margin: auto;
 	overflow:hidden;
-/*
-	-moz-animation: zoomzoom 12s linear alternate infinite;
-	-webkit-animation: zoomzoom 12s linear alternate infinite;
-	animation: zoomzoom 12s linear alternate infinite; 
-	*/
 }
 
 html, body {

@@ -390,6 +390,10 @@ label {
 	border:none;
 }
 
+#versionIE {
+	font-size: 50%;
+}
+
 /*** Start shortcut Keys ***/
 #shortcuts tr td {
 	text-align: center;

@@ -576,7 +576,7 @@ namespace RPS {
                             this.imageSettings["resizeRatio"] = 1;
                             this.imageSettings["rawCached"] = e.Result;
                         }
-                        if (animated && this.imageSettings["effect"].ToString().IndexOf("panzoom") > 0) {
+                        if (animated && this.screensaver.config.hasPersistantKey("effect") && this.imageSettings["effect"].ToString().IndexOf("panzoom") > 0) {
                             try {
                                 Rectangle covered = Constants.FitIntoBounds(new Rectangle(new Point(0, 0), new Size(Convert.ToInt32(this.imageSettings["width"]), Convert.ToInt32(this.imageSettings["height"]))), this.Bounds, true, false);
                                 Rectangle fit = Constants.FitIntoBounds(new Rectangle(new Point(0, 0), new Size(Convert.ToInt32(this.imageSettings["width"]), Convert.ToInt32(this.imageSettings["height"]))), this.Bounds, true, true);

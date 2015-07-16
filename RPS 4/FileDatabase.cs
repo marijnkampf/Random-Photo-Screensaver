@@ -332,20 +332,20 @@ namespace RPS {
         public int purgeMatchingParentPaths(string fullpath) {
             if (this.readOnly) return -1;
 
-            Debug.WriteLine(this.nrImagesInDB());
+            //Debug.WriteLine(this.nrImagesInDB());
 
             string where = "WHERE parentpath LIKE \"" + fullpath + "%\"";
             SQLiteCommand command;
             int r = 0;
             command = new SQLiteCommand("DELETE FROM `FileNodes` " + where + ";", this.dbConnector.connection);
-            Debug.WriteLine(command.CommandText);
+            //Debug.WriteLine(command.CommandText);
             try {
                 r += command.ExecuteNonQuery();
             } catch (Exception e) {
                 return -1;
             }
 
-            Debug.WriteLine(this.nrImagesInDB());
+            //Debug.WriteLine(this.nrImagesInDB());
             
             return r;
         }

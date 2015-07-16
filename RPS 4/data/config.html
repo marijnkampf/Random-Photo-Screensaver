@@ -175,6 +175,11 @@
 							<div class="keywords">previous old</div>
 						</div>
 						<div class="set">
+							<h3>GPU</h3>
+							<input type="checkbox" class="noAutoUpdate" id="gpuRendering"/> <label for="gpuRendering" class="tooltip" data-title="Requires restart of RPS">Use GPU rendering for IE (<a class="external" target="_top" href="https://msdn.microsoft.com/en-us/library/ee330731(v=vs.85).aspx#gpu_rendering">more info</a>)</label>
+							<div class="keywords">slow improve speed performance</div>
+						</div>
+						<div class="set">
 							<h3>Debug</h3>
 							<input type="checkbox" id="debugLog"/> <label for="debugLog" class="tooltip" data-title="Keep debug log of files loaded. Stored in 'C:\Users\[user name]\AppData\Local\Random Photo Screensaver\debug_#date#.txt'">Debug log</label>
 							<a id="debugLogLocation" href="#" class="button">Open log location in Explorer</a>
@@ -248,9 +253,9 @@
 								<li><strong>paths</strong> full path (folder and filename)</li>
 								<li><strong>parent paths</strong> folder path only</li>
 								<li><strong>filenames</strong> filename (including extension)</li>
-								<li><strong>created date</strong> created date</li>
-								<li><strong>modified date</strong> modified date</li>
-								<li><strong>metadata</strong> all metadata of media</li>
+								<li><strong>created</strong> created date</li>
+								<li><strong>modified</strong> modified date</li>
+								<li><strong>metadata</strong> all metadata of media; each line contains metadata name tab (\t) metadata value</li>
 								<li><strong>size</strong> file size</li>
 								<li><strong>width</strong> width of the media in pixels</li>
 								<li><strong>height</strong> height of the media in pixels</li>
@@ -606,7 +611,7 @@
 	<tr class='multiMonitor multiOnly'><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>1...9</td><td></td><td>Select monitor 1 - 9</td></tr>
 	<tr><td></td><td></td><td></td><td></td></tr>
 <tr><td class='header' colspan='4'>Debug</td></tr>
-	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>F12</td><td></td><td>Save debug information for monitor<span class="multiOnly">(s)</span> to file</td></tr>
+	<tr class='multiMonitor '><td><img class="multiOnly" src="images/multi-monitor.png" title="Select monitor with 0 (all) or 1…9"/></td><td>(Control +) F12</td><td></td><td>Save debug information for monitor<span class="multiOnly">(s)</span> to file. Hold down control to select saved file in Windows Explorer.</td></tr>
 
 						</tbody>
 					</table>

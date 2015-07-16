@@ -219,6 +219,11 @@ namespace RPS {
                 this.persistant.Add(item.Key, item.Value);
             }
             if (!this.persistant.ContainsKey("filterNrLines")) this.persistant["filterNrLines"] = 0;
+
+            bool gpuRendering = ((int)Registry.GetValue("HKEY_CURRENT_USER\\" + Constants.regkeyGPURendering, Constants.regkeyExecutable, 0) == 1);
+            if (this.persistant.ContainsKey("gpuRendering")) this.persistant["gpuRendering"] = gpuRendering;
+            else this.persistant.Add("gpuRendering", gpuRendering);
+
             //this.browser.Document.InvokeScript("initMonitorsAndFilterCount", new string[] { Convert.ToString(Screen.AllScreens.Length), Convert.ToString(this.persistant["filterNrLines"]) });
             this.browser.Document.InvokeScript("initMonitors", new string[] { Convert.ToString(Screen.AllScreens.Length) });
             
@@ -403,6 +408,18 @@ namespace RPS {
             Wallpaper wallpaper = new Wallpaper(this.screensaver);
             wallpaper.resetDefaultWallpaper();
             return true;
+        }
+
+        public bool jsSetGPURendering() {
+            if (this.getPersistantBool("gpuRendering")) {
+                Registry.SetValue("HKEY_CURRENT_USER\\" + Constants.regkeyGPURendering, Constants.regkeyExecutable, 1, RegistryValueKind.DWord);
+                Registry.SetValue("HKEY_CURRENT_USER\\" + Constants.regkeyGPURendering, Constants.regkeyLauncher, 1, RegistryValueKind.DWord);
+            } else {
+                RegistryKey regKey = Registry.CurrentUser.OpenSubKey(Constants.regkeyGPURendering, true);
+                regKey.DeleteValue(Constants.regkeyExecutable, false);
+                regKey.DeleteValue(Constants.regkeyLauncher, false);
+            }
+            return false;
         }
 
         /****
@@ -819,31 +836,6 @@ namespace RPS {
             return false;
         }
             
-
-        private void Config_VisibleChanged(object sender, EventArgs e) {
-            if (this.Visible && this.screensaver.action != Screensaver.Actions.Config) {
-                this.setCurrentTrackChanges();
-            } else if (this.screensaver.action != Screensaver.Actions.Config) {
-                // Hiding
-                if (this.checkTrackChangesChanged()) {
-                    if (this.trackChanges["ignoreHiddenFiles"] != this.getPersistant("ignoreHiddenFiles") || this.trackChanges["ignoreHiddenFolders"] != this.getPersistant("ignoreHiddenFolders")) {
-                        this.screensaver.showInfoOnMonitors("Emptying Media Database", true, false);
-                        this.screensaver.fileNodes.purgeMediaDatabase();
-                        this.screensaver.showInfoOnMonitors("Media Database Emptied", true, true);
-                    } else {
-                        this.screensaver.showInfoOnMonitors("", true, false);
-                    }
-                    this.screensaver.fileNodes.purgeNotMatchingParentFolders(this.getPersistantString("folders"));
-                    this.screensaver.fileNodes.restartBackgroundWorkerImageFolder();
-                }
-            }
-            if (this.Visible) {
-                Cursor.Show();
-            } else {
-                Cursor.Hide();
-            }
-        }
-
         public bool? isUpdateNewer() {
             if (this.webUpdateCheck.Document != null) {
                 HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
@@ -1048,6 +1040,38 @@ namespace RPS {
                 }
             }
         }
+
+        private void Config_VisibleChanged(object sender, EventArgs e) {
+            if (this.Visible && this.screensaver.action != Screensaver.Actions.Config) {
+                this.setCurrentTrackChanges();
+            } else if (this.screensaver.action != Screensaver.Actions.Config) {
+                // Hiding
+                if (this.checkTrackChangesChanged()) {
+                    if (this.trackChanges["ignoreHiddenFiles"] != this.getPersistant("ignoreHiddenFiles") || this.trackChanges["ignoreHiddenFolders"] != this.getPersistant("ignoreHiddenFolders")) {
+                        this.screensaver.showInfoOnMonitors("Emptying Media Database", true, false);
+                        this.screensaver.fileNodes.purgeMediaDatabase();
+                        this.screensaver.showInfoOnMonitors("Media Database Emptied", true, true);
+                    } else {
+                        this.screensaver.showInfoOnMonitors("", true, false);
+                    }
+                    this.screensaver.fileNodes.purgeNotMatchingParentFolders(this.getPersistantString("folders"));
+                    this.screensaver.fileNodes.restartBackgroundWorkerImageFolder();
+                }
+            }
+            if (this.Visible) {
+                Cursor.Show();
+            } else {
+                Cursor.Hide();
+            }
+        }
+        /*
+        private void Config_Resize(object sender, EventArgs e) {
+            Console.Beep();
+            if (this.WindowState == FormWindowState.Minimized) {
+                this.Hide();
+            }
+        }
+        */
         /*
         [STAThread]
         private void bgwCheckUpdate_DoWork(object sender, DoWorkEventArgs e) {

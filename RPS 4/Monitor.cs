@@ -242,6 +242,7 @@ namespace RPS {
 
         public void rotateImage(int deg) {
             //deg = ;
+            //Console.WriteLine("exifRotate: " + this.imageSettings["exifRotate"]);
             this.imageSettings["exifRotate"] = (deg + Convert.ToInt32(this.imageSettings["exifRotate"])) % 360;
             this.resizeRatio(Convert.ToInt32(this.imageSettings["exifRotate"]));
             this.browser.Document.InvokeScript("setImageRotation", new Object[] { Convert.ToString(this.imageSettings["exifRotate"]), this.imageSettings["resizeRatio"] });
@@ -468,10 +469,10 @@ namespace RPS {
                                     break;
                                 }
                             }
-                        }
-                        this.resizeRatio(rotate);
-                        if (rotate != 0) {
-                            this.imageSettings["exifRotate"] = rotate;
+                            this.resizeRatio(rotate);
+                            if (rotate != 0) {
+                                this.imageSettings["exifRotate"] = rotate;
+                            }
                         }
                         if (this.quickMetadata != null && this.quickMetadata.metadata.ContainsKey("imagewidth") && this.quickMetadata.metadata.ContainsKey("imageheight")) {
                             int width;
@@ -606,7 +607,7 @@ namespace RPS {
                                 this.imageSettings["panzoom.offset.to"] = "";
                                 this.imageSettings["panzoom.rotate"] = "";
 
-                                if (Convert.ToInt16(this.imageSettings["exifRotate"]) != 0) this.imageSettings["panzoom.rotate"] = " rotate(" + this.imageSettings["exifRotate"] + "deg)";
+                                if (this.screensaver.config.getPersistantBool("exifRotate") && Convert.ToInt16(this.imageSettings["exifRotate"]) != 0) this.imageSettings["panzoom.rotate"] = " rotate(" + this.imageSettings["exifRotate"] + "deg)";
 
                                 this.imageSettings["panzoom.offset.from"] = "translate(" + translateFromX + "px, " + translateFromY + "px)";
                                 this.imageSettings["panzoom.offset.to"] = "translate(" + translateToX + "px, " + translateToY + "px)";
@@ -638,7 +639,7 @@ namespace RPS {
             }
         }
 
-        public void saveDebug() {
+        public string saveDebug() {
             string filename = "_M" + (this.id + 1) + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".html";
             string path = this.browser.Url.LocalPath.Replace(Constants.MonitorHtmlFile, filename);
             try {
@@ -651,10 +652,11 @@ namespace RPS {
                     File.WriteAllText(path, this.browser.Document.GetElementsByTagName("HTML")[0].OuterHtml);
                 } catch (Exception e) {
                     this.showInfoOnMonitor("Error exporting HTML to '" + path + "'" + Environment.NewLine + e.Message, false, true);
-                    return;
+                    return null;
                 }
             } 
             this.info = this.showInfoOnMonitor("HTML exported to " + path, false, false);
+            return path;
         }
 
         public void renameFile() {
@@ -818,7 +820,9 @@ namespace RPS {
                     // Optimised panoramas 
                     //this.currentImage = this.screensaver.fileNodes.getSequentialImage(Convert.ToInt32(this.currentImage["id"]), (step * -1));
                     // Optimised for displaying regular images (skips some panoramas)
-                    int stepBy = (step + this.screensaver.monitors.Length - 1) * -1;
+                    int nrMonitors = this.screensaver.monitors.Length;
+                    if (this.screensaver.currentMonitor != Screensaver.CM_ALL) nrMonitors = 1;
+                    int stepBy = (step + nrMonitors - 1) * -1;
                     if (this.screensaver.config.getPersistantString("mmImages") == "same" || (setCurrentImage && this.screensaver.config.getPersistantString("mmImages") == "slide")) {
                         stepBy = step * -1;
                     }

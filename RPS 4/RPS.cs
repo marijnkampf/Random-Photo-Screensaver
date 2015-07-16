@@ -253,7 +253,13 @@ namespace RPS {
                 StringBuilder buffer = new StringBuilder(512);
                 GetShortPathName(path, buffer, buffer.Capacity);
                 Registry.SetValue("HKEY_CURRENT_USER\\Control Panel\\Desktop", "SCRNSAVE.EXE", Convert.ToString(buffer));
-                Registry.SetValue("HKEY_CURRENT_USER\\Control Panel\\Desktop", "ScreenSaveActive", 1);
+
+                // https://msdn.microsoft.com/library/windows/desktop/ms724832.aspx
+                RegistryValueKind rvkType = RegistryValueKind.String;
+                if (Environment.OSVersion.Version.Major > 6 || (Environment.OSVersion.Version.Major == 6 &&  Environment.OSVersion.Version.Minor > 0)) {
+                    rvkType = RegistryValueKind.DWord;
+                }
+                Registry.SetValue("HKEY_CURRENT_USER\\Control Panel\\Desktop", "ScreenSaveActive", 1, rvkType);
             }
         }
 
@@ -441,10 +447,12 @@ namespace RPS {
             // Ignore repeated keys
             if (this.previousKey == e.KeyCode) {
                 this.previousKey = 0;
-                Console.WriteLine("PreviousKey:" + e.KeyCode.ToString());
+                //Console.WriteLine("PreviousKey:" + e.KeyCode.ToString());
             } else {
-                Console.WriteLine("Key:" + e.KeyCode.ToString());
-                if (this.config.Visible) {
+                //Console.WriteLine("Key:" + e.KeyCode.ToString());
+                if (this.config.ActiveControl != null) Console.WriteLine(this.config.ActiveControl.Name);
+                else Console.WriteLine("null");
+                if (this.config.Visible && this.config.WindowState != FormWindowState.Minimized) {
                     switch (e.KeyCode) {
                         case Keys.Escape:
                             if (this.config.WindowState == FormWindowState.Minimized) {
@@ -630,13 +638,12 @@ namespace RPS {
                         case Keys.S:
                             // Don't hide config screen if application is in Config mode
                             if (this.action != Actions.Config) {
-                                if (this.config.Visible) this.config.Hide();
+                                if (this.config.Visible && this.config.WindowState != FormWindowState.Minimized)  this.config.Hide();
                                 else {
                                     this.config.Activate();
                                     this.config.Show();
+                                    this.config.WindowState = FormWindowState.Normal;
                                 }
-                            } else {
-
                             }
                         break;
                         case Keys.T: case Keys.NumPad5:
@@ -775,7 +782,12 @@ namespace RPS {
                         case Keys.F12:
                             for (int i = 0; i < this.monitors.Length; i++) {
                                 if (this.currentMonitor == CM_ALL || this.currentMonitor == i) {
-                                    this.monitors[i].saveDebug();
+                                    string path = this.monitors[i].saveDebug();
+                                    if (e.Control) {
+                                        if (Utils.RunTaskScheduler(@"OpenInExplorer" + Convert.ToString(i), "explorer.exe", "/e,/select,\"" + path + "\"")) {
+                                            this.monitors[i].showInfoOnMonitor("Opened in Explorer Window", false, true);
+                                        }
+                                    }
                                 }
                             }
                         break;

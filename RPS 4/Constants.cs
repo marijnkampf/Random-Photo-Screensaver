@@ -31,6 +31,11 @@ namespace RPS {
 
         public const string NoImagesFound = "No images found in folder(s)\n\ror filter didn't return any results.\n\rPress 'S' key to enter setup";
 
+        public const string regkeyGPURendering = "SOFTWARE\\Microsoft\\Internet Explorer\\MAIN\\FeatureControl\\FEATURE_GPU_RENDERING";
+        public const string regkeyExecutable = "RPS4.exe";
+        public const string regkeyLauncher = "Random Photo Screensaver.scr";
+
+
         public enum Orientation {
             Horizontal = 1,
             Mirror_Horizontal = 2,
@@ -255,7 +260,7 @@ CREATE UNIQUE INDEX `keys` ON `Setting` (`key` ASC);
              * 1. If filename exists in user folder (C:\Users\[user name]\AppData\Local\[Random Photo Screensaver]\filename) return full path
              * 2. Otherwise return full path to program data folder (C:\ProgramData\[Random Photo Screensaver]\filename)
              **/
-            Console.WriteLine("findOrInitInDataFolder: " + filename);
+            //Console.WriteLine("findOrInitInDataFolder: " + filename);
             string fullPath;
 
             fullPath = Path.Combine(Constants.getLocalAppDataFolder(), filename);
@@ -275,7 +280,7 @@ CREATE UNIQUE INDEX `keys` ON `Setting` (`key` ASC);
              * 3. program data folder (C:\ProgramData\[Random Photo Screensaver])
              * 4. executable folder
              **/
-            Console.WriteLine("getDataFolder: " + filename);
+            //Console.WriteLine("getDataFolder: " + filename);
             string notFound = "";
             string fullPath;
 

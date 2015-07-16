@@ -43,7 +43,7 @@ namespace RPS {
             if (remove) removeMsg = PM_REMOVE;
             bool r = PeekMessage(out msg, 0, WM_KEYFIRST, WM_KEYLAST, removeMsg);
             if (r) {
-                Console.WriteLine(msg.wParam.ToString() + " " + msg.lParam.ToString());
+                //Console.WriteLine(msg.wParam.ToString() + " " + msg.lParam.ToString());
             }
             return r;
             //return msg;

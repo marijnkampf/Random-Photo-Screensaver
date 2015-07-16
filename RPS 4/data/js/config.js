@@ -950,6 +950,13 @@ $(function(){
 		}
 	});
 
+	$("#gpuRendering").click(function() {
+		if (typeof(window.external.jsSetGPURendering) !== "undefined") {
+			settingChanged($("#gpuRendering")[0]);
+			window.external.jsSetGPURendering();
+		}
+	});
+
 	$("#clearWallpaper").click(function() {
 		if (typeof(window.external.resetWallpaper) !== "undefined") {
 			window.external.resetWallpaper();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Collections.Concurrent;
 using System.Data.SQLite;
 using System.ComponentModel;
 using System.IO;
@@ -14,6 +15,9 @@ using System.Collections;
 namespace RPS {
     public class FileNodes {
         System.ComponentModel.BackgroundWorker backgroundWorker;
+
+        public List<System.IO.FileSystemWatcher> watchers = new List<FileSystemWatcher>();
+
         //AutoResetEvent cancelCompleteEvent = new AutoResetEvent(false);
 
         bool restartBackgroundWorker = false;
@@ -29,6 +33,16 @@ namespace RPS {
 
         int nrFolders = 0;
         int nrFiles = 0;
+        //List<string> folders;
+        ConcurrentQueue<string> folders = new ConcurrentQueue<string>();
+        //ConcurrentQueue<string> files = new ConcurrentQueue<string>();
+
+        string allowedExtensions;
+        bool ignoreHiddenFiles;
+        bool ignoreHiddenFolders;
+        bool excludeSubfolders;
+        List<string> excludedSubfolders;
+        string rawExtensions = null;
 
         int nrUnprocessedMetadata = -1;
 
@@ -47,6 +61,9 @@ namespace RPS {
             //this.fileDatabase.MetadataReadEvent += new MetadataReadEventHandler(metadataShow);
 
             if (screensaver.action != Screensaver.Actions.Wallpaper) {
+
+                this.resetFoldersQueue();
+                
                 this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
                 this.backgroundWorker.WorkerReportsProgress = true;
                 this.backgroundWorker.WorkerSupportsCancellation = true;
@@ -54,13 +71,20 @@ namespace RPS {
                 this.backgroundWorker.ProgressChanged += new ProgressChangedEventHandler(progressChanged);
                 this.backgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(runWorkerCompleted);
 
-                var folders = Utils.stringToList(Convert.ToString(this.config.getPersistant("folders")));
-                
+                // Use local folders as this.folders is used in backgroundWorker
+                var folders = Utils.stringToList(Convert.ToString(this.config.getPersistant("folders")));             
                 // Purge database in main thread rather, to avoid having to run database filter twice
                 this.purgeNotMatchingParentFolders(folders);
 
                 this.backgroundWorker.RunWorkerAsync();
             }
+        }
+
+        public void resetFoldersQueue() {
+            this.nrFiles = 0;
+            this.nrFolders = 0;
+            this.nrUnprocessedMetadata = -1;
+            this.folders = Utils.stringToConcurrentQueue(this.config.getPersistantString("folders"));
         }
         /*
         void metadataShow(ImageMetadataStatus imageMetadata) {
@@ -142,98 +166,175 @@ namespace RPS {
             }
         }
 
-        private void processFolders(List<string> folders) {
-            while (folders.Count > 0) {
+        private void OnFolderCreated(object source, FileSystemEventArgs e) {
+            if (this.folders.Count > 0 && this.backgroundWorker.IsBusy) {
+                this.folders.Enqueue(e.FullPath);
+            } else {
+                this.folders.Enqueue(e.FullPath);
+                this.showProgress();
+            }
+        }
+
+        private void OnFolderDeleted(object source, FileSystemEventArgs e) {
+            this.fileDatabase.purgeMatchingParentPaths(Utils.addTrailingSlash(e.FullPath));
+            this.showProgress();
+        }
+
+        private void OnFolderRenamed(object source, RenamedEventArgs e) {
+            // TODO Fix rename in database
+            this.fileDatabase.renameFolderPaths(Utils.addTrailingSlash(e.OldFullPath), Utils.addTrailingSlash(e.FullPath));
+
+            Debug.WriteLine("Rename folder: " + e.FullPath + " " + e.ChangeType);
+            // TODO
+        }
+
+        private void OnFileCreated(object source, FileSystemEventArgs e) {
+            Debug.WriteLine("New file: " + e.FullPath + " " + e.ChangeType);
+            this.addImage(e.FullPath);
+            this.showProgress();
+        }
+
+
+        private void OnFileDeleted(object source, FileSystemEventArgs e) {
+            this.deleteFromDB(e.FullPath);
+            this.showProgress();
+        }
+
+        private void OnFileRenamed(object source, RenamedEventArgs e) {
+            this.screensaver.fileNodes.updatePath(fileDatabase.getIdFromPath(e.OldFullPath), e.FullPath);
+        }
+
+        private void addImage(string filename) {
+            FileInfo fi = new FileInfo(filename);
+            if (
+                // Image has to have extension
+                (fi.Extension.Length > 0) &&
+                // Check allowed file extensions
+                (allowedExtensions.IndexOf(fi.Extension.ToLower()) > -1) &&
+                // Ignore hidden files if option checked
+                (!ignoreHiddenFiles || (ignoreHiddenFiles && (fi.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden))
+            ) {
+                this.nrFiles++;
+                try {
+                    this.fileDatabase.addFileToDB(fi);
+                } catch (Exception e) {
+                    this.screensaver.showInfoOnMonitors("Error: " + e.Message, true);
+                }
+            }
+        }
+
+        private void processFolders() {
+            try {
+                this.allowedExtensions = this.config.getPersistantString("imageExtensions").ToLower() + " " + this.config.getPersistantString("videoExtensions").ToLower();
+                this.ignoreHiddenFiles = this.config.getPersistantBool("ignoreHiddenFiles");
+                this.ignoreHiddenFolders = this.config.getPersistantBool("ignoreHiddenFolders");
+                this.excludedSubfolders = Utils.stringToList(Convert.ToString(this.config.getPersistant("excludedSubfolders")).ToLower());
+                this.excludeSubfolders = this.config.getPersistantBool("excludeAllSubfolders");
+
+                if (this.config.getPersistantBool("rawUseConverter")) {
+                    this.rawExtensions = Convert.ToString(this.config.getPersistant("rawExtensions")).ToLower();
+                    this.allowedExtensions += " " + rawExtensions;
+                }            
+            } catch (Exception e) {
+                Debug.WriteLine("processFolders #1" + e.Message);
+                // TODO: only catch:
+                // System.NullReferenceException
+                // System.Runtime.InteropServices.InvalidComObjectException icoe
+                // Occurs when shutting down, cancel thread
+                this.bwCancelled();
+                return;
+            }
+           
+            while (this.folders.Count > 0) {
                 //Debug.WriteLine(folders[0]);
                 if (this.bwCancelled() == true) return;
 
-                folders[0] = folders[0].Trim();
+                //this.folders[0] = this.folders[0].Trim();
 
-                if (!Directory.Exists(folders[0])) {
-                    this.fileDatabase.purgeMatchingParentPaths(folders[0]);
+                // Get first value from folders queue.
+                string folder;
+                if (!this.folders.TryPeek(out folder)) {
+                    Debug.WriteLine("folders queue trypeek failed when it should have succeeded.");
                 } else {
-                    this.nrFolders++;
-                    //HtmlElement he;
-                    string allowedExtensions;
-                    bool ignoreHiddenFiles;
-                    bool ignoreHiddenFolders;
-                    bool excludeSubfolders;
-                    List<string> excludedSubfolders;
-                    string rawExtensions = null;
+                    if (!Directory.Exists(folder)) {
+                        this.fileDatabase.purgeMatchingParentPaths(folder);
+                    } else {
+                        this.nrFolders++;
+                        //HtmlElement he;
 
-                    try {
-                        //he = this.config.getElementById("imageExtensions");
-                        allowedExtensions = this.config.getPersistantString("imageExtensions").ToLower() + " " + this.config.getPersistantString("videoExtensions").ToLower();
-                        ignoreHiddenFiles = this.config.getPersistantBool("ignoreHiddenFiles");
-                        ignoreHiddenFolders = this.config.getPersistantBool("ignoreHiddenFolders");
-                        excludedSubfolders = Utils.stringToList(Convert.ToString(this.config.getPersistant("excludedSubfolders")).ToLower());
-                        excludeSubfolders = this.config.getPersistantBool("excludeAllSubfolders");
+                        //                    try {
+                        if (this.screensaver.action != Screensaver.Actions.Preview && this.config.getPersistantBool("watchFolders")) {
+                            System.IO.FileSystemWatcher fileWatcher = new System.IO.FileSystemWatcher();
+                            //watcher.SynchronizingObject = this;
+                            fileWatcher.NotifyFilter = NotifyFilters.FileName;
+                            fileWatcher.Created += new FileSystemEventHandler(OnFileCreated);
+                            fileWatcher.Deleted += new FileSystemEventHandler(OnFileDeleted);
+                            fileWatcher.Renamed += new RenamedEventHandler(OnFileRenamed);
+                            fileWatcher.Path = folder;
+                            fileWatcher.EnableRaisingEvents = true;
+                            fileWatcher.IncludeSubdirectories = true;
+                            this.watchers.Add(fileWatcher);
 
-                        if (this.config.getPersistantBool("rawUseConverter")) {
-                            rawExtensions = Convert.ToString(this.config.getPersistant("rawExtensions")).ToLower();
-                            allowedExtensions += " " + rawExtensions;
+                            System.IO.FileSystemWatcher folderWatcher = new System.IO.FileSystemWatcher();
+                            //watcher.SynchronizingObject = this;
+                            folderWatcher.NotifyFilter = NotifyFilters.DirectoryName;
+                            folderWatcher.Created += new FileSystemEventHandler(OnFolderCreated);
+                            folderWatcher.Deleted += new FileSystemEventHandler(OnFolderDeleted);
+                            folderWatcher.Renamed += new RenamedEventHandler(OnFolderRenamed);
+                            folderWatcher.Path = folder;
+                            folderWatcher.EnableRaisingEvents = true;
+                            folderWatcher.IncludeSubdirectories = true;
+
+                            this.watchers.Add(folderWatcher);
                         }
+                        /*                  } catch (Exception e) {
+                                              Debug.WriteLine("processFolders #2" + e.Message);
+                                              // TODO: only catch:
+                                              // System.NullReferenceException
+                                              // System.Runtime.InteropServices.InvalidComObjectException icoe
+                                              // Occurs when shutting down, cancel thread
+                                              this.bwCancelled();
+                                              return;
+                                          }*/
 
-                    
-                    } catch (Exception e) {
-                        Debug.WriteLine("processFolders " + e.Message);
-                        // TODO: only catch:
-                        // System.NullReferenceException
-                        // System.Runtime.InteropServices.InvalidComObjectException icoe
-                        // Occurs when shutting down, cancel thread
-                        this.bwCancelled();
-                        return;
-                    }
-
-                    string[] filenames = new string[] { };
-                    try {
-                        filenames = Directory.GetFiles(folders[0]);
-                    } catch (System.UnauthorizedAccessException uae) {
-                        folders.RemoveAt(0);
-                    }
-                    var i = 0;
-                    foreach (string filename in filenames) {
-                        i++;
-                        FileInfo fi = new FileInfo(filename);
-                        if (
-                            // Image has to have extension
-                            (fi.Extension.Length > 0) &&
-                            // Check allowed file extensions
-                            (allowedExtensions.IndexOf(fi.Extension.ToLower()) > -1) &&
-                            // Ignore hidden files if option checked
-                            (!ignoreHiddenFiles || (ignoreHiddenFiles && (fi.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden))
-                        ) {
-                            this.nrFiles++;
-                            if ((i % 10 == 0) && (this.bwCancelled() == true)) break;
-                            try {
-                                this.fileDatabase.addFileToDB(fi);
-                            } catch (Exception e) {
-                                this.screensaver.showInfoOnMonitors("Error: " + e.Message, true);
-                            }
-                        }
-                    }
-                    if (!excludeSubfolders) {
-                        string[] subfolders = new string[] { };
+                        string[] filenames = new string[] { };
                         try {
-                            subfolders = Directory.GetDirectories(folders[0]);
-                        } catch (System.UnauthorizedAccessException uae) { }
-                        i = 0;
-                        foreach (string subfolder in subfolders) {
-                            FileAttributes fa = File.GetAttributes(subfolder);
-                            // Ignore hidden folders if option checked
-                            if (!ignoreHiddenFolders || (ignoreHiddenFolders && (fa & FileAttributes.Hidden) != FileAttributes.Hidden)) {
-                                if (excludedSubfolders.IndexOf(Path.GetFileName(subfolder.ToLower())) == -1) {
-                                    i++;
-                                    folders.Add(subfolder);
+                            filenames = Directory.GetFiles(folder);
+                        } catch (System.UnauthorizedAccessException uae) {
+                            // Remove from folders queue
+                            this.folders.TryDequeue(out folder);
+                        }
+                        var i = 0;
+                        foreach (string filename in filenames) {
+                            i++;
+                            this.addImage(filename);
+                            if ((i % 10 == 0) && (this.bwCancelled() == true)) break;
+                        }
+                        if (!excludeSubfolders) {
+                            string[] subfolders = new string[] { };
+                            try {
+                                subfolders = Directory.GetDirectories(folder);
+                            } catch (System.UnauthorizedAccessException uae) { }
+                            i = 0;
+                            foreach (string subfolder in subfolders) {
+                                FileAttributes fa = File.GetAttributes(subfolder);
+                                // Ignore hidden folders if option checked
+                                if (!ignoreHiddenFolders || (ignoreHiddenFolders && (fa & FileAttributes.Hidden) != FileAttributes.Hidden)) {
+                                    if (excludedSubfolders.IndexOf(Path.GetFileName(subfolder.ToLower())) == -1) {
+                                        i++;
+                                        this.folders.Enqueue(subfolder);
+                                        //this.folders.Add(subfolder);
+                                    }
+                                } else {
+                                    this.fileDatabase.purgeMatchingParentPaths(subfolder);
                                 }
-                            } else {
-                                this.fileDatabase.purgeMatchingParentPaths(subfolder);
+                                if ((i % 100 == 0) && (this.bwCancelled() == true)) break;
                             }
-                            if ((i % 100 == 0) && (this.bwCancelled() == true)) break;
                         }
                     }
-                } 
-                folders.RemoveAt(0);
+                }
+                // Remove from folders queue
+                this.folders.TryDequeue(out folder);
             }
             this.fileDatabase.resetIfChangedFilter();
         }
@@ -484,16 +585,13 @@ namespace RPS {
         public void updatePath(long id, string path) {
             this.fileDatabase.updateFileNodesPath(id, path);
         }
+        
 /*
         public void addIdToMetadataQueue(long monitorId, DataRow image) {
             this.fileDatabase.addIdToMetadataQueue(monitorId, image);
         }
         */
         private void DoWorkImageFolder(object sender, DoWorkEventArgs e) {
-            this.nrFiles = 0;
-            this.nrFolders = 0;
-            this.nrUnprocessedMetadata = -1;
-
 //            Debug.WriteLine(this.config.getPersistant("folders"));
             BackgroundWorker worker = sender as BackgroundWorker;
             // Lower priority to ensure smooth working of main screensaver
@@ -501,12 +599,11 @@ namespace RPS {
             this.bwSender = sender;
             this.bwEvents = e;
             if (!this.screensaver.readOnly) {
-                var folders = Utils.stringToList(this.config.getPersistantString("folders"));
                 this.swFileScan = new System.Diagnostics.Stopwatch();
                 this.swMetadata = new System.Diagnostics.Stopwatch();
                 // Folder purge done in main thread
                 this.swFileScan.Start();
-                this.processFolders(folders);
+                this.processFolders();
                 this.swFileScan.Stop();
                 Debug.WriteLine("FileScan: " + swFileScan.ElapsedMilliseconds + "ms");
                 this.swMetadata.Start();
@@ -523,12 +620,12 @@ namespace RPS {
                 if (wallpaper.changeWallpaper()) {
                     switch (this.config.getPersistantString("wallpaperSource")) {
                         case "on": // Backwards compatability old settings
-                        case "current": 
-                            wallpaper.setWallpaper();
+                        case "current":
+                            wallpaper.generateWallpaper();
                         break;
                         case "filter":
                             string sql = this.config.getPersistantString("wallpaperSourceFilterSQL");
-                            if (sql != "") wallpaper.setWallpaperFromSQL(sql);
+                            if (sql != "") wallpaper.generateWallpaperFromSQL(sql);
                         break;
                     }
                 }
@@ -546,7 +643,7 @@ namespace RPS {
         }
 
         private string showProgress() {
-            string info = "";// = "No files found in folder(s) - Press 'S' key to show configuration screen";
+            String info = "";// = "No files found in folder(s) - Press 'S' key to show configuration screen";
             long nrImagesFiltered = this.fileDatabase.nrImagesFilter();
             long nrImagesInDb = this.fileDatabase.nrImagesInDB();
             if (nrImagesFiltered > 0 || nrImagesInDb > 0) {
@@ -568,7 +665,16 @@ namespace RPS {
             }
             try {
                 for (int i = 0; i < this.screensaver.monitors.Length; i++) {
-                    this.screensaver.monitors[i].browser.Document.InvokeScript("showIndexProgress", new String[] { info });
+
+                    if (this.screensaver.monitors[i].InvokeRequired) {
+                        MethodInvoker del = delegate { this.screensaver.monitors[i].InvokeScript("showIndexProgress", new String[] { info }); };
+                        this.screensaver.monitors[i].Invoke(del);
+
+//                        this.screensaver.monitors[i].browser.Invoke(new MethodInvoker(() => this.InvokeScript("showIndexProgress", new String[] { info })));
+//                        this.screensaver.monitors[i].InvokeScript("showIndexProgress", new String[] { info });
+                    } else {
+                        this.screensaver.monitors[i].InvokeScript("showIndexProgress", new String[] { info });
+                    }
                 }
                 // TODO: Limit exceptions?
             } catch (Exception ex) {
@@ -597,7 +703,7 @@ namespace RPS {
                 Debug.WriteLine("BackgroundWorker Error: " + e.Error.Message);
             } else {
                 if (this.screensaver.fileNodes.fileDatabase.nrImagesFilter() == 0) {
-                    this.screensaver.showInfoOnMonitors(Constants.NoImagesFound, true);
+                    this.screensaver.showInfoOnMonitors(Monitor.NoImagesFoundMessage(this.screensaver.readOnly), true);
                 }
                 this.showProgress();
                 //if (this.screensaver.monitors != null) this.screensaver.monitors[0].browser.Document.InvokeScript("dbInfo", new String[] { this.getProgress() });

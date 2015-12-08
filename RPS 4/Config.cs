@@ -220,10 +220,11 @@ namespace RPS {
             }
             if (!this.persistant.ContainsKey("filterNrLines")) this.persistant["filterNrLines"] = 0;
 
-            bool gpuRendering = ((int)Registry.GetValue("HKEY_CURRENT_USER\\" + Constants.regkeyGPURendering, Constants.regkeyExecutable, 0) == 1);
+            object regvalue = Registry.GetValue("HKEY_CURRENT_USER\\" + Constants.regkeyGPURendering, Constants.regkeyExecutable, 0);
+            bool gpuRendering = (regvalue != null && (int)regvalue == 1);
             if (this.persistant.ContainsKey("gpuRendering")) this.persistant["gpuRendering"] = gpuRendering;
             else this.persistant.Add("gpuRendering", gpuRendering);
-
+            
             //this.browser.Document.InvokeScript("initMonitorsAndFilterCount", new string[] { Convert.ToString(Screen.AllScreens.Length), Convert.ToString(this.persistant["filterNrLines"]) });
             this.browser.Document.InvokeScript("initMonitors", new string[] { Convert.ToString(Screen.AllScreens.Length) });
             
@@ -416,8 +417,11 @@ namespace RPS {
                 Registry.SetValue("HKEY_CURRENT_USER\\" + Constants.regkeyGPURendering, Constants.regkeyLauncher, 1, RegistryValueKind.DWord);
             } else {
                 RegistryKey regKey = Registry.CurrentUser.OpenSubKey(Constants.regkeyGPURendering, true);
-                regKey.DeleteValue(Constants.regkeyExecutable, false);
-                regKey.DeleteValue(Constants.regkeyLauncher, false);
+                if (regKey != null) {
+                    regKey.DeleteValue(Constants.regkeyExecutable, false);
+                    regKey.DeleteValue(Constants.regkeyLauncher, false);
+
+                }
             }
             return false;
         }
@@ -807,7 +811,7 @@ namespace RPS {
             if (this.screensaver.action == Screensaver.Actions.Wallpaper) {
                 this.screensaver.initForScreensaverAndWallpaper();
                 Wallpaper wallpaper = new Wallpaper(this.screensaver);
-                wallpaper.setWallpaper();
+                wallpaper.generateWallpaper();
                 Application.Exit();
             } else {
                 this.screensaver.initializeMonitors();
@@ -1055,6 +1059,7 @@ namespace RPS {
                         this.screensaver.showInfoOnMonitors("", true, false);
                     }
                     this.screensaver.fileNodes.purgeNotMatchingParentFolders(this.getPersistantString("folders"));
+                    this.screensaver.fileNodes.resetFoldersQueue();
                     this.screensaver.fileNodes.restartBackgroundWorkerImageFolder();
                 }
             }
@@ -1064,14 +1069,14 @@ namespace RPS {
                 Cursor.Hide();
             }
         }
-        /*
+/*        
         private void Config_Resize(object sender, EventArgs e) {
             Console.Beep();
             if (this.WindowState == FormWindowState.Minimized) {
                 this.Hide();
             }
         }
-        */
+  */      
         /*
         [STAThread]
         private void bgwCheckUpdate_DoWork(object sender, DoWorkEventArgs e) {

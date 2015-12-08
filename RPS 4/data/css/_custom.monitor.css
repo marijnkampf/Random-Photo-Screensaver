@@ -41,8 +41,8 @@
 }
 
 /*** Database and file/folder scanning progress ***/
-#dbinfo { 
-
+#indexprogress { 
+	bottom: 3em;
 }  
 
 /*** Database and file/folder scanning progress ***/

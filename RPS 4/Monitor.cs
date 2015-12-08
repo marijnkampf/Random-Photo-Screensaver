@@ -677,6 +677,11 @@ namespace RPS {
             }
         }
 
+        public static string NoImagesFoundMessage(bool readOnly) {
+            if (readOnly) return Constants.NoImagesFound + Constants.CloseOtherVersions + Constants.PressSForSetup;
+            else return Constants.NoImagesFound + Constants.PressSForSetup;
+        }
+
         /**
          * Check whether 
          *      file exists and 
@@ -705,7 +710,7 @@ namespace RPS {
                     this.screensaver.fileNodes.resetFilter();
                 }
                 if (this.screensaver.fileNodes.getNrImagesFilter() == 0) {
-                    this.screensaver.showInfoOnMonitors(Constants.NoImagesFound, true);
+                    this.screensaver.showInfoOnMonitors(Monitor.NoImagesFoundMessage(this.screensaver.readOnly), true);
                 }
                 return false;
             }

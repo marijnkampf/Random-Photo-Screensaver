@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using System.Globalization;
 using System.Collections;
+using System.Collections.Concurrent;
 
 namespace RPS {
     class Utils {
@@ -57,6 +58,21 @@ namespace RPS {
             return new List<string>(ff);
         }
 
+        public static ConcurrentQueue<string> stringToConcurrentQueue(string f) {
+            ConcurrentQueue<string> cq = new ConcurrentQueue<string>();
+
+            string[] ff = new string[] { };
+            if (f != null && f.Length > 0) {
+                ff = f.Split(new string[] { ";", System.Environment.NewLine, "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                for (int i = 0; i < ff.Length; i++) {
+                    cq.Enqueue(ff[i]);
+                }
+            }
+            return cq;
+        }
+
+           
+
         public static bool RunTaskScheduler(string taskName, string path) {
             return Utils.RunTaskScheduler(taskName, path, null);
         }
@@ -93,6 +109,11 @@ namespace RPS {
         }
 
         private static readonly char[] s_entityEndingChars = new char[] { ';', '&' };
+
+        // Ensure string has trailing slash
+        public static string addTrailingSlash(string s) {
+            return s.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        }
 
         public static string HtmlDecode(string html) {
             if (html == null) {

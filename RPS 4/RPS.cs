@@ -718,7 +718,7 @@ namespace RPS {
                                 }
                             }
                             Wallpaper wallpaper = new Wallpaper(this);
-                            wallpaper.setWallpaper(this.currentMonitor, paths);
+                            wallpaper.generateWallpaper(this.currentMonitor, paths);
                         break;
                         case Keys.X:
                             this.hideUpdateInfo();
@@ -1045,6 +1045,12 @@ namespace RPS {
                     case 'w':
                         action = Actions.Wallpaper;
                     break;
+                    case 'x':
+                        string wallpaperPath = args[1].Trim("-/\\".ToCharArray());
+                        Wallpaper.setWallpaper(wallpaperPath);
+                        Application.Exit();
+                        return;
+                    break;
 
                 }
             }
@@ -1059,7 +1065,7 @@ namespace RPS {
             switch (action) {
                 case Actions.Config:
                     Application.Run(screensaver);
-                    break;
+                break;
                 case Actions.Preview:
                     //MessageBox.Show(hwnds[0].ToString());
                     screensaver.monitors = new Monitor[hwnds.Length];
@@ -1068,7 +1074,7 @@ namespace RPS {
                     screensaver.monitors[0].PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(screensaver.PreviewKeyDown);
                     screensaver.monitors[0].browser.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(screensaver.PreviewKeyDown);
                     Application.Run(screensaver.monitors[0]);
-                    break;
+                break;
                 default:
                     Cursor.Hide();
                     Application.AddMessageFilter(new MouseMessageFilter());
@@ -1076,7 +1082,7 @@ namespace RPS {
                     MouseMessageFilter.MouseClick += new MouseEventHandler(screensaver.MouseClick);
 
                     Application.Run(screensaver);
-                    break;
+                break;
             }
         }
     }

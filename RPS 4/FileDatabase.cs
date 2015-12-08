@@ -107,7 +107,7 @@ namespace RPS {
             if (this.readOnly) return;
 
             SQLiteCommand command;
-            command = new SQLiteCommand("SELECT id, created, modified, size FROM `FileNodes` WHERE path = @path LIMIT 1;", this.dbConnector.connection);
+            command = new SQLiteCommand("SELECT id, created, modified, size FROM `FileNodes` WHERE path = @path LIMIT 1 COLLATE NOCASE;", this.dbConnector.connection);
             command.Parameters.AddWithValue("@path", fi.FullName);
             SQLiteDataReader reader = command.ExecuteReader();
             DataTable dt = new DataTable();
@@ -133,7 +133,7 @@ namespace RPS {
                                                            "VALUES (@path,  @parentpath,  @filename,  @created,  @modified,  @size) ", this.dbConnector.connection);
                 command.Parameters.AddWithValue("@path", fi.FullName);
                 // Add trailing slash so we can filter on complete paths ('c:\test\' won't match 'c:\testing\')
-                command.Parameters.AddWithValue("@parentpath", fi.DirectoryName.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar);
+                command.Parameters.AddWithValue("@parentpath", Utils.addTrailingSlash(fi.DirectoryName));
                 executeNonQuery = true;
             }
             if (executeNonQuery) { 
@@ -420,6 +420,23 @@ namespace RPS {
                 command.Parameters.AddWithValue("@filename", Path.GetFileName(path));
                 command.ExecuteNonQuery();
                 this.filterOutOfDate+=5;
+            } catch (System.Data.SQLite.SQLiteException se) {
+                if (se.ErrorCode == DBConnector.DatabaseIsLocked) {
+                    this.readOnly = true;
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public bool renameFolderPaths(string oldPath, string newPath) {
+            if (this.readOnly) return false;
+            try {
+                SQLiteCommand command = new SQLiteCommand("UPDATE `FileNodes` SET `path` = replace(`path`, @oldPath, @newPath), `parentpath` = replace(`parentpath`, @oldPath, @newPath)  WHERE `path` LIKE @oldPath;", this.dbConnector.connection);
+                command.Parameters.AddWithValue("@oldPath", oldPath);
+                command.Parameters.AddWithValue("@newPath", newPath);
+                command.ExecuteNonQuery();
+                this.filterOutOfDate += 5;
             } catch (System.Data.SQLite.SQLiteException se) {
                 if (se.ErrorCode == DBConnector.DatabaseIsLocked) {
                     this.readOnly = true;

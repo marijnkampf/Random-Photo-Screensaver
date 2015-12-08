@@ -29,7 +29,9 @@ namespace RPS {
         public const string UpdateCheckURL = "http://www.abscreensavers.com/abdownloads/rps/latestversion.php";
         public const string DownloadFolder = "downloads";
 
-        public const string NoImagesFound = "No images found in folder(s)\n\ror filter didn't return any results.\n\rPress 'S' key to enter setup";
+        public const string NoImagesFound = "No images found in folder(s)<br/>or filter didn't return any results.";
+        public const string CloseOtherVersions = "<div class='small'>(RPS is read only - close all instances of RPS including settings windows and restart RPS)</div>";
+        public const string PressSForSetup = "<p>Press 'S' key to enter setup</p>";
 
         public const string regkeyGPURendering = "SOFTWARE\\Microsoft\\Internet Explorer\\MAIN\\FeatureControl\\FEATURE_GPU_RENDERING";
         public const string regkeyExecutable = "RPS4.exe";

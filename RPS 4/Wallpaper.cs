@@ -43,7 +43,7 @@ namespace RPS {
             return true;
         }
 
-        public void setWallpaperFromSQL(string sql) {
+        public void generateWallpaperFromSQL(string sql) {
             string[] paths = new string[Screen.AllScreens.Length];
             // Run SQL limit = 10 * Screen.AllScreens.Length;
 
@@ -60,10 +60,10 @@ namespace RPS {
                 }
                 i++;
             }
-            this.setWallpaper(paths);
+            this.generateWallpaper(paths);
         }
 
-        public void setWallpaper() {
+        public void generateWallpaper() {
             string[] paths = new string[Screen.AllScreens.Length];
             for (int i = 0; i < Screen.AllScreens.Length; i++) {
                 int j = 0;
@@ -78,27 +78,27 @@ namespace RPS {
                     j++;
                 } while (paths[i] == null && j < 10);
             }
-            this.setWallpaper(paths);
+            this.generateWallpaper(paths);
         }
 
         /**
          * Set single screen wallpaper path
          **/
-        public void setWallpaper(long monitor, string path) {
+        public void generateWallpaper(long monitor, string path) {
             string[] paths = new string[Screen.AllScreens.Length];
             for (int i = 0; i < Screen.AllScreens.Length; i++) {
                 if (monitor == Screensaver.CM_ALL || monitor == i) {
                     paths[i] = path;
                 }
             }
-            this.setWallpaper(monitor, paths);
+            this.generateWallpaper(monitor, paths);
         }
 
-        public void setWallpaper(string[] paths) {
-            this.setWallpaper(Screensaver.CM_ALL, paths);
+        public void generateWallpaper(string[] paths) {
+            this.generateWallpaper(Screensaver.CM_ALL, paths);
         }
 
-        public void setWallpaper(long monitor, string[] paths) {
+        public void generateWallpaper(long monitor, string[] paths) {
             // Wallpaper will have exact size of monitors so wallpaper style (Tile, Center, Stretch, Fit, Fill) shouldn't matter
             string wallpaperPath = Constants.selectProgramAppDataFolder(Constants.WallpaperFileName);
             Rectangle r = Constants.getDesktopBounds();
@@ -188,15 +188,23 @@ namespace RPS {
                 Directory.CreateDirectory(Path.GetDirectoryName(wallpaperPath));
             }
             //try {
-                wallpaper.Save(wallpaperPath, System.Drawing.Imaging.ImageFormat.Bmp);
+            wallpaper.Save(wallpaperPath, System.Drawing.Imaging.ImageFormat.Bmp);
             //} catch(Exception ex) {}
+
+            this.screensaver.config.setPersistant("wallpaperLastChange", Convert.ToString(DateTime.Today));
+            Utils.RunTaskScheduler(@"SetWallpaper", Application.ExecutablePath, "/x \"" + wallpaperPath + "\"");
+            //Wallpaper.setWallpaper(wallpaperPath);
+        }
+
+        public static void setWallpaper(string wallpaperPath) {
             if (File.Exists(wallpaperPath)) {
                 SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, wallpaperPath, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
-                this.screensaver.config.setPersistant("wallpaperLastChange", Convert.ToString(DateTime.Today));
 
                 Registry.SetValue("HKEY_CURRENT_USER\\Control Panel\\Desktop", "TileWallpaper", "1");
                 Registry.SetValue("HKEY_CURRENT_USER\\Control Panel\\Desktop", "WallpaperStyle", "0");
             }
         }
     }
+
+
 }

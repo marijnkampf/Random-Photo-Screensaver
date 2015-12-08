@@ -249,7 +249,10 @@ function showMetadata(metadata) {
 }
 
 function showIndexProgress(info) {
-	document.getElementById("indexprogress").innerHTML = info;
+	try {
+		document.getElementById("indexprogress").innerHTML = info;
+	} catch(e) {
+	}
 }
 
 function setImageRotation(deg, scale) {

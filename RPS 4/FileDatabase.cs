@@ -307,7 +307,7 @@ namespace RPS {
             return r;
         }
 
-        public int purgeNotMatchingParentFolders(List<string> folders, bool exactMatchFolders, List<string> excludedSubfolders) {
+        public int purgeNotMatchingParentFolders(ConcurrentQueue<string> folders, bool exactMatchFolders, List<string> excludedSubfolders) {
             if (this.readOnly) return -1;
 
             string match = "%";
@@ -432,10 +432,12 @@ namespace RPS {
         public bool renameFolderPaths(string oldPath, string newPath) {
             if (this.readOnly) return false;
             try {
-                SQLiteCommand command = new SQLiteCommand("UPDATE `FileNodes` SET `path` = replace(`path`, @oldPath, @newPath), `parentpath` = replace(`parentpath`, @oldPath, @newPath)  WHERE `path` LIKE @oldPath;", this.dbConnector.connection);
+                SQLiteCommand command = new SQLiteCommand("UPDATE `FileNodes` SET `path` = replace(`path`, @oldPath, @newPath), `parentpath` = replace(`parentpath`, @oldPath, @newPath)  WHERE `path` LIKE @searchPath;", this.dbConnector.connection);
                 command.Parameters.AddWithValue("@oldPath", oldPath);
                 command.Parameters.AddWithValue("@newPath", newPath);
+                command.Parameters.AddWithValue("@searchPath", oldPath + "%");
                 command.ExecuteNonQuery();
+                Console.WriteLine(DBConnector.ToReadableString(command));
                 this.filterOutOfDate += 5;
             } catch (System.Data.SQLite.SQLiteException se) {
                 if (se.ErrorCode == DBConnector.DatabaseIsLocked) {

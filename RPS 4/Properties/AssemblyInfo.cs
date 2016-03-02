@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("www.abscreensavers.com")]               // You are required to change this information if you publicly release your project
 [assembly: AssemblyProduct("RPS 4")]                                // You are required to change this information if you publicly release your project
-[assembly: AssemblyCopyright("Copyright ©  2005-2015")]
+[assembly: AssemblyCopyright("Copyright © 2005-2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -34,4 +34,4 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("0.0.0.0")]
-[assembly: AssemblyFileVersion("4.5.9.3")]
+[assembly: AssemblyFileVersion("4.5.9.4")]

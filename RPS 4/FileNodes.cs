@@ -72,9 +72,9 @@ namespace RPS {
                 this.backgroundWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(runWorkerCompleted);
 
                 // Use local folders as this.folders is used in backgroundWorker
-                var folders = Utils.stringToList(Convert.ToString(this.config.getPersistant("folders")));             
+                //var folders = Utils.stringToConcurrentQueue(Convert.ToString(this.config.getPersistant("folders")));             
                 // Purge database in main thread rather, to avoid having to run database filter twice
-                this.purgeNotMatchingParentFolders(folders);
+                this.purgeNotMatchingParentFolders(this.folders);
 
                 this.backgroundWorker.RunWorkerAsync();
             }
@@ -84,7 +84,12 @@ namespace RPS {
             this.nrFiles = 0;
             this.nrFolders = 0;
             this.nrUnprocessedMetadata = -1;
+
+            this.watchers.Clear();
+
             this.folders = Utils.stringToConcurrentQueue(this.config.getPersistantString("folders"));
+            //this.screensaver.fileNodes.resetFoldersQueue();
+            if (this.screensaver.fileNodes != null) this.screensaver.fileNodes.purgeNotMatchingParentFolders(this.folders);
         }
         /*
         void metadataShow(ImageMetadataStatus imageMetadata) {
@@ -160,7 +165,7 @@ namespace RPS {
                     this.backgroundWorker.CancelAsync();
                 } else {
                     this.restartBackgroundWorker = false;
-
+                    this.screensaver.fileNodes.resetFoldersQueue();
                     this.backgroundWorker.RunWorkerAsync();
                 }
             }
@@ -571,10 +576,10 @@ namespace RPS {
         }
 
         public int purgeNotMatchingParentFolders(string folders) {
-            return this.purgeNotMatchingParentFolders(Utils.stringToList(folders));
+            return this.purgeNotMatchingParentFolders(Utils.stringToConcurrentQueue(folders));
         }
 
-        public int purgeNotMatchingParentFolders(List<string> folders) {
+        public int purgeNotMatchingParentFolders(ConcurrentQueue<string> folders) {
             return this.fileDatabase.purgeNotMatchingParentFolders(folders, this.screensaver.config.getPersistantBool("excludeAllSubfolders"), Utils.stringToList(this.screensaver.config.getPersistantString("excludedSubfolders")));
         }
 
@@ -694,6 +699,7 @@ namespace RPS {
             if ((e.Cancelled == true)) {
                 if (this.restartBackgroundWorker) {
                     this.restartBackgroundWorker = false;
+                    this.screensaver.fileNodes.resetFoldersQueue();
                     this.backgroundWorker.RunWorkerAsync();
                     Debug.WriteLine("BackgroundWorker Restarted");
                 } else {

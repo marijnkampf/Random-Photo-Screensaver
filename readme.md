@@ -23,7 +23,7 @@ RPS requires .Net 4.0 and Internet Explorer 8 (the latest version of IE is recom
 
 Compiling from source
 ---------------------
-The following instruction are how to compile RPS from source in Microsoft Visual Studio C# 2013. The Express Edition can be downloaded for free from: http://www.visualstudio.com/downloads/download-visual-studio-vs
+The following instruction are how to compile RPS from source in Microsoft Visual Studio C# 2015. The Express Edition can be downloaded for free from: http://www.visualstudio.com/downloads/download-visual-studio-vs
 - Download the source files from https://github.com/marijnkampf/Random-Photo-Screensaver/tree/RPS4
 - Open RPS 4.sln
 - Compile

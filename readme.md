@@ -64,7 +64,7 @@ See http://www.abscreensavers.com/random-photo-screensaver/configuration/?tab=cr
 
 License
 -------
-Copyright (C) 2005-2015 Marijn Kampf <marijn (at) abscreensavers (dot) com>
+Copyright (C) 2005-2016 Marijn Kampf <marijn (at) abscreensavers (dot) com>
 
 Random Photo Screensaver(tm) is free software (http://www.gnu.org/philosophy/free-sw.html); you can redistribute it and/or modify it under the terms of the GNU General Public License (http://www.gnu.org/licenses/gpl.html) as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
 

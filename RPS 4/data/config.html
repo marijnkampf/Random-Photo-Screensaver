@@ -372,6 +372,10 @@
 						<!--input type="text" id="quickMetadata" value="<#{ExposureTime} | #><#{FNumber} | #><#{ISO} | #><#{FocalLength}#>"/-->
 						<div class="notes">See <a class="external" target="_top" href="http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/">ExifTool TagNames</a> for EXIF/IPTC and other meta tag names that may be used.<br/>
 						Press Ctrl + C when screensaver is running to copy available meta tag names and metadata to clipboard (close configuration screen first).</div>
+
+						TODO MK Change link below to link to Monitor screen
+
+						<div class="note">You can toggle the metadata using the M key whilst RPS is running. '<a class="goToTab" data-highlight="#ignoreMouseLine, #mouseSensitivity" href="#input">Ignore mouse clicks</a>' in 'Keyboard and mouse' tab to allow control of videos<!--/a--></div>
 						<div class="keywords">metadata iptc xmp exif</div>
 					</div>
 
@@ -489,7 +493,7 @@
 					<div class="note">Clock format examples:<br/>Use hh:mm:ss for 12 hour clock<br/>Example of date and escaping text try: To\d\ay i\s D MMM YYYY<br/><a class="external" href="http://momentjs.com/docs/#year-month-and-day-tokens">See momentjs.com for date/time formatting info.</a></div>
 					<div class="set multiOnly">
 						<h2>Multi monitors</h2>
-						<label for="stretchPanoramas" title="Panoramas are only stretched to higher numbered monitors"><input type="checkbox" id="stretchPanoramas" checked /> Stretch panoramas accross multiple monitors</label>
+						<label for="stretchPanoramas" title="Panoramas are only stretched to higher numbered monitors"><input type="checkbox" id="stretchPanoramas" checked /> Stretch panoramas across multiple monitors</label>
 						<div class="set advanced">
 							<label for="stretchPanoramaTolerance">Panorama tolerance</label><input type="number" id="stretchPanoramaTolerance" value="15"/> %
 							<div class="note">Increase tolerance to include stretching of images with smaller width/height ratios.</div>
@@ -702,9 +706,12 @@
 		<div class="clear"></div>
 		<hr/>
 
-
-		<h3 class="tooltip" data-title="Setting are either applied instantly or when you close the config window and saved automatically when you exit the screensaver. This button is here by user request only."><div class="button" id="save">Save</div></h3>
-
+		<div class="readOnlySave">
+			READ ONLY
+		</div>
+		<div class="save">
+			<h3 class="tooltip" data-title="Setting are either applied instantly or when you close the config window and saved automatically when you exit the screensaver. This button is here by user request only."><div class="button" id="save">Save!!</div></h3>
+		</div>
 		<input id="sequentialStartImageId" type="hidden"/>
 		<input id="randomStartImages" type="hidden"/>
 	</form>

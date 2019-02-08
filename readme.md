@@ -3,6 +3,8 @@ Random Photo Screensaver(tm) 4
 
 Random Photo Screensaver 4 (RPS4) is a photo slideshow screensaver written in Visual Studio C#. 
 
+Download / preview
+------------------
 You can download the latest executable for Windows XP, Vista, 7 & 8/8.1 from [abScreensavers.com](http://www.abscreensavers.com/random-photo-screensaver). This also showcases some of its many features.
 
 Structure

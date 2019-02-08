@@ -1,13 +1,9 @@
 Random Photo Screensaver(tm) 4
 ==========================
 
-Random Photo Screensaver 4 (RPS4) is a photo slideshow screensaver written in Visual Studio C#.
+Random Photo Screensaver 4 (RPS4) is a photo slideshow screensaver written in Visual Studio C#. 
 
-More information including executable download for Windows XP, Vista, 7 & 8/8.1 can be found at [abScreensavers.com](http://www.abscreensavers.com/random-photo-screensaver).
-
-Random Photo Screensaver 3
---------------------------
-The source for the previous version RPS3 written in Visual Studio C++, can be found at https://github.com/marijnkampf/Random-Photo-Screensaver/tree/RPS3. It will only be updated with bug fixes no new features are added.
+You can download the latest executable for Windows XP, Vista, 7 & 8/8.1 from [abScreensavers.com](http://www.abscreensavers.com/random-photo-screensaver). This also showcases some of its many features.
 
 Structure
 ---------
@@ -19,7 +15,7 @@ Installation
 ------------
 If you only want to use the screensaver download the latest executable from [abScreensavers.com](http://www.abscreensavers.com/random-photo-screensaver). 
 
-RPS requires .Net 4.0 and Internet Explorer 8 (the latest version of IE is recommended though).
+RPS requires .Net 4.0 and Internet Explorer 8 (the latest version of IE is recommended though)
 
 Compiling from source
 ---------------------
@@ -75,3 +71,7 @@ Alternatively, Random Photo Screensaver is also available with a commercial lice
 Random Photo Screensaver is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See http://www.abscreensavers.com for more information.
+
+Random Photo Screensaver 3
+--------------------------
+The source for the previous version RPS3 written in Visual Studio C++, can be found at https://github.com/marijnkampf/Random-Photo-Screensaver/tree/RPS3. It will only be updated with bug fixes no new features are added.

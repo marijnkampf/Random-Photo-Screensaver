@@ -65,7 +65,7 @@
             this.Controls.Add(this.browser);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Config";
-            this.Text = "Configuration Random Photo Screensaver";
+            this.Text = "Configuration " + AppSettings.Name;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Config_FormClosing);
             this.VisibleChanged += new System.EventHandler(this.Config_VisibleChanged);
             //this.Resize += new System.EventHandler(this.Config_Resize);

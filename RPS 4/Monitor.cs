@@ -75,7 +75,7 @@ namespace RPS {
             this.browser.Url = new Uri(Constants.getDataFolder(Constants.MonitorHtmlFile), System.UriKind.Absolute);
             this.screensaver = screensaver;
             this.id = id;
-            this.Text = "Monitor " + Convert.ToString(this.id+1) + " " + Constants.AppName;
+            this.Text = "Monitor " + Convert.ToString(this.id+1) + " " + AppSettings.Name;
             this.history = new List<long>();
             this.browser.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.DocumentCompleted);
         }

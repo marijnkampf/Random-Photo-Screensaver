@@ -1,0 +1,29 @@
+﻿<#@ template debug="true" hostspecific="true" language="C#" #>
+<#@ output extension=".cs" #>
+<#@ include file="AppT4include.tt" #>
+using System;
+
+using System.Configuration;
+using System.Linq;
+using System.Globalization;
+using System.Text;
+
+namespace RPS
+{
+    static class AppSettings
+    {
+		<#
+			foreach(KeyValueConfigurationElement setting in configuration.AppSettings.Settings) { 
+		#>			
+		public const string <#= setting.Key #> = "<#= setting.Value #>";<# } #>
+		<# /*
+		// 
+		static public void Test() {
+			ExeConfigurationFileMap configurationFileMap = new System.Configuration.ExeConfigurationFileMap();
+			configurationFileMap.ExeConfigFilename = "D:\\programming\\vc#\\RPS4\\RPS 4\\AppSettings.config";
+			System.Configuration.Configuration configuration = ConfigurationManager.OpenMappedExeConfiguration(configurationFileMap, ConfigurationUserLevel.None);
+			
+		}
+		*/ #>
+	}
+}

@@ -241,7 +241,7 @@ namespace RPS {
             if (!this.persistant.ContainsKey("rawFolder") || this.persistant["rawFolder"] == null || Convert.ToString(this.persistant["rawFolder"]).Trim().Length == 0) {
                 string path = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), 
-                    Constants.AppName,
+                    AppSettings.Name,
                     Constants.RawCacheFolder
                 );
                     
@@ -325,7 +325,9 @@ namespace RPS {
             }
 
             string classes = null;
-            if (nrMonitors > 1) classes += " multi ";
+            if (nrMonitors > 1) classes += "multi ";
+            if (this.screensaver.readOnly) classes += "readonly ";
+
             Config.setBrowserBodyClasses(this.browser, this.screensaver.action, classes);
 
             this.browser.Document.InvokeScript("persistantConfigLoaded", new string[] { Convert.ToString(Screen.AllScreens.Length) });
@@ -887,15 +889,15 @@ namespace RPS {
                 HtmlElement he = this.webUpdateCheck.Document.GetElementById("download");
                 if (he != null) {
                     try {
-                        Utils.RunTaskScheduler(@"RunRPSUpdate", Convert.ToString(Path.Combine(Constants.getUpdateFolder(), Path.GetFileName(he.GetAttribute("href")))), null);
+                        Utils.RunTaskScheduler(@"Run" + AppSettings.Abbr + "Update", Convert.ToString(Path.Combine(Constants.getUpdateFolder(), Path.GetFileName(he.GetAttribute("href")))), null);
                         this.screensaver.OnExit();
                         this.showUpdateInfo("Running installer");
                     } catch (System.ComponentModel.Win32Exception we) {
-                        this.screensaver.showInfoOnMonitors("RPS update cancelled" + Environment.NewLine + we.Message, true, true);
+                        this.screensaver.showInfoOnMonitors(AppSettings.Abbr + " update cancelled" + Environment.NewLine + we.Message, true, true);
 
                         string clickOrKey = "Press 'U' key to update";
                         if (this.getPersistant("mouseSensitivity") == "none" || this.screensaver.action == Screensaver.Actions.Config) clickOrKey = "Click to install now";
-                        this.screensaver.showUpdateInfo("RPS " + he.GetAttribute("data-version") + " downloaded<br/><a class='exit external' target='_blank' href='file://" + Path.Combine(Constants.getUpdateFolder(), Path.GetFileName(he.GetAttribute("href"))) + "'>" + clickOrKey + "</a>.");
+                        this.screensaver.showUpdateInfo(AppSettings.Abbr + " " + he.GetAttribute("data-version") + " downloaded<br/><a class='exit external' target='_blank' href='file://" + Path.Combine(Constants.getUpdateFolder(), Path.GetFileName(he.GetAttribute("href"))) + "'>" + clickOrKey + "</a>.");
 
                         this.screensaver.resetMouseMove();
                     } 
@@ -929,7 +931,7 @@ namespace RPS {
             }
             if (this.getPersistantString("checkUpdates") == "yes") this.installUpdate();
             else {
-                string message = "RPS " + he.GetAttribute("data-version") + " downloaded<br/><a class='exit external' target='_blank' href='file://" + updatePath + "'>";
+                string message = AppSettings.Abbr + " " + he.GetAttribute("data-version") + " downloaded<br/><a class='exit external' target='_blank' href='file://" + updatePath + "'>";
                 if (this.getPersistant("mouseSensitivity") == "none" || this.screensaver.action == Screensaver.Actions.Config) {
                     message += "Click to install now</a>";
                 } else {
@@ -950,7 +952,7 @@ namespace RPS {
         private Uri getUpdateUri() {
             string param = "?v=" + Constants.getNiceVersion();
             if (this.screensaver.config.getPersistantBool("disableGoAn")) param = "?track=no";
-            return new Uri(Constants.UpdateCheckURL + param);
+            return new Uri(AppSettings.UpdateCheckURL + param);
         }
 
         public string getUpdateVersion() {
@@ -1006,7 +1008,7 @@ namespace RPS {
                                 this.DownloadFileCompleted(this, null);
                             }
                         } else {
-                            this.showUpdateInfo("Update available<br/><a href='" + he.GetAttribute("href") + "'>Download RPS " + he.GetAttribute("data-version-text") + "</a>");
+                            this.showUpdateInfo("Update available<br/><a href='" + he.GetAttribute("href") + "'>Download " + AppSettings.Abbr + " " + he.GetAttribute("data -version-text") + "</a>");
                         }
                     } else if (this.screensaver.showUpdateStatus) {
                         this.screensaver.showAllUpToDate();
@@ -1067,14 +1069,14 @@ namespace RPS {
                 Cursor.Hide();
             }
         }
-/*        
-        private void Config_Resize(object sender, EventArgs e) {
-            Console.Beep();
-            if (this.WindowState == FormWindowState.Minimized) {
-                this.Hide();
-            }
-        }
-  */      
+        /*        
+                private void Config_Resize(object sender, EventArgs e) {
+                    Console.Beep();
+                    if (this.WindowState == FormWindowState.Minimized) {
+                        this.Hide();
+                    }
+                }
+          */
         /*
         [STAThread]
         private void bgwCheckUpdate_DoWork(object sender, DoWorkEventArgs e) {
@@ -1108,7 +1110,7 @@ namespace RPS {
                                 this.DownloadFileCompleted(this, null);
                             }
                         } else {
-                            this.showUpdateInfo("Update available<br/><a href='" + he.GetAttribute("href") + "'>Download RPS " + he.GetAttribute("data-version-text") + "</a>");
+                            this.showUpdateInfo("Update available<br/><a href='" + he.GetAttribute("href") + "'>Download " + AppSettings.Abbr + " " + he.GetAttribute("data-version-text") + "</a>");
                         }
                     }
                 }

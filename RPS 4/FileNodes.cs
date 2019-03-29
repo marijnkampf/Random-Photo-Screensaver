@@ -666,7 +666,7 @@ namespace RPS {
                 }
             }
             if (this.screensaver.readOnly) {
-                info += " Read Only - RPS is already running";
+                info += " Read Only - " + AppSettings.Abbr + " is already running";
             }
             try {
                 for (int i = 0; i < this.screensaver.monitors.Length; i++) {

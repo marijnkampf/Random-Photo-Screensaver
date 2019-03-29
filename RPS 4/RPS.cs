@@ -1038,7 +1038,7 @@ namespace RPS {
                         string oldValue = "on";
                         if (Convert.ToString(Registry.GetValue("HKEY_CURRENT_USER\\Control Panel\\Desktop", "ScreenSaveActive", null)) == "0") oldValue = "off";
                         Registry.SetValue("HKEY_CURRENT_USER\\Control Panel\\Desktop", "ScreenSaveActive", setting);
-                        MessageBox.Show("Your screensaver has been truned " + value + "." + Environment.NewLine + "(It was " + oldValue + ")", Constants.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information );
+                        MessageBox.Show("Your screensaver has been turned " + value + "." + Environment.NewLine + "(It was " + oldValue + ")", AppSettings.Name, MessageBoxButtons.OK, MessageBoxIcon.Information );
                         Application.Exit();
                         return;
                     break;

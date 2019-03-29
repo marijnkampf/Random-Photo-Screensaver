@@ -11,33 +11,30 @@ namespace RPS {
     static class Constants {
         public const int DebugFileLogSize = 10;
         public const string DataFolder = "data";
-        public const string RawCacheFolder = "rawCache.rps";
+        public const string RawCacheFolder = "rawCache." + AppSettings.Abbr;
         public const string devDataFolder = "../../data";
         public const string ConfigHtmlFile = "config.html";
         public const string MonitorHtmlFile = "monitor.html";
         public const string EffectsJsonFile = "js/effects.json";
         
         public const int reloadFilters = 500;
-        public const string AppName = "Random Photo Screensaver";
         public const string DbFileName = "store.sqlite";
         public const string MetadataFileName = "meta.sqlite";
         public const string PersistantConfigFileName = "settings.sqlite";
-        public const string WallpaperFileName = "rpsBackground.bmp";
+        public const string WallpaperFileName = AppSettings.Abbr + "background.bmp";
 
         public const string ExifToolMetadataOptions = "\n-All\n-Orientation#";
 
-        public const string UpdateCheckURL = "http://www.abscreensavers.com/abdownloads/rps/latestversion.php";
         public const string DownloadFolder = "downloads";
 
         public const string NoImagesFound = "No images found in folder(s)<br/>or filter didn't return any results.";
-        public const string CloseOtherVersions = "<div class='small'>(RPS is read only - close all instances of RPS including settings windows and restart RPS)</div>";
+        public const string CloseOtherVersions = "<div class='small'>(" + AppSettings.Abbr + " is read only - close all instances of " + AppSettings.Abbr + " including settings windows and restart " + AppSettings.Abbr + ")</div>";
         public const string PressSForSetup = "<p>Press 'S' key to enter setup</p>";
 
         public const string regkeyGPURendering = "SOFTWARE\\Microsoft\\Internet Explorer\\MAIN\\FeatureControl\\FEATURE_GPU_RENDERING";
-        public const string regkeyExecutable = "RPS4.exe";
-        public const string regkeyLauncher = "Random Photo Screensaver.scr";
-
-
+        public const string regkeyExecutable = AppSettings.Abbr + "4.exe";
+        public const string regkeyLauncher = AppSettings.Name + ".scr";
+        
         public enum Orientation {
             Horizontal = 1,
             Mirror_Horizontal = 2,
@@ -246,14 +243,14 @@ CREATE UNIQUE INDEX `keys` ON `Setting` (`key` ASC);
         public static string getLocalAppDataFolder() {
             return Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                Constants.AppName
+                AppSettings.Name
             );
         }
 
         public static string getProgramDataFolder() {
             return Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                Constants.AppName
+                AppSettings.Name
             );
         }
 

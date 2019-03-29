@@ -145,6 +145,8 @@ namespace RPS {
                             i = Screen.AllScreens.Length;
                         } else {
                             bounds = Screen.AllScreens[i].Bounds;
+                            if (bounds.X < 0) bounds.X += r.Width;
+                            if (bounds.Y < 0) bounds.Y += r.Height;
                         }
 
                         g.FillRectangle(fill, bounds);
@@ -198,10 +200,10 @@ namespace RPS {
 
         public static void setWallpaper(string wallpaperPath) {
             if (File.Exists(wallpaperPath)) {
-                SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, wallpaperPath, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
-
                 Registry.SetValue("HKEY_CURRENT_USER\\Control Panel\\Desktop", "TileWallpaper", "1");
                 Registry.SetValue("HKEY_CURRENT_USER\\Control Panel\\Desktop", "WallpaperStyle", "0");
+
+                SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, wallpaperPath, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
             }
         }
     }

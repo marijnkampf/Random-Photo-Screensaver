@@ -1,12 +1,6 @@
-﻿	// D:\programming\vc#\RPS4\RPS 4\AppSettings.config 4
-			
-					
-					
-					
-		
-	//Debug.WriteLine(configuration);
-//D:\programming\vc#\RPS4
-
+﻿<#@ template debug="true" hostspecific="true" language="C#" #>
+<#@ output extension=".cs" #>
+<#@ include file="../AppT4include.tt" #>
 
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -16,11 +10,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("RPS")]                                   // You are required to change this information if you publicly release your project
-[assembly: AssemblyDescription("Random Photo Screensaver")]         // You are required to change this information if you publicly release your project
+[assembly: AssemblyTitle("<#= configuration.AppSettings.Settings["Abbr"].Value #>")]                                   // You are required to change this information if you publicly release your project
+[assembly: AssemblyDescription("<#= configuration.AppSettings.Settings["Name"].Value #>")]         // You are required to change this information if you publicly release your project
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("abScreensavers.com")]               // You are required to change this information if you publicly release your project
-[assembly: AssemblyProduct("RPS 4")]                                // You are required to change this information if you publicly release your project
+[assembly: AssemblyCompany("<#= configuration.AppSettings.Settings["Company"].Value #>")]               // You are required to change this information if you publicly release your project
+[assembly: AssemblyProduct("<#= configuration.AppSettings.Settings["Abbr"].Value #> 4")]                                // You are required to change this information if you publicly release your project
 [assembly: AssemblyCopyright("Copyright © 2005-2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -44,4 +38,4 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("0.0.0.0")]
-[assembly: AssemblyFileVersion("4.5.10.1")]
+[assembly: AssemblyFileVersion("4.5.9.4")]

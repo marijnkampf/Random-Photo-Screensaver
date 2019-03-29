@@ -1,0 +1,26 @@
+<#@ template debug="true" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Configuration" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Configuration" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Globalization" #>
+<#@ import namespace="System.Text" #>
+<#@ assembly name="EnvDTE" #>
+<#
+    var serviceProvider = Host as IServiceProvider;
+    var dte = serviceProvider.GetService(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
+    var solutionDirectory = System.IO.Path.GetDirectoryName(dte.Solution.FullName);
+
+	ExeConfigurationFileMap configurationFileMap = new System.Configuration.ExeConfigurationFileMap();
+	configurationFileMap.ExeConfigFilename = solutionDirectory + "\\RPS 4\\AppSettings.config";
+
+	System.Configuration.Configuration configuration = ConfigurationManager.OpenMappedExeConfiguration(configurationFileMap, ConfigurationUserLevel.None);
+#>
+	// <#= configurationFileMap.ExeConfigFilename + " " + configuration.AppSettings.Settings.Count #>
+<#
+			foreach(KeyValueConfigurationElement setting in configuration.AppSettings.Settings) { 
+		#>			
+		<# } #>
+
+	//Debug.WriteLine(configuration);
+//<#= solutionDirectory #>

@@ -120,8 +120,8 @@ namespace RPS {
             //}
             bool executeNonQuery = false;
             if (dt.Rows.Count > 0) {
-                if ((DateTime)dt.Rows[0]["created"] < fi.CreationTime ||
-                    (DateTime)dt.Rows[0]["modified"] < fi.LastWriteTime ||
+                if ((DateTime)dt.Rows[0]["created"] != fi.CreationTime ||
+                    (DateTime)dt.Rows[0]["modified"] != fi.LastWriteTime ||
                     (long)dt.Rows[0]["size"] != fi.Length) 
                 {
                     command = new SQLiteCommand("UPDATE `FileNodes` SET `created` = @created, `filename` = @filename, `modified` = @modified, `size` = @size, `metainfoindexed` = 0 WHERE `id` = @id", this.dbConnector.connection);

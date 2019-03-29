@@ -1,13 +1,11 @@
 Random Photo Screensaver(tm) 4
 ==========================
 
-Random Photo Screensaver 4 (RPS4) is a photo slideshow screensaver written in Visual Studio C#.
+Random Photo Screensaver 4 (RPS4) is a photo slideshow screensaver written in Visual Studio C#. 
 
-More information including executable download for Windows XP, Vista, 7 & 8/8.1 can be found at [abScreensavers.com](http://www.abscreensavers.com/random-photo-screensaver).
-
-Random Photo Screensaver 3
---------------------------
-The source for the previous version RPS3 written in Visual Studio C++, can be found at https://github.com/marijnkampf/Random-Photo-Screensaver/tree/RPS3. It will only be updated with bug fixes no new features are added.
+Download / preview
+------------------
+You can download the latest executable for Windows XP, Vista, 7 & 8/8.1 from [abScreensavers.com](http://www.abscreensavers.com/random-photo-screensaver). This also showcases some of its many features.
 
 Structure
 ---------
@@ -19,7 +17,7 @@ Installation
 ------------
 If you only want to use the screensaver download the latest executable from [abScreensavers.com](http://www.abscreensavers.com/random-photo-screensaver). 
 
-RPS requires .Net 4.0 and Internet Explorer 8 (the latest version of IE is recommended though).
+RPS requires .Net 4.0 and Internet Explorer 8 (the latest version of IE is recommended though)
 
 Compiling from source
 ---------------------
@@ -64,7 +62,7 @@ See http://www.abscreensavers.com/random-photo-screensaver/configuration/?tab=cr
 
 License
 -------
-Copyright (C) 2005-2015 Marijn Kampf <marijn (at) abscreensavers (dot) com>
+Copyright (C) 2005-2016 Marijn Kampf <marijn (at) abscreensavers (dot) com>
 
 Random Photo Screensaver(tm) is free software (http://www.gnu.org/philosophy/free-sw.html); you can redistribute it and/or modify it under the terms of the GNU General Public License (http://www.gnu.org/licenses/gpl.html) as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
 
@@ -75,3 +73,7 @@ Alternatively, Random Photo Screensaver is also available with a commercial lice
 Random Photo Screensaver is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See http://www.abscreensavers.com for more information.
+
+Random Photo Screensaver 3
+--------------------------
+The source for the previous version RPS3 written in Visual Studio C++, can be found at https://github.com/marijnkampf/Random-Photo-Screensaver/tree/RPS3. It will only be updated with bug fixes no new features are added.

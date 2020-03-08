@@ -5,7 +5,7 @@ Random Photo Screensaver 4 (RPS4) is a photo slideshow screensaver written in Vi
 
 Download / preview
 ------------------
-You can download the latest executable for Windows XP, Vista, 7 & 8/8.1 from [abScreensavers.com](http://www.abscreensavers.com/random-photo-screensaver). This also showcases some of its many features.
+You can download the latest executable for Windows 7 & 8/8.1 from [abScreensavers.com](http://www.abscreensavers.com/random-photo-screensaver). This also showcases some of its many features.
 
 Structure
 ---------
@@ -17,7 +17,7 @@ Installation
 ------------
 If you only want to use the screensaver download the latest executable from [abScreensavers.com](http://www.abscreensavers.com/random-photo-screensaver). 
 
-RPS requires .Net 4.0 and Internet Explorer 8 (the latest version of IE is recommended though)
+RPS requires .Net 4.7.2 and Internet Explorer 8 (the latest version of IE is recommended though) - You can compile it with a lower version of .NET 4.0 for Windows XP and Vista compatibility.
 
 Compiling from source
 ---------------------
@@ -31,7 +31,7 @@ History
 - 2005: RPS 1 & 2 written in Delphi
 - 2008: RPS 3 written in Visual Studio C++
 - 2014: RPS 4 written in Visual Studio C#
-    - 2014/10/17: Beta release 1
+    - See http://www.abscreensavers.com/random-photo-screensaver/version-information/ for full list of 4.X releases.
 
 Design rationale
 ----------------
@@ -62,7 +62,7 @@ See http://www.abscreensavers.com/random-photo-screensaver/configuration/?tab=cr
 
 License
 -------
-Copyright (C) 2005-2016 Marijn Kampf <marijn (at) abscreensavers (dot) com>
+Copyright (C) 2005-2020 Marijn Kampf <marijn (at) abscreensavers (dot) com>
 
 Random Photo Screensaver(tm) is free software (http://www.gnu.org/philosophy/free-sw.html); you can redistribute it and/or modify it under the terms of the GNU General Public License (http://www.gnu.org/licenses/gpl.html) as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
 
